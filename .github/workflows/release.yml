@@ -74,10 +74,7 @@ jobs:
         run: echo "::debug::${{ steps.manifest.outputs.version_number }}"
 
       - name: echo GITHUB_REF_NAME 1
-        run: echo "::debug::${ GITHUB_REF_NAME#v }"
-
-      - name: echo GITHUB_REF_NAME 2
-        run: echo "::debug::${{ GITHUB_REF_NAME#v }}"
+        run: echo "::debug::${GITHUB_REF_NAME#v}"
 
       - name: Publish
         uses: GreenTF/upload-thunderstore-package@v4
