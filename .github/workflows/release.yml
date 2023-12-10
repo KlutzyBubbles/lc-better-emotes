@@ -74,7 +74,8 @@ jobs:
         run: echo "::debug::${{ steps.manifest.outputs.version_number }}"
 
       - name: Format version number
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_STATE
 
       - name: Publish
         uses: GreenTF/upload-thunderstore-package@v4
@@ -83,7 +84,7 @@ jobs:
           description: ${{ steps.manifest.outputs.description }}
           token: ${{ secrets.THUNDERSTORE_TOKEN }}
           name: ${{ steps.manifest.outputs.name }}
-          version: "${VERSION}"
+          version: ${{ steps.version.outputs.version }}
           community: lethal-company
           repo: thunderstore.io
           categories: |
