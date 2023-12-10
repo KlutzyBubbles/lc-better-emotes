@@ -44,6 +44,14 @@ jobs:
           # end of optional handling for multi line json
           echo "packageJson=$content" >> $GITHUB_STATE
 
+      - name: echo content
+        run: |
+          content=`cat ./ModPackage/manifest.json`
+          echo "::debug::{$content}"
+
+      - name: echo packageJson
+        run: echo "::debug::{steps.set_manifest.outputs.packageJson}"
+
       - name: Test with version
         run: |
           echo "${{fromJson(steps.set_manifest.outputs.packageJson).version}}"
