@@ -84,7 +84,7 @@ jobs:
           description: ${{ steps.manifest.outputs.description }}
           token: ${{ secrets.THUNDERSTORE_TOKEN }}
           name: ${{ steps.manifest.outputs.name }}
-          version: ${{ env.GITHUB_REF_NAME }}
+          version: $GITHUB_REF_NAME
           community: lethal-company
           file: ${{ github.event.repository.name }}.zip
           repo: thunderstore.io
