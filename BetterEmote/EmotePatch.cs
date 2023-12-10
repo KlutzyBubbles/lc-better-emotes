@@ -12,7 +12,6 @@ namespace BetterEmote
         [HarmonyPostfix]
         private static void StartPostfix(PlayerControllerB __instance)
         {
-            Plugin.StaticLogger.LogInfo("StartPostfix");
             GameObject gameObject = __instance.gameObject.transform.Find("ScavengerModel").transform.Find("metarig").gameObject;
             CustomAudioAnimationEvent customAudioAnimationEvent = gameObject.AddComponent<CustomAudioAnimationEvent>();
             customAudioAnimationEvent.player = __instance;
@@ -42,7 +41,6 @@ namespace BetterEmote
                 {
                     __instance.playerBodyAnimator.runtimeAnimatorController = local;
                 }
-                Plugin.StaticLogger.LogInfo("UpdatePrefix");
                 if (Keyboard.current[keyBind_Emote3].IsPressed(0f) && !keyFlag_Emote3 && enable3)
                 {
                     keyFlag_Emote3 = true;
@@ -98,7 +96,6 @@ namespace BetterEmote
         [HarmonyPrefix]
         private static void PerformEmotePrefix(ref InputAction.CallbackContext context, int emoteID, PlayerControllerB __instance)
         {
-            Plugin.StaticLogger.LogInfo("PerformEmotePrefix");
             if (emoteID < 3 && !context.performed)
             {
                 return;
@@ -113,7 +110,6 @@ namespace BetterEmote
             {
                 if (__instance.timeSinceStartingEmote >= 0.5f)
                 {
-                    Plugin.StaticLogger.LogInfo($"Playing Emote: {emoteID}");
                     __instance.timeSinceStartingEmote = 0f;
                     __instance.performingEmote = true;
                     __instance.playerBodyAnimator.SetInteger("emoteNumber", emoteID);
