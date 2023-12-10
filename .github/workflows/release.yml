@@ -38,9 +38,9 @@ jobs:
         run: |
           content=`cat ./ModPackage/manifest.json`
           # the following lines are only required for multi line json
-          # content="${content//'%'/'%25'}"
-          # content="${content//$'\n'/'%0A'}"
-          # content="${content//$'\r'/'%0D'}"
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
           # end of optional handling for multi line json
           echo "packageJson=$content" >> $GITHUB_STATE
 
@@ -57,20 +57,29 @@ jobs:
           content="${content//$'\r'/'%0D'}"
           echo "::debug::$content"
 
-      - name: echo packageJson
-        run: echo "::debug::${{ steps.set_manifest.outputs.packageJson }}"
+      # - name: echo packageJson
+      #   run: echo "::debug::${{ steps.set_manifest.outputs.packageJson }}"
+# 
+      # - name: Test with version
+      #   run: |
+      #     echo "${{ fromJson(steps.set_manifest.outputs.packageJson).version }}"
 
-      - name: Test with version
-        run: |
-          echo "${{ fromJson(steps.set_manifest.outputs.packageJson).version }}"
+      - name: Get manifest properties
+        id: manifest
+        uses: zoexx/github-action-json-file-properties@release
+        with:
+          file_path: "./ModPackage/manifest.json"
+  
+      - name: echo version
+        run: echo "::debug::${{ steps.manifest.outputs.version }}"
 
       - name: Publish
         uses: GreenTF/upload-thunderstore-package@v4
         with:
           namespace: AngoMango
-          description: ${{ fromJson(steps.set_manifest.outputs.packageJson).description }}
+          description: ${{ steps.manifest.outputs.description }}
           token: ${{ secrets.THUNDERSTORE_TOKEN }}
-          name: ${{ fromJson(steps.set_manifest.outputs.packageJson).name }}
+          name: ${{ steps.set_manifest.outputs.name }}
           version: ${GITHUB_REF_NAME#v}
           community: lethal-company
           repo: thunderstore.io
