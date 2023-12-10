@@ -84,8 +84,9 @@ jobs:
           description: ${{ steps.manifest.outputs.description }}
           token: ${{ secrets.THUNDERSTORE_TOKEN }}
           name: ${{ steps.manifest.outputs.name }}
-          version: ${{ steps.version.outputs.version }}
+          version: ${{ env.GITHUB_REF_NAME }}
           community: lethal-company
+          file: ${{ github.event.repository.name }}.zip
           repo: thunderstore.io
           categories: |
             modpacks
