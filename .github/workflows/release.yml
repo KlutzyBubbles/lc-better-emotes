@@ -71,7 +71,13 @@ jobs:
           file_path: "./ModPackage/manifest.json"
   
       - name: echo version
-        run: echo "::debug::${{ steps.manifest.outputs.version }}"
+        run: echo "::debug::${{ steps.manifest.outputs.version_number }}"
+
+      - name: echo GITHUB_REF_NAME 1
+        run: echo "::debug::${ GITHUB_REF_NAME#v }"
+
+      - name: echo GITHUB_REF_NAME 2
+        run: echo "::debug::${{ GITHUB_REF_NAME#v }}"
 
       - name: Publish
         uses: GreenTF/upload-thunderstore-package@v4
@@ -79,7 +85,7 @@ jobs:
           namespace: AngoMango
           description: ${{ steps.manifest.outputs.description }}
           token: ${{ secrets.THUNDERSTORE_TOKEN }}
-          name: ${{ steps.set_manifest.outputs.name }}
+          name: ${{ steps.manifest.outputs.name }}
           version: ${GITHUB_REF_NAME#v}
           community: lethal-company
           repo: thunderstore.io
