@@ -33,13 +33,28 @@ jobs:
             ${{ steps.commits.outputs.value }}
           files: ${{ github.event.repository.name }}.zip
 
+      - name: Set Manifest
+        id: set_manifest
+        run: |
+          content=`cat ./ModPackage/manifest.json`
+          # the following lines are only required for multi line json
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          # end of optional handling for multi line json
+          echo "packageJson=$content" >> $GITHUB_STATE
+
+      - name: Test with version
+        run: |
+          echo "${{fromJson(steps.set_manifest.outputs.packageJson).version}}"
+
       - name: Publish
         uses: GreenTF/upload-thunderstore-package@v4
         with:
           namespace: AngoMango
-          description: ${{ fromJson("ModPackage/manifest.json").description }}
+          description: ${{ fromJson(steps.set_manifest.outputs.packageJson).description }}
           token: ${{ secrets.THUNDERSTORE_TOKEN }}
-          name: ${{ fromJson("ModPackage/manifest.json").name }}
+          name: ${{ fromJson(steps.set_manifest.outputs.packageJson).name }}
           version: ${GITHUB_REF_NAME#v}
           community: lethal-company
           repo: thunderstore.io
