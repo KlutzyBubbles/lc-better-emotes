@@ -1,0 +1,9 @@
+{
+    "name": "BetterEmotes",
+    "version_number": "1.0.0",
+    "website_url": "https://www.youtube.com/watch?v=GR6qkN5plVI",
+    "description": "[v1.1.1] Alters the integration method of more emotes and adds back fun",
+    "dependencies": [
+        "BepInEx-BepInExPack-5.4.2100"
+    ]
+}
