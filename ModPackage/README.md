@@ -1,12 +1,9 @@
 # VB Can mod
  
-Replaces the red soda can with a vb can.
+Direct modification of https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/
 
+Alters the integration method of more emotes to work better with CheckConditionsForEmote
 
-## Incompatible mods
+Remove the carrying scrap check to make emoting with one hand possible again (its fun)
 
-While this mod doesn't break other mods, it can't replace the texture if these mods are used to spawn scrap
-
-- GameMasterDevs-GameMaster
-- femboytv-LethalAdjustments
- 
+Any change suggestions or bugs you can submit an issue or contact directly :)
