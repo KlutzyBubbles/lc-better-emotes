@@ -47,14 +47,22 @@ jobs:
       - name: echo content
         run: |
           content=`cat ./ModPackage/manifest.json`
-          echo "::debug::{$content}"
+          echo "::debug::$content"
+
+      - name: echo content trunked
+        run: |
+          content=`cat ./ModPackage/manifest.json`
+          content="${content//'%'/'%25'}"
+          content="${content//$'\n'/'%0A'}"
+          content="${content//$'\r'/'%0D'}"
+          echo "::debug::$content"
 
       - name: echo packageJson
-        run: echo "::debug::{steps.set_manifest.outputs.packageJson}"
+        run: echo "::debug::${{ steps.set_manifest.outputs.packageJson }}"
 
       - name: Test with version
         run: |
-          echo "${{fromJson(steps.set_manifest.outputs.packageJson).version}}"
+          echo "${{ fromJson(steps.set_manifest.outputs.packageJson).version }}"
 
       - name: Publish
         uses: GreenTF/upload-thunderstore-package@v4
