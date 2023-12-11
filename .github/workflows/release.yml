@@ -16,7 +16,9 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Zip Folder
-        run: zip -r ${{ github.event.repository.name }}.zip ModPackage -x "*.git*" ".github/*" -j
+        run: |
+          cd ModPackage
+          zip -r ../${{ github.event.repository.name }}.zip . -x "*.git*" ".github/*"
 
       - name: Get commits since version
         id: commits
