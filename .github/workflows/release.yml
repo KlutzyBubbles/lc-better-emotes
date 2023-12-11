@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Zip Folder
-        run: zip -r ${{ github.event.repository.name }}.zip ./ModPackage/. -x "*.git*" ".github/*"
+        run: zip -r ${{ github.event.repository.name }}.zip ModPackage -x "*.git*" ".github/*" -j
 
       - name: Get commits since version
         id: commits
@@ -84,12 +84,12 @@ jobs:
           description: ${{ steps.manifest.outputs.description }}
           token: ${{ secrets.THUNDERSTORE_TOKEN }}
           name: ${{ steps.manifest.outputs.name }}
-          version: $GITHUB_REF_NAME
+          version: ${{ github.ref_name }}
           community: lethal-company
           file: ${{ github.event.repository.name }}.zip
           repo: thunderstore.io
           categories: |
-            modpacks
+            mods
             serverside
             clientside
             suits

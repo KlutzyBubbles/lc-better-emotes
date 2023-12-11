@@ -15,6 +15,7 @@ namespace BetterEmote
             GameObject gameObject = __instance.gameObject.transform.Find("ScavengerModel").transform.Find("metarig").gameObject;
             CustomAudioAnimationEvent customAudioAnimationEvent = gameObject.AddComponent<CustomAudioAnimationEvent>();
             customAudioAnimationEvent.player = __instance;
+            movSpeed = __instance.movementSpeed;
             if (_clap1 == null)
             {
                 _clap1 = animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote1.wav");
@@ -41,6 +42,9 @@ namespace BetterEmote
                 {
                     __instance.playerBodyAnimator.runtimeAnimatorController = local;
                 }
+                bool? conditionsOpt = Traverse.Create(__instance).Method("CheckConditionsForEmote").GetValue() as bool?;
+                bool conditions = conditionsOpt ?? false;
+                __instance.movementSpeed = (conditions && currentEmoteID == 4 && __instance.performingEmote) ? (movSpeed / 2f) : movSpeed;
                 if (Keyboard.current[keyBind_Emote3].IsPressed(0f) && !keyFlag_Emote3 && enable3)
                 {
                     keyFlag_Emote3 = true;
@@ -96,6 +100,7 @@ namespace BetterEmote
         [HarmonyPrefix]
         private static void PerformEmotePrefix(ref InputAction.CallbackContext context, int emoteID, PlayerControllerB __instance)
         {
+            currentEmoteID = emoteID;
             if (emoteID < 3 && !context.performed)
             {
                 return;
@@ -116,6 +121,25 @@ namespace BetterEmote
                     __instance.StartPerformingEmoteServerRpc();
                 }
             }
+        }
+
+        [HarmonyPatch(typeof(PlayerControllerB), "CheckConditionsForEmote")]
+        [HarmonyPrefix]
+        private static bool prefixCheckConditions(ref bool __result, PlayerControllerB __instance)
+        {
+            bool? isJumpingOpt = Traverse.Create(__instance).Field("isJumping").GetValue() as bool?;
+            bool isJumping = isJumpingOpt ?? false;
+            bool result;
+            if (currentEmoteID == 4)
+            {
+                __result = (!__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat);
+                result = false;
+            }
+            else
+            {
+                result = true;
+            }
+            return result;
         }
 
         public static AssetBundle animationsBundle;
@@ -155,5 +179,9 @@ namespace BetterEmote
         private static AudioClip _clap1;
 
         private static AudioClip _clap2;
+
+        private static int currentEmoteID;
+
+        private static float movSpeed;
     }
 }
