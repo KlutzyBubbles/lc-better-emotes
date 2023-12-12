@@ -5,26 +5,45 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 using BepInEx.Logging;
+using BepInEx.Bootstrap;
+using System.Collections.Generic;
 
 namespace BetterEmote
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
+        public static ManualLogSource StaticLogger;
+
+        private Harmony _harmony;
+
+        private ConfigEntry<string> config_KeyEmote3;
+        private ConfigEntry<string> config_KeyEmote4;
+        private ConfigEntry<string> config_KeyEmote5;
+        private ConfigEntry<string> config_KeyEmote6;
+
+        private ConfigEntry<bool> config_toggleEmote3;
+        private ConfigEntry<bool> config_toggleEmote4;
+        private ConfigEntry<bool> config_toggleEmote5;
+        private ConfigEntry<bool> config_toggleEmote6;
+
         private void Awake()
         {
             StaticLogger = Logger;
+            StaticLogger.LogInfo("BetterEmotes loading...");
             EmotePatch.animationsBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "BetterEmotes/animationsbundle"));
             EmotePatch.animatorBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "BetterEmotes/animatorbundle"));
             EmotePatch.local = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>("Assets/MoreEmotes/NEWmetarig.controller");
             EmotePatch.others = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>("Assets/MoreEmotes/NEWmetarigOtherPlayers.controller");
+            CustomAudioAnimationEvent.claps[0] = EmotePatch.animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote1.wav");
+            CustomAudioAnimationEvent.claps[1] = EmotePatch.animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote2.wav");
             ConfigFile();
             _harmony = new Harmony("BetterEmotes");
+            _harmony.PatchAll(typeof(InitGamePatch));
             _harmony.PatchAll(typeof(EmotePatch));
             StaticLogger.LogInfo("BetterEmotes loaded");
         }
 
-        // Token: 0x06000005 RID: 5 RVA: 0x00002178 File Offset: 0x00000378
         private void ConfigFile()
         {
             config_KeyEmote3 = Config.Bind<string>("MIDDLEFINGER", "EmoteKey", "3", "SUPPORTED KEYS A-Z | 0-9 | F1-F12 ");
@@ -44,25 +63,5 @@ namespace BetterEmote
             EmotePatch.keyBind_Emote6 = config_KeyEmote6.Value;
             EmotePatch.enable6 = config_toggleEmote6.Value;
         }
-
-        public static ManualLogSource StaticLogger;
-
-        private Harmony _harmony;
-
-        private ConfigEntry<string> config_KeyEmote3;
-
-        private ConfigEntry<string> config_KeyEmote4;
-
-        private ConfigEntry<string> config_KeyEmote5;
-
-        private ConfigEntry<string> config_KeyEmote6;
-
-        private ConfigEntry<bool> config_toggleEmote3;
-
-        private ConfigEntry<bool> config_toggleEmote4;
-
-        private ConfigEntry<bool> config_toggleEmote5;
-
-        private ConfigEntry<bool> config_toggleEmote6;
     }
 }

@@ -1,13 +1,43 @@
 ﻿using System;
+using BepInEx.Bootstrap;
+using BepInEx;
+using System.Collections.Generic;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 namespace BetterEmote
 {
     internal class EmotePatch
     {
+        public static AssetBundle animationsBundle;
+
+        public static AssetBundle animatorBundle;
+
+        public static bool enable3;
+        public static bool enable4;
+        public static bool enable5;
+        public static bool enable6;
+
+        public static string keyBind_Emote3;
+        public static string keyBind_Emote4;
+        public static string keyBind_Emote5;
+        public static string keyBind_Emote6;
+
+        private static InputAction.CallbackContext context;
+
+        public static RuntimeAnimatorController local;
+
+        public static RuntimeAnimatorController others;
+
+        private static int currentEmoteID;
+
+        private static float movSpeed;
+
+        public static bool incompatibleStuff;
+
         [HarmonyPatch(typeof(PlayerControllerB), "Start")]
         [HarmonyPostfix]
         private static void StartPostfix(PlayerControllerB __instance)
@@ -16,16 +46,6 @@ namespace BetterEmote
             CustomAudioAnimationEvent customAudioAnimationEvent = gameObject.AddComponent<CustomAudioAnimationEvent>();
             customAudioAnimationEvent.player = __instance;
             movSpeed = __instance.movementSpeed;
-            if (_clap1 == null)
-            {
-                _clap1 = animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote1.wav");
-            }
-            if (_clap2 == null)
-            {
-                _clap2 = animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote2.wav");
-            }
-            customAudioAnimationEvent.clap1 = _clap1;
-            customAudioAnimationEvent.clap2 = _clap2;
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
@@ -44,58 +64,26 @@ namespace BetterEmote
                 }
                 bool? conditionsOpt = Traverse.Create(__instance).Method("CheckConditionsForEmote").GetValue() as bool?;
                 bool conditions = conditionsOpt ?? false;
-                __instance.movementSpeed = (conditions && currentEmoteID == 4 && __instance.performingEmote) ? (movSpeed / 2f) : movSpeed;
-                if (Keyboard.current[keyBind_Emote3].IsPressed(0f) && !keyFlag_Emote3 && enable3)
+                currentEmoteID = __instance.playerBodyAnimator.GetInteger("emoteNumber");
+                if (!incompatibleStuff)
                 {
-                    keyFlag_Emote3 = true;
-                    __instance.PerformEmote(context, 3);
+                    __instance.movementSpeed = (conditions && currentEmoteID == 4 && __instance.performingEmote) ? (movSpeed / 2f) : movSpeed;
                 }
-                else
-                {
-                    if (!Keyboard.current[keyBind_Emote3].IsPressed(0f))
-                    {
-                        keyFlag_Emote3 = false;
-                    }
-                }
-                if (Keyboard.current[keyBind_Emote4].IsPressed(0f) && !keyFlag_Emote4 && enable4)
-                {
-                    keyFlag_Emote4 = true;
-                    __instance.PerformEmote(context, 4);
-                }
-                else
-                {
-                    if (!Keyboard.current[keyBind_Emote4].IsPressed(0f))
-                    {
-                        keyFlag_Emote4 = false;
-                    }
-                }
-                if (Keyboard.current[keyBind_Emote5].IsPressed(0f) && !keyFlag_Emote5 && enable5)
-                {
-                    keyFlag_Emote5 = true;
-                    __instance.PerformEmote(context, 5);
-                }
-                else
-                {
-                    if (!Keyboard.current[keyBind_Emote5].IsPressed(0f))
-                    {
-                        keyFlag_Emote5 = false;
-                    }
-                }
-                if (Keyboard.current[keyBind_Emote6].IsPressed(0f) && !keyFlag_Emote6 && enable6)
-                {
-                    keyFlag_Emote6 = true;
-                    __instance.PerformEmote(context, 6);
-                }
-                else
-                {
-                    if (!Keyboard.current[keyBind_Emote6].IsPressed(0f))
-                    {
-                        keyFlag_Emote6 = false;
-                    }
-                }
+                CheckEmoteInput(keyBind_Emote3, enable3, 3, __instance);
+                CheckEmoteInput(keyBind_Emote4, enable4, 4, __instance);
+                CheckEmoteInput(keyBind_Emote5, enable5, 5, __instance);
+                CheckEmoteInput(keyBind_Emote6, enable6, 6, __instance);
             }
         }
-        
+
+        private static void CheckEmoteInput(string keyBind, bool enabled, int emoteID, PlayerControllerB player)
+        {
+            if (Keyboard.current[keyBind].IsPressed(0f) && enabled && (!player.performingEmote || currentEmoteID != emoteID))
+            {
+                player.PerformEmote(context, emoteID);
+            }
+        }
+
         [HarmonyPatch(typeof(PlayerControllerB), "PerformEmote")]
         [HarmonyPrefix]
         private static void PerformEmotePrefix(ref InputAction.CallbackContext context, int emoteID, PlayerControllerB __instance)
@@ -141,47 +129,5 @@ namespace BetterEmote
             }
             return result;
         }
-
-        public static AssetBundle animationsBundle;
-
-        public static AssetBundle animatorBundle;
-
-        private static bool keyFlag_Emote3;
-
-        public static bool enable3;
-
-        private static bool keyFlag_Emote4;
-
-        public static bool enable4;
-
-        private static bool keyFlag_Emote5;
-
-        public static bool enable5;
-
-        private static bool keyFlag_Emote6;
-
-        public static bool enable6;
-
-        public static string keyBind_Emote3;
-
-        public static string keyBind_Emote4;
-
-        public static string keyBind_Emote5;
-
-        public static string keyBind_Emote6;
-
-        private static InputAction.CallbackContext context;
-
-        public static RuntimeAnimatorController local;
-
-        public static RuntimeAnimatorController others;
-
-        private static AudioClip _clap1;
-
-        private static AudioClip _clap2;
-
-        private static int currentEmoteID;
-
-        private static float movSpeed;
     }
 }
