@@ -13,10 +13,9 @@ Modification of https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/
 - Any change suggestions or bugs you can submit an issue or contact directly :)
 
 ## CUSTOM BINDS ⚙
-### Open ```BepInEx/config/MoreEmotes.cfg``` with a text editor.
-Change the ```EmoteKey``` value to any of these supported characters ***A-Z | 0-9 | F1-F12***.
+### Bindings have moved to the in-game bindings under settings
 
-Toggle any keybind by setting ```Enable``` to ```true``` or ```false```
+Enabling/Dsiabling emotes can still be found in the config as well as griddy speed and emote cooldown
 
 ## ANIMATIONS 👨‍🦯
 #### Middle Finger - Default Key: ```3```

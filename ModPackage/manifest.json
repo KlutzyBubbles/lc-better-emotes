@@ -1,6 +1,6 @@
 {
     "name": "BetterEmotes",
-    "version_number": "1.1.0",
+    "version_number": "1.1.1",
     "website_url": "https://github.com/KlutzyBubbles/lc-better-emotes",
     "description": "[Supports In-game keybinding] Alters the integration method of more emotes and adds back fun as well as other config options",
     "dependencies": [
