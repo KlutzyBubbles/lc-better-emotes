@@ -1,12 +1,7 @@
 ﻿using BepInEx.Bootstrap;
 using BepInEx;
-using GameNetcodeStuff;
 using HarmonyLib;
-using System;
 using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-using static UnityEngine.Mesh;
 
 namespace BetterEmote
 {

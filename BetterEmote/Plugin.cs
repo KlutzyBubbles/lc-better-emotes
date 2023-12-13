@@ -5,8 +5,6 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 using BepInEx.Logging;
-using BepInEx.Bootstrap;
-using System.Collections.Generic;
 
 namespace BetterEmote
 {
@@ -16,16 +14,6 @@ namespace BetterEmote
         public static ManualLogSource StaticLogger;
 
         private Harmony _harmony;
-
-        private ConfigEntry<string> config_KeyEmote3;
-        private ConfigEntry<string> config_KeyEmote4;
-        private ConfigEntry<string> config_KeyEmote5;
-        private ConfigEntry<string> config_KeyEmote6;
-
-        private ConfigEntry<bool> config_toggleEmote3;
-        private ConfigEntry<bool> config_toggleEmote4;
-        private ConfigEntry<bool> config_toggleEmote5;
-        private ConfigEntry<bool> config_toggleEmote6;
 
         private void Awake()
         {
@@ -46,22 +34,20 @@ namespace BetterEmote
 
         private void ConfigFile()
         {
-            config_KeyEmote3 = Config.Bind<string>("MIDDLEFINGER", "EmoteKey", "3", "SUPPORTED KEYS A-Z | 0-9 | F1-F12 ");
-            config_toggleEmote3 = Config.Bind<bool>("MIDDLEFINGER", "Enable", true, "TOGGLE MIDDLEFINGER EMOTE KEY");
-            EmotePatch.keyBind_Emote3 = config_KeyEmote3.Value;
-            EmotePatch.enable3 = config_toggleEmote3.Value;
-            config_KeyEmote4 = Config.Bind<string>("THE GRIDDY", "EmoteKey", "6", "SUPPORTED KEYS A-Z | 0-9 | F1-F12 ");
-            config_toggleEmote4 = Config.Bind<bool>("THE GRIDDY", "Enable", true, "TOGGLE THE GRIDDY EMOTE KEY");
-            EmotePatch.keyBind_Emote4 = config_KeyEmote4.Value;
-            EmotePatch.enable4 = config_toggleEmote4.Value;
-            config_KeyEmote5 = Config.Bind<string>("SHY", "EmoteKey", "5", "SUPPORTED KEYS A-Z | 0-9 | F1-F12 ");
-            config_toggleEmote5 = Config.Bind<bool>("SHY", "Enable", true, "TOGGLE SHY EMOTE KEY");
-            EmotePatch.keyBind_Emote5 = config_KeyEmote5.Value;
-            EmotePatch.enable5 = config_toggleEmote5.Value;
-            config_KeyEmote6 = Config.Bind<string>("CLAP", "EmoteKey", "4", "SUPPORTED KEYS A-Z | 0-9 | F1-F12 ");
-            config_toggleEmote6 = Config.Bind<bool>("CLAP", "Enable", true, "TOGGLE CLAP EMOTE KEY");
-            EmotePatch.keyBind_Emote6 = config_KeyEmote6.Value;
-            EmotePatch.enable6 = config_toggleEmote6.Value;
+            ConfigEntry<bool> configMiddlefinger = Config.Bind<bool>("Enabled Emotes", "Enable Middlefinger", true, "TOGGLE MIDDLEFINGER EMOTE KEY");
+            EmotePatch.enableMiddlefinger = configMiddlefinger.Value;
+            ConfigEntry<bool> configGriddy = Config.Bind<bool>("Enabled Emotes", "Enable Griddy", true, "TOGGLE THE GRIDDY EMOTE KEY");
+            EmotePatch.enableGriddy = configGriddy.Value;
+            ConfigEntry<bool> configShy = Config.Bind<bool>("Enabled Emotes", "Enable Shy", true, "TOGGLE SHY EMOTE KEY");
+            EmotePatch.enableShy = configShy.Value;
+            ConfigEntry<bool> configClap = Config.Bind<bool>("Enabled Emotes", "Enable Clap", true, "TOGGLE CLAP EMOTE KEY");
+            EmotePatch.enableClap = configClap.Value;
+
+            ConfigEntry<float> configGriddySpeed = Config.Bind<float>("Emote Settings", "Griddy Speed", 0.5f, "Speed of griddy relative to regular speed");
+            EmotePatch.griddySpeed = configGriddySpeed.Value;
+
+            ConfigEntry<float> configEmoteCooldown = Config.Bind<float>("Emote Settings", "Cooldown", 0.5f, "Time (in seconds) to wait before being able to switch emotes");
+            EmotePatch.emoteCooldown = configEmoteCooldown.Value;
         }
     }
 }

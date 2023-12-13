@@ -1,30 +1,30 @@
-﻿using System;
-using BepInEx.Bootstrap;
-using BepInEx;
-using System.Collections.Generic;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 namespace BetterEmote
 {
     internal class EmotePatch
     {
+        public static Keybinds keybinds = new Keybinds();
+
         public static AssetBundle animationsBundle;
 
         public static AssetBundle animatorBundle;
 
-        public static bool enable3;
-        public static bool enable4;
-        public static bool enable5;
-        public static bool enable6;
+        public static bool enableMiddlefinger;
+        public static bool enableGriddy;
+        public static bool enableShy;
+        public static bool enableClap;
 
-        public static string keyBind_Emote3;
-        public static string keyBind_Emote4;
-        public static string keyBind_Emote5;
-        public static string keyBind_Emote6;
+        public static float griddySpeed = 0.5f;
+        public static float emoteCooldown = 0.5f;
+
+        private static int middlefingerID = 3;
+        private static int griddyID = 4;
+        private static int shyID = 5;
+        private static int clapID = 6;
 
         private static InputAction.CallbackContext context;
 
@@ -46,6 +46,22 @@ namespace BetterEmote
             CustomAudioAnimationEvent customAudioAnimationEvent = gameObject.AddComponent<CustomAudioAnimationEvent>();
             customAudioAnimationEvent.player = __instance;
             movSpeed = __instance.movementSpeed;
+            keybinds.MiddleFinger.performed += delegate
+            {
+                CheckEmoteInput(enableMiddlefinger, middlefingerID, __instance);
+            };
+            keybinds.Griddy.performed += delegate
+            {
+                CheckEmoteInput(enableGriddy, griddyID, __instance);
+            };
+            keybinds.Shy.performed += delegate
+            {
+                CheckEmoteInput(enableShy, shyID, __instance);
+            };
+            keybinds.Clap.performed += delegate
+            {
+                CheckEmoteInput(enableClap, clapID, __instance);
+            };
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
@@ -67,18 +83,14 @@ namespace BetterEmote
                 currentEmoteID = __instance.playerBodyAnimator.GetInteger("emoteNumber");
                 if (!incompatibleStuff)
                 {
-                    __instance.movementSpeed = (conditions && currentEmoteID == 4 && __instance.performingEmote) ? (movSpeed / 2f) : movSpeed;
+                    __instance.movementSpeed = (conditions && currentEmoteID == griddyID && __instance.performingEmote) ? (movSpeed * (griddySpeed)) : movSpeed;
                 }
-                CheckEmoteInput(keyBind_Emote3, enable3, 3, __instance);
-                CheckEmoteInput(keyBind_Emote4, enable4, 4, __instance);
-                CheckEmoteInput(keyBind_Emote5, enable5, 5, __instance);
-                CheckEmoteInput(keyBind_Emote6, enable6, 6, __instance);
             }
         }
 
-        private static void CheckEmoteInput(string keyBind, bool enabled, int emoteID, PlayerControllerB player)
+        private static void CheckEmoteInput(bool enabled, int emoteID, PlayerControllerB player)
         {
-            if (Keyboard.current[keyBind].IsPressed(0f) && enabled && (!player.performingEmote || currentEmoteID != emoteID))
+            if (enabled)
             {
                 player.PerformEmote(context, emoteID);
             }
@@ -101,7 +113,7 @@ namespace BetterEmote
             bool conditions = conditionsOpt ?? false;
             if (conditions)
             {
-                if (__instance.timeSinceStartingEmote >= 0.5f)
+                if (__instance.timeSinceStartingEmote >= emoteCooldown)
                 {
                     __instance.timeSinceStartingEmote = 0f;
                     __instance.performingEmote = true;
@@ -118,7 +130,7 @@ namespace BetterEmote
             bool? isJumpingOpt = Traverse.Create(__instance).Field("isJumping").GetValue() as bool?;
             bool isJumping = isJumpingOpt ?? false;
             bool result;
-            if (currentEmoteID == 4)
+            if (currentEmoteID == griddyID)
             {
                 __result = (!__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat);
                 result = false;
