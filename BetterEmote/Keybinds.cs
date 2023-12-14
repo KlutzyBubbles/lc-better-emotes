@@ -16,5 +16,11 @@ namespace BetterEmote
 
         [InputAction("<Keyboard>/4", Name = "Clap")]
         public InputAction Clap { get; set; }
+
+        [InputAction("<Keyboard>/7", Name = "Salute")]
+        public InputAction Salute { get; set; }
+
+        [InputAction("<Keyboard>/8", Name = "Twerk")]
+        public InputAction Twerk { get; set; }
     }
 }

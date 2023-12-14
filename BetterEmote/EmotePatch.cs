@@ -13,10 +13,12 @@ namespace BetterEmote
 
         public static AssetBundle animatorBundle;
 
-        public static bool enableMiddlefinger;
-        public static bool enableGriddy;
-        public static bool enableShy;
-        public static bool enableClap;
+        public static bool enableMiddlefinger = true;
+        public static bool enableGriddy = true;
+        public static bool enableShy = true;
+        public static bool enableClap = true;
+        public static bool enableSalute = true;
+        public static bool enableTwerk = true;
 
         public static float griddySpeed = 0.5f;
         public static float emoteCooldown = 0.5f;
@@ -25,6 +27,8 @@ namespace BetterEmote
         private static int griddyID = 4;
         private static int shyID = 5;
         private static int clapID = 6;
+        private static int saluteID = 8;
+        private static int twerkID = 7;
 
         private static InputAction.CallbackContext context;
 
@@ -61,6 +65,14 @@ namespace BetterEmote
             keybinds.Clap.performed += delegate
             {
                 CheckEmoteInput(enableClap, clapID, __instance);
+            };
+            keybinds.Salute.performed += delegate
+            {
+                CheckEmoteInput(enableSalute, saluteID, __instance);
+            };
+            keybinds.Twerk.performed += delegate
+            {
+                CheckEmoteInput(enableTwerk, twerkID, __instance);
             };
         }
 

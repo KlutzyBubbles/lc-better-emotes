@@ -42,6 +42,10 @@ namespace BetterEmote
             EmotePatch.enableShy = configShy.Value;
             ConfigEntry<bool> configClap = Config.Bind<bool>("Enabled Emotes", "Enable Clap", true, "TOGGLE CLAP EMOTE KEY");
             EmotePatch.enableClap = configClap.Value;
+            ConfigEntry<bool> configSalute = Config.Bind<bool>("Enabled Emotes", "Enable Salute", true, "TOGGLE SALUTE EMOTE KEY");
+            EmotePatch.enableSalute = configSalute.Value;
+            ConfigEntry<bool> configTwerk = Config.Bind<bool>("Enabled Emotes", "Enable Twerk", true, "TOGGLE TWERK EMOTE KEY");
+            EmotePatch.enableTwerk = configTwerk.Value;
 
             ConfigEntry<float> configGriddySpeed = Config.Bind<float>("Emote Settings", "Griddy Speed", 0.5f, "Speed of griddy relative to regular speed");
             EmotePatch.griddySpeed = configGriddySpeed.Value;
