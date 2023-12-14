@@ -22,5 +22,8 @@ namespace BetterEmote
 
         [InputAction("<Keyboard>/8", Name = "Twerk")]
         public InputAction Twerk { get; set; }
+
+        [InputAction("<Keyboard>/v", Name = "Emote Wheel")]
+        public InputAction EmoteWheel { get; set; }
     }
 }

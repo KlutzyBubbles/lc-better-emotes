@@ -5,6 +5,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 using BepInEx.Logging;
+using System;
 
 namespace BetterEmote
 {
@@ -34,24 +35,21 @@ namespace BetterEmote
 
         private void ConfigFile()
         {
-            ConfigEntry<bool> configMiddlefinger = Config.Bind<bool>("Enabled Emotes", "Enable Middlefinger", true, "TOGGLE MIDDLEFINGER EMOTE KEY");
-            EmotePatch.enableMiddlefinger = configMiddlefinger.Value;
-            ConfigEntry<bool> configGriddy = Config.Bind<bool>("Enabled Emotes", "Enable Griddy", true, "TOGGLE THE GRIDDY EMOTE KEY");
-            EmotePatch.enableGriddy = configGriddy.Value;
-            ConfigEntry<bool> configShy = Config.Bind<bool>("Enabled Emotes", "Enable Shy", true, "TOGGLE SHY EMOTE KEY");
-            EmotePatch.enableShy = configShy.Value;
-            ConfigEntry<bool> configClap = Config.Bind<bool>("Enabled Emotes", "Enable Clap", true, "TOGGLE CLAP EMOTE KEY");
-            EmotePatch.enableClap = configClap.Value;
-            ConfigEntry<bool> configSalute = Config.Bind<bool>("Enabled Emotes", "Enable Salute", true, "TOGGLE SALUTE EMOTE KEY");
-            EmotePatch.enableSalute = configSalute.Value;
-            ConfigEntry<bool> configTwerk = Config.Bind<bool>("Enabled Emotes", "Enable Twerk", true, "TOGGLE TWERK EMOTE KEY");
-            EmotePatch.enableTwerk = configTwerk.Value;
+            EmotePatch.enabledList = new bool[Enum.GetNames(typeof(EmotePatch.Emotes)).Length + 1];
+            foreach (string name in Enum.GetNames(typeof(EmotePatch.Emotes)))
+            {
+                ConfigEntry<bool> config = Config.Bind("Enabled Emotes", $"Enable {name}", true, $"Toggle {name} emote key");
+                EmotePatch.enabledList[(int)Enum.Parse(typeof(EmotePatch.Emotes), name)] = config.Value;
+            }
 
-            ConfigEntry<float> configGriddySpeed = Config.Bind<float>("Emote Settings", "Griddy Speed", 0.5f, "Speed of griddy relative to regular speed");
+            ConfigEntry<float> configGriddySpeed = Config.Bind("Emote Settings", "Griddy Speed", 0.5f, "Speed of griddy relative to regular speed");
             EmotePatch.griddySpeed = configGriddySpeed.Value;
 
-            ConfigEntry<float> configEmoteCooldown = Config.Bind<float>("Emote Settings", "Cooldown", 0.5f, "Time (in seconds) to wait before being able to switch emotes");
+            ConfigEntry<float> configEmoteCooldown = Config.Bind("Emote Settings", "Cooldown", 0.5f, "Time (in seconds) to wait before being able to switch emotes");
             EmotePatch.emoteCooldown = configEmoteCooldown.Value;
+
+            ConfigEntry<bool> configEmoteStop = Config.Bind("Emote Settings", "Stop on outer", false, "Whether or not to stop emoting when mousing to outside the emote wheel");
+            EmotePatch.stopOnOuter = configEmoteStop.Value;
         }
     }
 }
