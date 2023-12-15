@@ -51,6 +51,15 @@ namespace BetterEmote
             Salute = 8
         }
 
+        private static PlayerControllerB localPlayerController
+        {
+            get
+            {
+                StartOfRound instance = StartOfRound.Instance;
+                return (instance != null) ? instance.localPlayerController : null;
+            }
+        }
+
         [HarmonyPatch(typeof(PlayerControllerB), "Start")]
         [HarmonyPostfix]
         private static void StartPostfix(PlayerControllerB __instance)
@@ -75,64 +84,109 @@ namespace BetterEmote
                     SelectionWheel.emoteNames[(int)Enum.Parse(typeof(Emotes), name) - 1] = name;
                 }
             }
-            keybinds.MiddleFinger.performed += delegate
+            keybinds.MiddleFinger.performed += onEmoteKeyMiddleFinger;
+            keybinds.Griddy.performed += onEmoteKeyGriddy;
+            keybinds.Shy.performed += onEmoteKeyShy;
+            keybinds.Clap.performed += onEmoteKeyClap;
+            keybinds.Salute.performed += onEmoteKeySalute;
+            keybinds.Twerk.performed += onEmoteKeyTwerk;
+            keybinds.EmoteWheel.started += onEmoteKeyWheelStarted;
+            keybinds.EmoteWheel.canceled += onEmoteKeyWheelCanceled;
+        }
+
+        [HarmonyPatch(typeof(PlayerControllerB), "OnDisable")]
+        [HarmonyPostfix]
+        public static void OnDisablePostfix(PlayerControllerB __instance)
+        {
+            if (__instance == localPlayerController)
             {
-                CheckEmoteInput(enabledList[(int)Emotes.Middle_Finger], (int)Emotes.Middle_Finger, __instance);
-            };
-            keybinds.Griddy.performed += delegate
+                keybinds.MiddleFinger.performed -= onEmoteKeyMiddleFinger;
+                keybinds.Griddy.performed -= onEmoteKeyGriddy;
+                keybinds.Shy.performed -= onEmoteKeyShy;
+                keybinds.Clap.performed -= onEmoteKeyClap;
+                keybinds.Salute.performed -= onEmoteKeySalute;
+                keybinds.Twerk.performed -= onEmoteKeyTwerk;
+                keybinds.EmoteWheel.started -= onEmoteKeyWheelStarted;
+                keybinds.EmoteWheel.canceled -= onEmoteKeyWheelCanceled;
+                keybinds.MiddleFinger.Disable();
+                keybinds.Griddy.Disable();
+                keybinds.Shy.Disable();
+                keybinds.Clap.Disable();
+                keybinds.Salute.Disable();
+                keybinds.Twerk.Disable();
+                keybinds.EmoteWheel.Disable();
+            }
+        }
+
+        public static void onEmoteKeyWheelStarted(InputAction.CallbackContext context)
+        {
+            if (!emoteWheelIsOpened && !localPlayerController.isPlayerDead && !localPlayerController.inTerminalMenu && !localPlayerController.quickMenuManager.isMenuOpen)
             {
-                CheckEmoteInput(enabledList[(int)Emotes.Griddy], (int)Emotes.Griddy, __instance);
-            };
-            keybinds.Shy.performed += delegate
-            {
-                CheckEmoteInput(enabledList[(int)Emotes.Shy], (int)Emotes.Shy, __instance);
-            };
-            keybinds.Clap.performed += delegate
-            {
-                CheckEmoteInput(enabledList[(int)Emotes.Clap], (int)Emotes.Clap, __instance);
-            };
-            keybinds.Salute.performed += delegate
-            {
-                CheckEmoteInput(enabledList[(int)Emotes.Salute], (int)Emotes.Salute, __instance);
-            };
-            keybinds.Twerk.performed += delegate
-            {
-                CheckEmoteInput(enabledList[(int)Emotes.Twerk], (int)Emotes.Twerk, __instance);
-            };
-            keybinds.EmoteWheel.started += delegate
-            {
-                if (!emoteWheelIsOpened && !__instance.isPlayerDead && !__instance.inTerminalMenu && !__instance.quickMenuManager.isMenuOpen)
-                {
-                    emoteWheelIsOpened = true;
-                    Cursor.visible = true;
-                    Cursor.lockState = CursorLockMode.Confined;
-                    wheel.SetActive(emoteWheelIsOpened);
-                    __instance.quickMenuManager.isMenuOpen = true;
-                    __instance.disableLookInput = true;
-                }
-            };
-            keybinds.EmoteWheel.canceled += delegate
-            {
-                __instance.quickMenuManager.isMenuOpen = false;
-                __instance.disableLookInput = false;
-                if (selectionWheel.selectedEmoteID >= enabledList.Length)
-                {
-                    if (selectionWheel.stopEmote)
-                    {
-                        __instance.performingEmote = false;
-                        __instance.StopPerformingEmoteServerRpc();
-                        __instance.timeSinceStartingEmote = 0f;
-                    }
-                }
-                else
-                {
-                    CheckEmoteInput(enabledList[selectionWheel.selectedEmoteID], selectionWheel.selectedEmoteID, __instance);
-                }
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked;
-                emoteWheelIsOpened = false;
+                emoteWheelIsOpened = true;
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.Confined;
                 wheel.SetActive(emoteWheelIsOpened);
-            };
+                localPlayerController.quickMenuManager.isMenuOpen = true;
+                localPlayerController.disableLookInput = true;
+            }
+        }
+
+        public static void onEmoteKeyWheelCanceled(InputAction.CallbackContext context)
+        {
+            localPlayerController.quickMenuManager.isMenuOpen = false;
+            localPlayerController.disableLookInput = false;
+            if (selectionWheel.selectedEmoteID >= enabledList.Length)
+            {
+                if (selectionWheel.stopEmote)
+                {
+                    localPlayerController.performingEmote = false;
+                    localPlayerController.StopPerformingEmoteServerRpc();
+                    localPlayerController.timeSinceStartingEmote = 0f;
+                }
+            }
+            else
+            {
+                CheckEmoteInput(enabledList[selectionWheel.selectedEmoteID], selectionWheel.selectedEmoteID, localPlayerController);
+            }
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            emoteWheelIsOpened = false;
+            wheel.SetActive(emoteWheelIsOpened);
+        }
+
+        public static void onEmoteKeyMiddleFinger(InputAction.CallbackContext context)
+        {
+            onEmoteKeyPerformed(Emotes.Middle_Finger);
+        }
+
+        public static void onEmoteKeyGriddy(InputAction.CallbackContext context)
+        {
+            onEmoteKeyPerformed(Emotes.Griddy);
+        }
+
+        public static void onEmoteKeyShy(InputAction.CallbackContext context)
+        {
+            onEmoteKeyPerformed(Emotes.Shy);
+        }
+
+        public static void onEmoteKeyClap(InputAction.CallbackContext context)
+        {
+            onEmoteKeyPerformed(Emotes.Clap);
+        }
+
+        public static void onEmoteKeySalute(InputAction.CallbackContext context)
+        {
+            onEmoteKeyPerformed(Emotes.Salute);
+        }
+
+        public static void onEmoteKeyTwerk(InputAction.CallbackContext context)
+        {
+            onEmoteKeyPerformed(Emotes.Twerk);
+        }
+
+        public static void onEmoteKeyPerformed(Emotes emote)
+        {
+            CheckEmoteInput(enabledList[(int)emote], (int)emote, localPlayerController);
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]

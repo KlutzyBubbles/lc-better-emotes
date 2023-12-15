@@ -1,5 +1,9 @@
 # BetterEmotes
 
+## Issues (incompatiblities)
+
+Players might find some inconsistant behaviour with TooManyEmotes. I have altered the code to allow compatiblity with TooManyEmotes but i have no control over how the two interact and am working towards a fix. More emotes works slightly better but also has issues.
+
 Moving from 1.0.x to 1.1.x changes the config layout.
 
 Modification of https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/
