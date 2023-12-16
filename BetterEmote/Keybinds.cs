@@ -1,29 +1,40 @@
 ﻿using LethalCompanyInputUtils.Api;
+using System;
 using UnityEngine.InputSystem;
 
 namespace BetterEmote
 {
     internal class Keybinds : LcInputActions
     {
-        [InputAction("<Keyboard>/3", Name = "Middle Finger")]
-        public InputAction MiddleFinger { get; set; }
+        public InputAction MiddleFinger => Asset["Middle_Finger"];
+        public InputAction Clap => Asset["Clap"];
+        public InputAction Shy => Asset["Shy"];
+        public InputAction Griddy => Asset["Griddy"];
+        public InputAction Twerk => Asset["Twerk"];
+        public InputAction Salute => Asset["Salute"];
+        public InputAction EmoteWheel => Asset["EmoteWheel"];
 
-        [InputAction("<Keyboard>/6", Name = "Griddy")]
-        public InputAction Griddy { get; set; }
-
-        [InputAction("<Keyboard>/5", Name = "Shy")]
-        public InputAction Shy { get; set; }
-
-        [InputAction("<Keyboard>/4", Name = "Clap")]
-        public InputAction Clap { get; set; }
-
-        [InputAction("<Keyboard>/7", Name = "Salute")]
-        public InputAction Salute { get; set; }
-
-        [InputAction("<Keyboard>/8", Name = "Twerk")]
-        public InputAction Twerk { get; set; }
-
-        [InputAction("<Keyboard>/v", Name = "Emote Wheel")]
-        public InputAction EmoteWheel { get; set; }
+        public override void CreateInputActions(in InputActionMapBuilder builder)
+        {
+            base.CreateInputActions(builder);
+            foreach (string name in Enum.GetNames(typeof(EmotePatch.Emotes)))
+            {
+                if ((int)Enum.Parse(typeof(EmotePatch.Emotes), name) > 2)
+                {
+                    builder.NewActionBinding()
+                        .WithActionId(name)
+                        .WithActionType(InputActionType.Button)
+                        .WithKbmPath(EmotePatch.defaultKeyList[(int)Enum.Parse(typeof(EmotePatch.Emotes), name)])
+                        .WithBindingName(name)
+                        .Finish();
+                }
+            }
+            builder.NewActionBinding()
+                .WithActionId("EmoteWheel")
+                .WithActionType(InputActionType.Button)
+                .WithKbmPath(EmotePatch.emoteWheelKey)
+                .WithBindingName("Emote Wheel")
+                .Finish();
+        }
     }
 }

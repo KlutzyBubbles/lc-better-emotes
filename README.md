@@ -8,12 +8,10 @@ Moving from 1.0.x to 1.1.x changes the config layout.
 
 Modification of https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/
 
-- Moves keybindings into the settings page (as of 1.1.0)
+- Moves keybindings into the settings page, still has config values for defaults for modpacks
 - Makes center of emote wheel not change emote
 - Adds config values to alter change emote cooldown and griddy move speed (as of 1.1.0)
 - Add config to add option to stop emote when on outer circle of emote wheel
-- Alters the integration method of more emotes to work better with CheckConditionsForEmote (not really needed anymore but its still there)
-
 - Remove the carrying scrap check to make emoting with one hand possible again (its fun)
 
 - Any change suggestions or bugs you can submit an issue or contact directly :)

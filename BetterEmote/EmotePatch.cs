@@ -8,7 +8,7 @@ namespace BetterEmote
 {
     internal class EmotePatch
     {
-        public static Keybinds keybinds = new Keybinds();
+        public static Keybinds keybinds;
 
         public static AssetBundle animationsBundle;
 
@@ -17,6 +17,9 @@ namespace BetterEmote
         public static bool stopOnOuter = false;
 
         public static bool[] enabledList;
+        public static string[] defaultKeyList;
+
+        public static string emoteWheelKey = "<Keyboard>/v";
 
         public static float griddySpeed = 0.5f;
         public static float emoteCooldown = 0.5f;
@@ -203,12 +206,10 @@ namespace BetterEmote
                 {
                     __instance.playerBodyAnimator.runtimeAnimatorController = local;
                 }
-                bool? conditionsOpt = Traverse.Create(__instance).Method("CheckConditionsForEmote").GetValue() as bool?;
-                bool conditions = conditionsOpt ?? false;
                 currentEmoteID = __instance.playerBodyAnimator.GetInteger("emoteNumber");
                 if (!incompatibleStuff)
                 {
-                    __instance.movementSpeed = (conditions && currentEmoteID == (int)Emotes.Griddy && __instance.performingEmote) ? (movSpeed * (griddySpeed)) : movSpeed;
+                    __instance.movementSpeed = (__instance.CheckConditionsForEmote() && currentEmoteID == (int)Emotes.Griddy && __instance.performingEmote) ? (movSpeed * (griddySpeed)) : movSpeed;
                 }
             }
         }
@@ -230,9 +231,7 @@ namespace BetterEmote
             {
                 return;
             }
-            bool? conditionsOpt = Traverse.Create(__instance).Method("CheckConditionsForEmote").GetValue() as bool?;
-            bool conditions = conditionsOpt ?? false;
-            if (conditions)
+            if (__instance.CheckConditionsForEmote())
             {
                 if (__instance.timeSinceStartingEmote >= emoteCooldown)
                 {
@@ -248,12 +247,10 @@ namespace BetterEmote
         [HarmonyPrefix]
         private static bool prefixCheckConditions(ref bool __result, PlayerControllerB __instance)
         {
-            bool? isJumpingOpt = Traverse.Create(__instance).Field("isJumping").GetValue() as bool?;
-            bool isJumping = isJumpingOpt ?? false;
             bool result;
             if (currentEmoteID == (int)Emotes.Griddy)
             {
-                __result = (!__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat);
+                __result = (!__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat);
                 result = false;
             }
             else

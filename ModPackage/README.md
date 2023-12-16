@@ -8,7 +8,7 @@ Moving from 1.0.x to 1.1.x changes the config layout.
 
 Modification of https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/
 
-- Moves keybindings into the settings page (as of 1.1.0)
+- Moves keybindings into the settings page, still has config values for defaults for modpacks
 - Makes center of emote wheel not change emote
 - Adds config values to alter change emote cooldown and griddy move speed (as of 1.1.0)
 - Add config to add option to stop emote when on outer circle of emote wheel

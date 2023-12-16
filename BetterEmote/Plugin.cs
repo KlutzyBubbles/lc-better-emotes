@@ -27,6 +27,7 @@ namespace BetterEmote
             CustomAudioAnimationEvent.claps[0] = EmotePatch.animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote1.wav");
             CustomAudioAnimationEvent.claps[1] = EmotePatch.animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote2.wav");
             ConfigFile();
+            EmotePatch.keybinds = new Keybinds();
             _harmony = new Harmony("BetterEmotes");
             _harmony.PatchAll(typeof(InitGamePatch));
             _harmony.PatchAll(typeof(EmotePatch));
@@ -36,11 +37,19 @@ namespace BetterEmote
         private void ConfigFile()
         {
             EmotePatch.enabledList = new bool[Enum.GetNames(typeof(EmotePatch.Emotes)).Length + 1];
+            EmotePatch.defaultKeyList = new string[Enum.GetNames(typeof(EmotePatch.Emotes)).Length + 1];
             foreach (string name in Enum.GetNames(typeof(EmotePatch.Emotes)))
             {
-                ConfigEntry<bool> config = Config.Bind("Enabled Emotes", $"Enable {name}", true, $"Toggle {name} emote key");
-                EmotePatch.enabledList[(int)Enum.Parse(typeof(EmotePatch.Emotes), name)] = config.Value;
+                if ((int)Enum.Parse(typeof(EmotePatch.Emotes), name) > 2)
+                {
+                    ConfigEntry<string> keyConfig = Config.Bind("Emote Keys", $"{name} Key", $"<Keyboard>/{(int)Enum.Parse(typeof(EmotePatch.Emotes), name)}", $"Default keybind for {name} emote");
+                    EmotePatch.defaultKeyList[(int)Enum.Parse(typeof(EmotePatch.Emotes), name)] = keyConfig.Value;
+                }
+                ConfigEntry<bool> enabledConfig = Config.Bind("Enabled Emotes", $"Enable {name}", true, $"Toggle {name} emote key");
+                EmotePatch.enabledList[(int)Enum.Parse(typeof(EmotePatch.Emotes), name)] = enabledConfig.Value;
             }
+            ConfigEntry<string> configEmoteKey = Config.Bind("Emote Keys", "Emote Wheel Key", "<Keyboard>/v", "Default keybind for the emote wheel");
+            EmotePatch.emoteWheelKey = configEmoteKey.Value;
 
             ConfigEntry<float> configGriddySpeed = Config.Bind("Emote Settings", "Griddy Speed", 0.5f, "Speed of griddy relative to regular speed");
             EmotePatch.griddySpeed = configGriddySpeed.Value;
