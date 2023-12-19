@@ -399,3 +399,5 @@ FodyWeavers.xsd
 
 *.zip
 *.xcf
+
+launchSettings.json

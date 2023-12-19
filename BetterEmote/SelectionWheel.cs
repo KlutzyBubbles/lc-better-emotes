@@ -29,8 +29,6 @@ namespace BetterEmote
 
         public GameObject[] Pages;
 
-        public string selectedEmoteName;
-
         public float wheelMovementOffset = 3.3f;
 
         public static string[] emoteNames;

@@ -24,8 +24,6 @@ namespace BetterEmote
         public static float griddySpeed = 0.5f;
         public static float emoteCooldown = 0.5f;
 
-        private static InputAction.CallbackContext context;
-
         public static RuntimeAnimatorController local;
 
         public static RuntimeAnimatorController others;
@@ -149,7 +147,7 @@ namespace BetterEmote
             }
             else
             {
-                CheckEmoteInput(enabledList[selectionWheel.selectedEmoteID], selectionWheel.selectedEmoteID, localPlayerController);
+                CheckEmoteInput(context, enabledList[selectionWheel.selectedEmoteID], selectionWheel.selectedEmoteID, localPlayerController);
             }
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -159,37 +157,37 @@ namespace BetterEmote
 
         public static void onEmoteKeyMiddleFinger(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(Emotes.Middle_Finger);
+            onEmoteKeyPerformed(context, Emotes.Middle_Finger);
         }
 
         public static void onEmoteKeyGriddy(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(Emotes.Griddy);
+            onEmoteKeyPerformed(context, Emotes.Griddy);
         }
 
         public static void onEmoteKeyShy(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(Emotes.Shy);
+            onEmoteKeyPerformed(context, Emotes.Shy);
         }
 
         public static void onEmoteKeyClap(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(Emotes.Clap);
+            onEmoteKeyPerformed(context, Emotes.Clap);
         }
 
         public static void onEmoteKeySalute(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(Emotes.Salute);
+            onEmoteKeyPerformed(context, Emotes.Salute);
         }
 
         public static void onEmoteKeyTwerk(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(Emotes.Twerk);
+            onEmoteKeyPerformed(context, Emotes.Twerk);
         }
 
-        public static void onEmoteKeyPerformed(Emotes emote)
+        public static void onEmoteKeyPerformed(InputAction.CallbackContext context, Emotes emote)
         {
-            CheckEmoteInput(enabledList[(int)emote], (int)emote, localPlayerController);
+            CheckEmoteInput(context, enabledList[(int)emote], (int)emote, localPlayerController);
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
@@ -214,7 +212,7 @@ namespace BetterEmote
             }
         }
 
-        private static void CheckEmoteInput(bool enabled, int emoteID, PlayerControllerB player)
+        private static void CheckEmoteInput(InputAction.CallbackContext context, bool enabled, int emoteID, PlayerControllerB player)
         {
             if (enabled)
             {
