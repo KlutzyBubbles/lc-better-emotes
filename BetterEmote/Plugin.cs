@@ -52,10 +52,10 @@ namespace BetterEmote
             EmotePatch.emoteWheelKey = configEmoteKey.Value;
 
             ConfigEntry<float> configGriddySpeed = Config.Bind("Emote Settings", "Griddy Speed", 0.5f, "Speed of griddy relative to regular speed");
-            EmotePatch.griddySpeed = configGriddySpeed.Value;
+            EmotePatch.griddySpeed = configGriddySpeed.Value < 0 ? 0 : configGriddySpeed.Value;
 
             ConfigEntry<float> configEmoteCooldown = Config.Bind("Emote Settings", "Cooldown", 0.5f, "Time (in seconds) to wait before being able to switch emotes");
-            EmotePatch.emoteCooldown = configEmoteCooldown.Value;
+            EmotePatch.emoteCooldown = configEmoteCooldown.Value < 0 ? 0 : configEmoteCooldown.Value;
 
             ConfigEntry<bool> configEmoteStop = Config.Bind("Emote Settings", "Stop on outer", false, "Whether or not to stop emoting when mousing to outside the emote wheel");
             EmotePatch.stopOnOuter = configEmoteStop.Value;

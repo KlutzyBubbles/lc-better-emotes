@@ -207,7 +207,10 @@ namespace BetterEmote
                 currentEmoteID = __instance.playerBodyAnimator.GetInteger("emoteNumber");
                 if (!incompatibleStuff)
                 {
-                    __instance.movementSpeed = (__instance.CheckConditionsForEmote() && currentEmoteID == (int)Emotes.Griddy && __instance.performingEmote) ? (movSpeed * (griddySpeed)) : movSpeed;
+                    if (__instance.movementSpeed != 0 && griddySpeed != 0)
+                    {
+                        __instance.movementSpeed = (__instance.CheckConditionsForEmote() && currentEmoteID == (int)Emotes.Griddy && __instance.performingEmote) ? (movSpeed * (griddySpeed)) : movSpeed;
+                    }
                 }
             }
         }
@@ -246,7 +249,7 @@ namespace BetterEmote
         private static bool prefixCheckConditions(ref bool __result, PlayerControllerB __instance)
         {
             bool result;
-            if (currentEmoteID == (int)Emotes.Griddy)
+            if (currentEmoteID == (int)Emotes.Griddy && griddySpeed != 0)
             {
                 __result = (!__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat);
                 result = false;

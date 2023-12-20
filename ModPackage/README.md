@@ -23,20 +23,20 @@ Enabling/Dsiabling emotes can still be found in the config as well as griddy spe
 
 ## EMOTE WHEEL 🐄 
 #### Default Key ```V```
-![EmoteWheel](https://i.imgur.com/VrAItbd.jpg)
+![EmoteWheel](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/emoteWheel.jpg?raw=true)
 
 ## ANIMATIONS 👨‍🦯
-#### Middle Finger - Default Key: ```3```
-![CustomEmote1](https://i.imgur.com/WZQNiMo.jpeg)
------------------------------------------------------
-#### Clap - Default Key ```4```
-![CustomEmote2](https://i.imgur.com/UCuMpFq.jpg)
------------------------------------------------------
-#### Shy - Default Key ```5```
-![CustomEmote3](https://i.imgur.com/YMeoTtz.jpg)
------------------------------------------------------
-#### The Griddy - Default Key: ```6```
-![CustomEmote4](https://i.imgur.com/jDfY7V1.jpg)
+| Middle Finger - Default Key: ```3``` | Clap - Default Key ```4``` |
+| :---: | :---: |
+| ![Middle Finger](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/middleFinger.jpg?raw=true) | ![Clap](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/clap.jpg?raw=true) |
+
+| Shy - Default Key ```5``` | The Griddy - Default Key: ```6``` |
+| :---: | :---: |
+| ![Shy](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/shy.jpg?raw=true) | ![The Griddy](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/griddy.jpg?raw=true) |
+
+| Twerk - Default Key: ```7``` | Salute - Default Key: ```8``` |
+| :---: | :---: |
+| ![Twerk](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/twerk.jpg?raw=true) | ![Salute](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/salute.jpg?raw=true) |
 
 ## Changelog
 
