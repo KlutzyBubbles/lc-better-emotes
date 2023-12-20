@@ -36,20 +36,29 @@ namespace BetterEmote
 
         private void ConfigFile()
         {
-            EmotePatch.enabledList = new bool[Enum.GetNames(typeof(EmotePatch.Emotes)).Length + 1];
-            EmotePatch.defaultKeyList = new string[Enum.GetNames(typeof(EmotePatch.Emotes)).Length + 1];
-            foreach (string name in Enum.GetNames(typeof(EmotePatch.Emotes)))
+            EmotePatch.enabledList = new bool[EmoteDefs.getEmoteCount() + 1];
+            EmotePatch.defaultKeyList = new string[EmoteDefs.getEmoteCount() + 1];
+            EmotePatch.defaultControllerList = new string[EmoteDefs.getEmoteCount() + 1];
+            foreach (string name in Enum.GetNames(typeof(Emote)))
             {
-                if ((int)Enum.Parse(typeof(EmotePatch.Emotes), name) > 2)
+                if (EmoteDefs.getEmoteNumber(name) > 2)
                 {
-                    ConfigEntry<string> keyConfig = Config.Bind("Emote Keys", $"{name} Key", $"<Keyboard>/{(int)Enum.Parse(typeof(EmotePatch.Emotes), name)}", $"Default keybind for {name} emote");
-                    EmotePatch.defaultKeyList[(int)Enum.Parse(typeof(EmotePatch.Emotes), name)] = keyConfig.Value;
+                    ConfigEntry<string> keyConfig = Config.Bind("Emote Keys", $"{name} Key", $"<Keyboard>/{EmoteDefs.getEmoteNumber(name)}", $"Default keybind for {name} emote");
+                    EmotePatch.defaultKeyList[EmoteDefs.getEmoteNumber(name)] = keyConfig.Value.ToLower().StartsWith("<keyboard>") ? keyConfig.Value : $"<Keyboard>/{keyConfig.Value}";
+                    ConfigEntry<string> controllerConfig = Config.Bind("Emote Controller Bindings", $"{name} Button", "", $"Default controller binding for {name} emote");
+                    EmotePatch.defaultControllerList[EmoteDefs.getEmoteNumber(name)] = controllerConfig.Value.ToLower().StartsWith("<gamepad>") ? controllerConfig.Value : $"<Gamepad>/{controllerConfig.Value}";
                 }
                 ConfigEntry<bool> enabledConfig = Config.Bind("Enabled Emotes", $"Enable {name}", true, $"Toggle {name} emote key");
-                EmotePatch.enabledList[(int)Enum.Parse(typeof(EmotePatch.Emotes), name)] = enabledConfig.Value;
+                EmotePatch.enabledList[EmoteDefs.getEmoteNumber(name)] = enabledConfig.Value;
             }
             ConfigEntry<string> configEmoteKey = Config.Bind("Emote Keys", "Emote Wheel Key", "<Keyboard>/v", "Default keybind for the emote wheel");
-            EmotePatch.emoteWheelKey = configEmoteKey.Value;
+            EmotePatch.emoteWheelKey = configEmoteKey.Value.ToLower().StartsWith("<keyboard>") ? configEmoteKey.Value : $"<Keyboard>/{configEmoteKey.Value}";
+            ConfigEntry<string> configEmoteController = Config.Bind("Emote Controller Bindings", "Emote Wheel Button", "<Gamepad>/leftShoulder", "Default controller binding for the emote wheel");
+            EmotePatch.emoteWheelController = configEmoteController.Value.ToLower().StartsWith("<gamepad>") ? configEmoteController.Value : $"<Gamepad>/{configEmoteController.Value}";
+            ConfigEntry<string> configEmoteControllerMove = Config.Bind("Emote Controller Bindings", "Emote Wheel Move", "<Gamepad>/rightStick", "Default controller binding for the emote wheel movement");
+            EmotePatch.emoteWheelControllerMove = configEmoteControllerMove.Value.ToLower().StartsWith("<gamepad>") ? configEmoteControllerMove.Value : $"<Gamepad>/{configEmoteControllerMove.Value}";
+            ConfigEntry<float> configEmoteControllerDeadzone = Config.Bind("Emote Controller Bindings", "Emote Wheel Deadzone", 0.25f, "Default controller deadzone for emote selection");
+            SelectionWheel.controllerDeadzone = configEmoteControllerDeadzone.Value;
 
             ConfigEntry<float> configGriddySpeed = Config.Bind("Emote Settings", "Griddy Speed", 0.5f, "Speed of griddy relative to regular speed");
             EmotePatch.griddySpeed = configGriddySpeed.Value < 0 ? 0 : configGriddySpeed.Value;

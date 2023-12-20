@@ -25,7 +25,7 @@ namespace BetterEmote
             {
                 if (player.IsOwner && player.isPlayerControlled)
                 {
-                    if (animator.GetInteger("emoteNumber") != (int)EmotePatch.Emotes.Clap)
+                    if (animator.GetInteger("emoteNumber") != (int)Emote.Clap)
                     {
                         return;
                     }
@@ -43,7 +43,7 @@ namespace BetterEmote
             {
                 if (player.IsOwner && player.isPlayerControlled)
                 {
-                    if (animator.GetInteger("emoteNumber") != (int)EmotePatch.Emotes.Griddy)
+                    if (animator.GetInteger("emoteNumber") != (int)Emote.Griddy)
                     {
                         return;
                     }

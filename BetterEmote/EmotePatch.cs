@@ -18,8 +18,11 @@ namespace BetterEmote
 
         public static bool[] enabledList;
         public static string[] defaultKeyList;
+        public static string[] defaultControllerList;
 
         public static string emoteWheelKey = "<Keyboard>/v";
+        public static string emoteWheelController = "<Gamepad>/leftShoulder";
+        public static string emoteWheelControllerMove = "<Gamepad>/rightStick";
 
         public static float griddySpeed = 0.5f;
         public static float emoteCooldown = 0.5f;
@@ -40,27 +43,6 @@ namespace BetterEmote
 
         private static SelectionWheel selectionWheel;
 
-        public enum Emotes:int
-        {
-            Dance = 1,
-            Point = 2,
-            Middle_Finger = 3,
-            Clap = 4,
-            Shy = 5,
-            Griddy = 6,
-            Twerk = 7,
-            Salute = 8
-        }
-
-        private static PlayerControllerB localPlayerController
-        {
-            get
-            {
-                StartOfRound instance = StartOfRound.Instance;
-                return (instance != null) ? instance.localPlayerController : null;
-            }
-        }
-
         [HarmonyPatch(typeof(PlayerControllerB), "Start")]
         [HarmonyPostfix]
         private static void StartPostfix(PlayerControllerB __instance)
@@ -79,10 +61,10 @@ namespace BetterEmote
                 }
                 wheel = UnityEngine.Object.Instantiate(original, gameObject2.transform);
                 selectionWheel = wheel.AddComponent<SelectionWheel>();
-                SelectionWheel.emoteNames = new string[Enum.GetNames(typeof(Emotes)).Length + 1];
-                foreach (string name in Enum.GetNames(typeof(Emotes)))
+                SelectionWheel.emoteNames = new string[EmoteDefs.getEmoteCount() + 1];
+                foreach (string name in Enum.GetNames(typeof(Emote)))
                 {
-                    SelectionWheel.emoteNames[(int)Enum.Parse(typeof(Emotes), name) - 1] = name;
+                    SelectionWheel.emoteNames[EmoteDefs.getEmoteNumber(name) - 1] = name;
                 }
             }
             keybinds.MiddleFinger.performed += onEmoteKeyMiddleFinger;
@@ -99,7 +81,7 @@ namespace BetterEmote
         [HarmonyPostfix]
         public static void OnDisablePostfix(PlayerControllerB __instance)
         {
-            if (__instance == localPlayerController)
+            if (__instance == Utils.localPlayerController)
             {
                 keybinds.MiddleFinger.performed -= onEmoteKeyMiddleFinger;
                 keybinds.Griddy.performed -= onEmoteKeyGriddy;
@@ -121,33 +103,33 @@ namespace BetterEmote
 
         public static void onEmoteKeyWheelStarted(InputAction.CallbackContext context)
         {
-            if (!emoteWheelIsOpened && !localPlayerController.isPlayerDead && !localPlayerController.inTerminalMenu && !localPlayerController.quickMenuManager.isMenuOpen)
+            if (!emoteWheelIsOpened && !Utils.localPlayerController.isPlayerDead && !Utils.localPlayerController.inTerminalMenu && !Utils.localPlayerController.quickMenuManager.isMenuOpen)
             {
                 emoteWheelIsOpened = true;
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.Confined;
                 wheel.SetActive(emoteWheelIsOpened);
-                localPlayerController.quickMenuManager.isMenuOpen = true;
-                localPlayerController.disableLookInput = true;
+                Utils.localPlayerController.quickMenuManager.isMenuOpen = true;
+                Utils.localPlayerController.disableLookInput = true;
             }
         }
 
         public static void onEmoteKeyWheelCanceled(InputAction.CallbackContext context)
         {
-            localPlayerController.quickMenuManager.isMenuOpen = false;
-            localPlayerController.disableLookInput = false;
+            Utils.localPlayerController.quickMenuManager.isMenuOpen = false;
+            Utils.localPlayerController.disableLookInput = false;
             if (selectionWheel.selectedEmoteID >= enabledList.Length)
             {
                 if (selectionWheel.stopEmote)
                 {
-                    localPlayerController.performingEmote = false;
-                    localPlayerController.StopPerformingEmoteServerRpc();
-                    localPlayerController.timeSinceStartingEmote = 0f;
+                    Utils.localPlayerController.performingEmote = false;
+                    Utils.localPlayerController.StopPerformingEmoteServerRpc();
+                    Utils.localPlayerController.timeSinceStartingEmote = 0f;
                 }
             }
             else
             {
-                CheckEmoteInput(context, enabledList[selectionWheel.selectedEmoteID], selectionWheel.selectedEmoteID, localPlayerController);
+                CheckEmoteInput(context, enabledList[selectionWheel.selectedEmoteID], selectionWheel.selectedEmoteID, Utils.localPlayerController);
             }
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -157,37 +139,37 @@ namespace BetterEmote
 
         public static void onEmoteKeyMiddleFinger(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(context, Emotes.Middle_Finger);
+            onEmoteKeyPerformed(context, Emote.Middle_Finger);
         }
 
         public static void onEmoteKeyGriddy(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(context, Emotes.Griddy);
+            onEmoteKeyPerformed(context, Emote.Griddy);
         }
 
         public static void onEmoteKeyShy(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(context, Emotes.Shy);
+            onEmoteKeyPerformed(context, Emote.Shy);
         }
 
         public static void onEmoteKeyClap(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(context, Emotes.Clap);
+            onEmoteKeyPerformed(context, Emote.Clap);
         }
 
         public static void onEmoteKeySalute(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(context, Emotes.Salute);
+            onEmoteKeyPerformed(context, Emote.Salute);
         }
 
         public static void onEmoteKeyTwerk(InputAction.CallbackContext context)
         {
-            onEmoteKeyPerformed(context, Emotes.Twerk);
+            onEmoteKeyPerformed(context, Emote.Twerk);
         }
 
-        public static void onEmoteKeyPerformed(InputAction.CallbackContext context, Emotes emote)
+        public static void onEmoteKeyPerformed(InputAction.CallbackContext context, Emote emote)
         {
-            CheckEmoteInput(context, enabledList[(int)emote], (int)emote, localPlayerController);
+            CheckEmoteInput(context, enabledList[(int)emote], (int)emote, Utils.localPlayerController);
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
@@ -209,7 +191,7 @@ namespace BetterEmote
                 {
                     if (__instance.movementSpeed != 0 && griddySpeed != 0)
                     {
-                        __instance.movementSpeed = (__instance.CheckConditionsForEmote() && currentEmoteID == (int)Emotes.Griddy && __instance.performingEmote) ? (movSpeed * (griddySpeed)) : movSpeed;
+                        __instance.movementSpeed = (__instance.CheckConditionsForEmote() && currentEmoteID == (int)Emote.Griddy && __instance.performingEmote) ? (movSpeed * (griddySpeed)) : movSpeed;
                     }
                 }
             }
@@ -249,7 +231,7 @@ namespace BetterEmote
         private static bool prefixCheckConditions(ref bool __result, PlayerControllerB __instance)
         {
             bool result;
-            if (currentEmoteID == (int)Emotes.Griddy && griddySpeed != 0)
+            if (currentEmoteID == (int)Emote.Griddy && griddySpeed != 0)
             {
                 __result = (!__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat);
                 result = false;

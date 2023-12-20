@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 namespace BetterEmote
 {
@@ -31,24 +32,29 @@ namespace BetterEmote
 
         public float wheelMovementOffset = 3.3f;
 
+        public bool controller = false;
+        public Vector2 controllerValue = Vector2.zero;
+
         public static string[] emoteNames;
         public static string[] emoteKeybinds;
 
-        private Vector2 center;
+        public static float controllerDeadzone = 0.25f;
+
+        private Vector2 centerScreen;
+
+        private StickControl joystick;
+
+        private float ignoreRadius = 235;
+        private float stopRadius = 470;
 
         private void OnEnable()
         {
-            center = new Vector2(Screen.width / 2, Screen.height / 2);
-            PlayerInput component = GameObject.Find("PlayerSettingsObject").GetComponent<PlayerInput>();
-            emoteKeybinds = new string[Enum.GetNames(typeof(EmotePatch.Emotes)).Length + 1];
-            emoteKeybinds[0] = component.currentActionMap.FindAction("Emote1", false).GetBindingDisplayString(0, 0);
-            emoteKeybinds[1] = component.currentActionMap.FindAction("Emote2", false).GetBindingDisplayString(0, 0);
-            emoteKeybinds[(int)EmotePatch.Emotes.Middle_Finger - 1] = EmotePatch.keybinds.MiddleFinger.GetBindingDisplayString();
-            emoteKeybinds[(int)EmotePatch.Emotes.Clap - 1] = EmotePatch.keybinds.Clap.GetBindingDisplayString();
-            emoteKeybinds[(int)EmotePatch.Emotes.Shy - 1] = EmotePatch.keybinds.Shy.GetBindingDisplayString();
-            emoteKeybinds[(int)EmotePatch.Emotes.Griddy - 1] = EmotePatch.keybinds.Griddy.GetBindingDisplayString();
-            emoteKeybinds[(int)EmotePatch.Emotes.Salute - 1] = EmotePatch.keybinds.Salute.GetBindingDisplayString();
-            emoteKeybinds[(int)EmotePatch.Emotes.Twerk - 1] = EmotePatch.keybinds.Twerk.GetBindingDisplayString();
+            centerScreen = new Vector2(Screen.width / 2, Screen.height / 2);
+            emoteKeybinds = new string[EmoteDefs.getEmoteCount() + 1];
+            foreach (string name in Enum.GetNames(typeof(Emote)))
+            {
+                emoteKeybinds[EmoteDefs.getEmoteNumber(name) - 1] = EmotePatch.keybinds.getByEmote(EmoteDefs.getEmote(name)).GetBindingDisplayString(0, 0);
+            }
             Cursor.visible = true;
             selectionBlock = gameObject.transform.Find("SelectedEmote").gameObject.GetComponent<RectTransform>();
             selectionBlock.gameObject.SetActive(false);
@@ -61,7 +67,39 @@ namespace BetterEmote
             {
                 Pages[i] = localGameObject.transform.GetChild(i).gameObject;
             }
-            Mouse.current.WarpCursorPosition(center);
+            if (!Utils.localPlayerUsingController)
+            {
+                Mouse.current.WarpCursorPosition(centerScreen);
+            }
+            string effectivePath = "";
+            foreach (InputBinding binding in EmotePatch.keybinds.EmoteWheelController.bindings)
+            {
+                if (binding.effectivePath != null && binding.effectivePath.Length > 0)
+                {
+                    effectivePath = binding.effectivePath;
+                }
+            }
+            if (effectivePath == "<Gamepad>/leftStick")
+            {
+                joystick = Gamepad.current.leftStick;
+            }
+            else
+            {
+                joystick = Gamepad.current.rightStick;
+            }
+            float screen = Screen.width / Screen.height;
+            if (screen >= 16 / 9)
+            {
+                // Wide aspect ratio calcualte off height
+                ignoreRadius = (Screen.height * 0.365f) / 2;
+                stopRadius = (Screen.height * 0.729f) / 2;
+            }
+            else
+            {
+                // Vertical aspect calcualte off width
+                ignoreRadius = (Screen.width * 0.183f) / 2;
+                stopRadius = (Screen.width * 0.368f) / 2;
+            }
         }
 
         private void Update()
@@ -81,52 +119,70 @@ namespace BetterEmote
 
         private void wheelSelection()
         {
-            if (Vector2.Distance(center, Mouse.current.position.ReadValue()) >= wheelMovementOffset)
+            Vector2 center;
+            Vector2 pointer;
+            if (Utils.localPlayerUsingController)
             {
-                float xDiff = Math.Abs(Mouse.current.position.x.ReadValue() - center.x);
-                float yDiff = Math.Abs(Mouse.current.position.y.ReadValue() - center.y);
-                float ignoreRadius = 235;
-                float stopRadius = 470;
-                bool isCenter = Math.Pow(Mouse.current.position.x.ReadValue() - center.x, 2) + Math.Pow(Mouse.current.position.y.ReadValue() - center.y, 2) < Math.Pow(ignoreRadius, 2);
-                bool isOuter = Math.Pow(Mouse.current.position.x.ReadValue() - center.x, 2) + Math.Pow(Mouse.current.position.y.ReadValue() - center.y, 2) >= Math.Pow(stopRadius, 2);
-                bool flag2 = Mouse.current.position.x.ReadValue() > center.x;
-                bool flag3 = Mouse.current.position.y.ReadValue() > center.y;
-                int corner = flag2 ? (flag3 ? 1 : 4) : (flag3 ? 2 : 3);
-                float f = (Mouse.current.position.y.ReadValue() - center.y) / (Mouse.current.position.x.ReadValue() - center.x);
-                float num = 180 * (corner - ((corner > 2) ? 2 : 1));
-                angle = Mathf.Atan(f) * 57.295776f + num;
-                if (angle == 90f)
+                if (Vector2.Distance(Vector2.zero, joystick.ReadValue()) < wheelMovementOffset / 100)
                 {
-                    angle = 270f;
+                    return;
                 }
-                else
+                center = Vector2.zero;
+                pointer = joystick.ReadValue();
+            }
+            else
+            {
+                if (Vector2.Distance(centerScreen, Mouse.current.position.ReadValue()) < wheelMovementOffset)
                 {
-                    if (angle == 270f)
+                    return;
+                }
+                center = centerScreen;
+                pointer = Mouse.current.position.ReadValue();
+            }
+            Vector2 diff = pointer - center;
+            bool isCenter;
+            bool isOuter;
+            if (Utils.localPlayerUsingController)
+            {
+                isCenter = Math.Pow(diff.x, 2) + Math.Pow(diff.y, 2) <= Math.Pow(controllerDeadzone, 2);
+                isOuter = false;
+            }
+            else
+            {
+                isCenter = Math.Pow(diff.x, 2) + Math.Pow(diff.y, 2) < Math.Pow(ignoreRadius, 2);
+                isOuter = Math.Pow(diff.x, 2) + Math.Pow(diff.y, 2) >= Math.Pow(stopRadius, 2);
+            }
+            int corner = diff.x > 0 ? (diff.y > 0 ? 1 : 4) : (diff.y > 0 ? 2 : 3);
+            float num = 180 * (corner - ((corner > 2) ? 2 : 1));
+            angle = Mathf.Atan(diff.y / diff.x) * 57.295776f + num;
+            if (angle == 90f)
+            {
+                angle = 270f;
+            }
+            else if (angle == 270f)
+            {
+                angle = 90f;
+            }
+            float num2 = 360 / blocksNumber;
+            currentBlock = Mathf.RoundToInt((angle - num2 * 1.5f) / num2);
+            if (isCenter)
+            {
+                selectionBlock.gameObject.SetActive(false);
+            }
+            else
+            {
+                selectionBlock.gameObject.SetActive(true);
+                selectionBlock.localRotation = Quaternion.Euler(transform.rotation.z, transform.rotation.y, num2 * currentBlock);
+                if (isOuter)
+                {
+                    if (EmotePatch.stopOnOuter)
                     {
-                        angle = 90f;
+                        selectionBlock.gameObject.SetActive(false);
+                        stopEmote = true;
                     }
-                }
-                float num2 = 360 / blocksNumber;
-                currentBlock = Mathf.RoundToInt((angle - num2 * 1.5f) / num2);
-                if (isCenter)
-                {
-                    selectionBlock.gameObject.SetActive(false);
-                }
-                else
-                {
-                    selectionBlock.gameObject.SetActive(true);
-                    selectionBlock.localRotation = Quaternion.Euler(transform.rotation.z, transform.rotation.y, num2 * currentBlock);
-                    if (isOuter)
+                    else
                     {
-                        if (EmotePatch.stopOnOuter)
-                        {
-                            selectionBlock.gameObject.SetActive(false);
-                            stopEmote = true;
-                        }
-                        else
-                        {
-                            stopEmote = false;
-                        }
+                        stopEmote = false;
                     }
                 }
             }
@@ -173,9 +229,9 @@ namespace BetterEmote
         {
             string text = (selectedEmoteID > emoteKeybinds.Length) ? "" : emoteKeybinds[selectedEmoteID - 1];
             string text2;
-            if (selectedEmoteID <= Enum.GetValues(typeof(EmotePatch.Emotes)).Length)
+            if (selectedEmoteID <= Enum.GetValues(typeof(Emote)).Length)
             {
-                EmotePatch.Emotes emotes = (EmotePatch.Emotes)selectedEmoteID;
+                Emote emotes = (Emote)selectedEmoteID;
                 text2 = emotes.ToString().Replace("_", " ");
             }
             else

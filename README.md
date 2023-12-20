@@ -2,12 +2,17 @@
 
 ## Issues (incompatiblities)
 
-Players might find some inconsistant behaviour with TooManyEmotes. I have altered the code to allow compatiblity with TooManyEmotes but i have no control over how the two interact and am working towards a fix. More emotes works slightly better but also has issues.
+Players might find some inconsistant behaviour with TooManyEmotes. I have altered the code to allow compatiblity with TooManyEmotes but no promises.
+
+Any other issues feel free to [submit an issue](https://github.com/KlutzyBubbles/lc-better-emotes/issues/new) or contact me directly via the [Lethal Company Modding Discord](https://discord.gg/XeyYqRdRGC) or PM `@KlutzyBubbles` always trying to make sure the mod is as stable as possible.
+
+## Information
 
 Moving from 1.0.x to 1.1.x changes the config layout.
 
 Modification of https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/
 
+- Adds controller support. With rebinding :)
 - Moves keybindings into the settings page, still has config values for defaults for modpacks
 - Makes center of emote wheel not change emote
 - Adds config values to alter change emote cooldown and griddy move speed (as of 1.1.0)
@@ -20,6 +25,10 @@ Modification of https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/
 ### Bindings have moved to the in-game bindings under settings
 
 Enabling/Dsiabling emotes can still be found in the config as well as griddy speed and emote cooldown
+
+## NOTE ON CONTROLLERS!!! IMPORTANT (Probably)
+
+There is a binding in game called 'Emote Wheel CONTROLLER ONLY', this should only ever be bound to right or left stick. Binding it to anything else will just default to right stick. ALSO binding this to a keyboard key will also default it to right stick, if you accidentally bound the key, you will have to delete or edit your keybind folder in the config folder and re launch.
 
 ## EMOTE WHEEL 🐄 
 #### Default Key ```V```
@@ -40,4 +49,4 @@ Enabling/Dsiabling emotes can still be found in the config as well as griddy spe
 
 ## Changelog
 
-See releases section on the github page for changelogs
+See [releases](https://github.com/KlutzyBubbles/lc-better-emotes/releases) section on the github page for changelogs
