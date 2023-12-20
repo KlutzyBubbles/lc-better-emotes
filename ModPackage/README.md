@@ -28,7 +28,7 @@ Enabling/Dsiabling emotes can still be found in the config as well as griddy spe
 
 ## NOTE ON CONTROLLERS!!! IMPORTANT (Probably)
 
-There is a binding in game called 'Emote Wheel CONTROLLER ONLY', this should only ever be bound to right or left stick. Binding it to anything else will just default to right stick. ALSO binding this to a keyboard key will also default it to right stick, if you accidentally bound the key, you will have to delete or edit your keybind folder in the config folder and re launch.
+There is a binding in game called 'Emote Wheel CONTROLLER ONLY', this should only ever be bound to right or left stick. Binding it to anything else will just default to right stick. ALSO binding this to a keyboard key will also default it to right stick, if you accidentally bound the key, you will have to delete or edit your keybind file in the config folder and re launch.
 
 ## EMOTE WHEEL 🐄 
 #### Default Key ```V```
