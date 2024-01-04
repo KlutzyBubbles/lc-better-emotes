@@ -46,7 +46,7 @@ namespace BetterEmote
                     ConfigEntry<string> keyConfig = Config.Bind("Emote Keys", $"{name} Key", $"<Keyboard>/{EmoteDefs.getEmoteNumber(name)}", $"Default keybind for {name} emote");
                     EmotePatch.defaultKeyList[EmoteDefs.getEmoteNumber(name)] = keyConfig.Value.ToLower().StartsWith("<keyboard>") ? keyConfig.Value : $"<Keyboard>/{keyConfig.Value}";
                     ConfigEntry<string> controllerConfig = Config.Bind("Emote Controller Bindings", $"{name} Button", "", $"Default controller binding for {name} emote");
-                    EmotePatch.defaultControllerList[EmoteDefs.getEmoteNumber(name)] = controllerConfig.Value.ToLower().StartsWith("<gamepad>") ? controllerConfig.Value : $"<Gamepad>/{controllerConfig.Value}";
+                    EmotePatch.defaultControllerList[EmoteDefs.getEmoteNumber(name)] = controllerConfig.Value.Equals("") ? "" : (controllerConfig.Value.ToLower().StartsWith("<gamepad>") ? controllerConfig.Value : $"<Gamepad>/{controllerConfig.Value}");
                 }
                 ConfigEntry<bool> enabledConfig = Config.Bind("Enabled Emotes", $"Enable {name}", true, $"Toggle {name} emote key");
                 EmotePatch.enabledList[EmoteDefs.getEmoteNumber(name)] = enabledConfig.Value;

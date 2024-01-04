@@ -75,6 +75,13 @@ namespace BetterEmote
             keybinds.Twerk.performed += onEmoteKeyTwerk;
             keybinds.EmoteWheel.started += onEmoteKeyWheelStarted;
             keybinds.EmoteWheel.canceled += onEmoteKeyWheelCanceled;
+            keybinds.MiddleFinger.Enable();
+            keybinds.Griddy.Enable();
+            keybinds.Shy.Enable();
+            keybinds.Clap.Enable();
+            keybinds.Salute.Enable();
+            keybinds.Twerk.Enable();
+            keybinds.EmoteWheel.Enable();
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "OnDisable")]

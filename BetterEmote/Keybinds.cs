@@ -28,7 +28,7 @@ namespace BetterEmote
                         .WithActionType(InputActionType.Button)
                         .WithKbmPath(EmotePatch.defaultKeyList[EmoteDefs.getEmoteNumber(name)])
                         .WithBindingName(name)
-                        .WithGamepadPath(EmotePatch.defaultKeyList[EmoteDefs.getEmoteNumber(name)])
+                        .WithGamepadPath(EmotePatch.defaultControllerList[EmoteDefs.getEmoteNumber(name)])
                         .Finish();
                 }
             }
@@ -58,13 +58,13 @@ namespace BetterEmote
                 case Emote.Clap:
                     return this.Clap;
                 case Emote.Shy:
-                    return this.Clap;
+                    return this.Shy;
                 case Emote.Griddy:
-                    return this.Clap;
+                    return this.Griddy;
                 case Emote.Twerk:
-                    return this.Clap;
+                    return this.Twerk;
                 case Emote.Salute:
-                    return this.Clap;
+                    return this.Salute;
                 case Emote.Dance:
                     return component.currentActionMap.FindAction("Emote1", false);
                 case Emote.Point:
