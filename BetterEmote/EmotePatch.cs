@@ -237,17 +237,12 @@ namespace BetterEmote
         [HarmonyPrefix]
         private static bool prefixCheckConditions(ref bool __result, PlayerControllerB __instance)
         {
-            bool result;
             if (currentEmoteID == (int)Emote.Griddy && griddySpeed != 0)
             {
                 __result = (!__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat);
-                result = false;
+                return false;
             }
-            else
-            {
-                result = true;
-            }
-            return result;
+            return true;
         }
     }
 }
