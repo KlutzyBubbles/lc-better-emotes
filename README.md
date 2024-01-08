@@ -2,7 +2,7 @@
 
 ## Issues (incompatiblities)
 
-Players might find some inconsistant behaviour with TooManyEmotes. I have altered the code to allow compatiblity with TooManyEmotes but no promises.
+Other emote mods may have inconsistancies and should be the first place to check if something isnt working. They just get updated too much for me to check them manually.
 
 Any other issues feel free to [submit an issue](https://github.com/KlutzyBubbles/lc-better-emotes/issues/new) or contact me directly via the [Lethal Company Modding Discord](https://discord.gg/XeyYqRdRGC) or PM `@KlutzyBubbles` always trying to make sure the mod is as stable as possible.
 
