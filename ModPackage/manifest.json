@@ -1,6 +1,6 @@
 {
     "name": "BetterEmotes",
-    "version_number": "1.3.3",
+    "version_number": "1.3.4",
     "website_url": "https://github.com/KlutzyBubbles/lc-better-emotes",
     "description": "[v47] Alters the integration method of more emotes and adds some config options",
     "dependencies": [

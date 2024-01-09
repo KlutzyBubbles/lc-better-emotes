@@ -79,13 +79,20 @@ namespace BetterEmote
                     effectivePath = binding.effectivePath;
                 }
             }
-            if (effectivePath == "<Gamepad>/leftStick")
+            if (Gamepad.current != null)
             {
-                joystick = Gamepad.current.leftStick;
+                if (effectivePath == "<Gamepad>/leftStick")
+                {
+                    joystick = Gamepad.current.leftStick;
+                }
+                else
+                {
+                    joystick = Gamepad.current.rightStick;
+                }
             }
             else
             {
-                joystick = Gamepad.current.rightStick;
+                joystick = null;
             }
             float screen = Screen.width / Screen.height;
             if (screen >= 16 / 9)
@@ -121,7 +128,7 @@ namespace BetterEmote
         {
             Vector2 center;
             Vector2 pointer;
-            if (Utils.localPlayerUsingController)
+            if (joystick != null && Utils.localPlayerUsingController)
             {
                 if (Vector2.Distance(Vector2.zero, joystick.ReadValue()) < wheelMovementOffset / 100)
                 {
