@@ -1,5 +1,6 @@
 ﻿using GameNetcodeStuff;
 using UnityEngine;
+using BetterEmote.Utils;
 
 namespace BetterEmote
 {

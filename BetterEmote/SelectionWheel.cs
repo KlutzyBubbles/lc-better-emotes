@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+using BetterEmote.Patches;
+using BetterEmote.Utils;
 
 namespace BetterEmote
 {
@@ -67,7 +69,7 @@ namespace BetterEmote
             {
                 Pages[i] = localGameObject.transform.GetChild(i).gameObject;
             }
-            if (!Utils.localPlayerUsingController)
+            if (!GameValues.localPlayerUsingController)
             {
                 Mouse.current.WarpCursorPosition(centerScreen);
             }
@@ -128,7 +130,7 @@ namespace BetterEmote
         {
             Vector2 center;
             Vector2 pointer;
-            if (joystick != null && Utils.localPlayerUsingController)
+            if (joystick != null && GameValues.localPlayerUsingController)
             {
                 if (Vector2.Distance(Vector2.zero, joystick.ReadValue()) < wheelMovementOffset / 100)
                 {
@@ -149,7 +151,7 @@ namespace BetterEmote
             Vector2 diff = pointer - center;
             bool isCenter;
             bool isOuter;
-            if (Utils.localPlayerUsingController)
+            if (GameValues.localPlayerUsingController)
             {
                 isCenter = Math.Pow(diff.x, 2) + Math.Pow(diff.y, 2) <= Math.Pow(controllerDeadzone, 2);
                 isOuter = false;

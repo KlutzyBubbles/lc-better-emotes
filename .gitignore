@@ -401,3 +401,6 @@ FodyWeavers.xsd
 *.xcf
 
 launchSettings.json
+
+ModPackage/BepInEx/plugins/BetterEmotes/*.manifest
+ModPackage/BepInEx/plugins/BetterEmotes/BetterEmotes

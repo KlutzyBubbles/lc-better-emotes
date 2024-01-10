@@ -6,6 +6,9 @@ using HarmonyLib;
 using UnityEngine;
 using BepInEx.Logging;
 using System;
+using BetterEmote.Patches;
+using BetterEmote.Utils;
+using BetterEmote.Menu;
 
 namespace BetterEmote
 {
@@ -26,9 +29,11 @@ namespace BetterEmote
             EmotePatch.others = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>("Assets/MoreEmotes/NEWmetarigOtherPlayers.controller");
             CustomAudioAnimationEvent.claps[0] = EmotePatch.animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote1.wav");
             CustomAudioAnimationEvent.claps[1] = EmotePatch.animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote2.wav");
+            Assets.LoadAssets();
             ConfigFile();
             EmotePatch.keybinds = new Keybinds();
             _harmony = new Harmony("BetterEmotes");
+            _harmony.PatchAll(typeof(MenuPatch));
             _harmony.PatchAll(typeof(InitGamePatch));
             _harmony.PatchAll(typeof(EmotePatch));
             StaticLogger.LogInfo("BetterEmotes loaded");
