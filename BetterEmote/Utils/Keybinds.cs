@@ -1,9 +1,10 @@
-﻿using LethalCompanyInputUtils.Api;
+﻿using BetterEmote.Patches;
+using LethalCompanyInputUtils.Api;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace BetterEmote
+namespace BetterEmote.Utils
 {
     internal class Keybinds : LcInputActions
     {
@@ -54,17 +55,17 @@ namespace BetterEmote
             switch (emote)
             {
                 case Emote.Middle_Finger:
-                    return this.MiddleFinger;
+                    return MiddleFinger;
                 case Emote.Clap:
-                    return this.Clap;
+                    return Clap;
                 case Emote.Shy:
-                    return this.Shy;
+                    return Shy;
                 case Emote.Griddy:
-                    return this.Griddy;
+                    return Griddy;
                 case Emote.Twerk:
-                    return this.Twerk;
+                    return Twerk;
                 case Emote.Salute:
-                    return this.Salute;
+                    return Salute;
                 case Emote.Dance:
                     return component.currentActionMap.FindAction("Emote1", false);
                 case Emote.Point:

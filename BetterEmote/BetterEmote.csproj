@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net46</TargetFramework>
+        <TargetFramework>net47</TargetFramework>
         <AssemblyName>BetterEmotes</AssemblyName>
         <Description>Alters the integration method of more emotes</Description>
         <Version>1.3.4</Version>
@@ -16,6 +16,7 @@
 		<PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
 		<PackageReference Include="Rune580.LethalCompany_InputUtils" Version="0.4.4" />
 		<PackageReference Include="LethalAPI.GameLibs" Version="47.*" />
+		<PackageReference Include="NicholaScott.BepInEx.RuntimeNetcodeRPCValidator" Version="0.2.5" />
 		<PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" />
     </ItemGroup>
 

@@ -6,32 +6,70 @@ using HarmonyLib;
 using UnityEngine;
 using BepInEx.Logging;
 using System;
+using GameNetcodeStuff;
+using RuntimeNetcodeRPCValidator;
+using BetterEmote.Patches;
+using BetterEmote.AssetScripts;
+using BetterEmote.Utils;
 
 namespace BetterEmote
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("NicholaScott.BepInEx.RuntimeNetcodeRPCValidator", BepInDependency.DependencyFlags.HardDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static ManualLogSource StaticLogger;
 
         private Harmony _harmony;
 
+        private NetcodeValidator netcodeValidator;
+
         private void Awake()
         {
             StaticLogger = Logger;
             StaticLogger.LogInfo("BetterEmotes loading...");
-            EmotePatch.animationsBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "BetterEmotes/animationsbundle"));
-            EmotePatch.animatorBundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "BetterEmotes/animatorbundle"));
-            EmotePatch.local = new AnimatorOverrideController(EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>("Assets/MoreEmotes/NEWmetarig.controller"));
-            EmotePatch.others = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>("Assets/MoreEmotes/NEWmetarigOtherPlayers.controller");
-            CustomAudioAnimationEvent.claps[0] = EmotePatch.animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote1.wav");
-            CustomAudioAnimationEvent.claps[1] = EmotePatch.animationsBundle.LoadAsset<AudioClip>("Assets/MoreEmotes/SingleClapEmote2.wav");
+            LoadAssetBundles();
+            LoadAssets();
             ConfigFile();
             EmotePatch.keybinds = new Keybinds();
             _harmony = new Harmony("BetterEmotes");
             _harmony.PatchAll(typeof(InitGamePatch));
             _harmony.PatchAll(typeof(EmotePatch));
+            netcodeValidator = new NetcodeValidator("MoreEmotes");
+            netcodeValidator.PatchAll();
+            netcodeValidator.BindToPreExistingObjectByBehaviour<SignEmoteText, PlayerControllerB>();
+            netcodeValidator.BindToPreExistingObjectByBehaviour<SyncAnimatorToOthers, PlayerControllerB>();
             StaticLogger.LogInfo("BetterEmotes loaded");
+        }
+
+        private void LoadAssetBundles()
+        {
+            string animationsBundlePatch = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "BetterEmotes/animationsbundle");
+            string animatiorBundlePatch = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "BetterEmotes/animatorbundle");
+            try
+            {
+                EmotePatch.animationsBundle = AssetBundle.LoadFromFile(animationsBundlePatch);
+                EmotePatch.animatorBundle = AssetBundle.LoadFromFile(animatiorBundlePatch);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to load AssetBundles. Make sure \"animatorsbundle\" and \"animationsbundle\" are inside the MoreEmotes folder.\nError: " + ex.Message);
+            }
+        }
+
+        private void LoadAssets()
+        {
+            string path = "Assets/MoreEmotes";
+            EmotePatch.local = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>(Path.Combine(path, "NEWmetarig.controller"));
+            EmotePatch.others = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>(Path.Combine(path, "NEWmetarigOtherPlayers.controller"));
+            MoreEmotesEvents.ClapSounds[0] = EmotePatch.animationsBundle.LoadAsset<AudioClip>(Path.Combine(path, "SingleClapEmote1.wav"));
+            MoreEmotesEvents.ClapSounds[1] = EmotePatch.animationsBundle.LoadAsset<AudioClip>(Path.Combine(path, "SingleClapEmote2.wav"));
+            //EmotePatch.SettingsPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/MoreEmotesPanel.prefab"));
+            //EmotePatch.ButtonPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/MoreEmotesButton.prefab"));
+            EmotePatch.LegsPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/plegs.prefab"));
+            EmotePatch.SignPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/Sign.prefab"));
+            EmotePatch.SignUIPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/SignTextUI.prefab"));
+            EmotePatch.WheelPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>("Assets/MoreEmotes/Resources/MoreEmotesMenu.prefab");
         }
 
         private void ConfigFile()
@@ -58,7 +96,7 @@ namespace BetterEmote
             ConfigEntry<string> configEmoteControllerMove = Config.Bind("Emote Controller Bindings", "Emote Wheel Move", "<Gamepad>/rightStick", "Default controller binding for the emote wheel movement");
             EmotePatch.emoteWheelControllerMove = configEmoteControllerMove.Value.Equals("") ? "" : (configEmoteControllerMove.Value.ToLower().StartsWith("<gamepad>") ? configEmoteControllerMove.Value : $"<Gamepad>/{configEmoteControllerMove.Value}");
             ConfigEntry<float> configEmoteControllerDeadzone = Config.Bind("Emote Controller Bindings", "Emote Wheel Deadzone", 0.25f, "Default controller deadzone for emote selection");
-            SelectionWheel.controllerDeadzone = configEmoteControllerDeadzone.Value < 0 ? 0 : configEmoteControllerDeadzone.Value;
+            EmoteWheel.controllerDeadzone = configEmoteControllerDeadzone.Value < 0 ? 0 : configEmoteControllerDeadzone.Value;
 
             ConfigEntry<float> configGriddySpeed = Config.Bind("Emote Settings", "Griddy Speed", 0.5f, "Speed of griddy relative to regular speed");
             EmotePatch.griddySpeed = configGriddySpeed.Value < 0 ? 0 : configGriddySpeed.Value;

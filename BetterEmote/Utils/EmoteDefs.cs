@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BetterEmote
+namespace BetterEmote.Utils
 {
     public enum Emote : int
     {

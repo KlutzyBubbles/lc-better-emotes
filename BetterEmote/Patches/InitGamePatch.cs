@@ -3,7 +3,7 @@ using BepInEx;
 using HarmonyLib;
 using System.Collections.Generic;
 
-namespace BetterEmote
+namespace BetterEmote.Patches
 {
     internal class InitGamePatch
     {

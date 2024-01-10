@@ -1,7 +1,8 @@
-﻿using GameNetcodeStuff;
+﻿using BetterEmote.Utils;
+using GameNetcodeStuff;
 using UnityEngine;
 
-namespace BetterEmote
+namespace BetterEmote.AssetScripts
 {
     public class CustomAudioAnimationEvent : MonoBehaviour
     {
