@@ -11,10 +11,13 @@ using RuntimeNetcodeRPCValidator;
 using BetterEmote.Patches;
 using BetterEmote.AssetScripts;
 using BetterEmote.Utils;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace BetterEmote
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("com.rune580.LethalCompanyInputUtils", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("NicholaScott.BepInEx.RuntimeNetcodeRPCValidator", BepInDependency.DependencyFlags.HardDependency)]
     public class Plugin : BaseUnityPlugin
     {
@@ -23,6 +26,8 @@ namespace BetterEmote
         private Harmony _harmony;
 
         private NetcodeValidator netcodeValidator;
+
+        private static bool debug = true;
 
         private void Awake()
         {
@@ -35,7 +40,7 @@ namespace BetterEmote
             _harmony = new Harmony("BetterEmotes");
             _harmony.PatchAll(typeof(InitGamePatch));
             _harmony.PatchAll(typeof(EmotePatch));
-            netcodeValidator = new NetcodeValidator("MoreEmotes");
+            netcodeValidator = new NetcodeValidator(PluginInfo.PLUGIN_GUID);
             netcodeValidator.PatchAll();
             netcodeValidator.BindToPreExistingObjectByBehaviour<SignEmoteText, PlayerControllerB>();
             netcodeValidator.BindToPreExistingObjectByBehaviour<SyncAnimatorToOthers, PlayerControllerB>();
@@ -62,8 +67,8 @@ namespace BetterEmote
             string path = "Assets/MoreEmotes";
             EmotePatch.local = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>(Path.Combine(path, "NEWmetarig.controller"));
             EmotePatch.others = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>(Path.Combine(path, "NEWmetarigOtherPlayers.controller"));
-            MoreEmotesEvents.ClapSounds[0] = EmotePatch.animationsBundle.LoadAsset<AudioClip>(Path.Combine(path, "SingleClapEmote1.wav"));
-            MoreEmotesEvents.ClapSounds[1] = EmotePatch.animationsBundle.LoadAsset<AudioClip>(Path.Combine(path, "SingleClapEmote2.wav"));
+            CustomAudioAnimationEvent.claps[0] = EmotePatch.animationsBundle.LoadAsset<AudioClip>(Path.Combine(path, "SingleClapEmote1.wav"));
+            CustomAudioAnimationEvent.claps[1] = EmotePatch.animationsBundle.LoadAsset<AudioClip>(Path.Combine(path, "SingleClapEmote2.wav"));
             //EmotePatch.SettingsPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/MoreEmotesPanel.prefab"));
             //EmotePatch.ButtonPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/MoreEmotesButton.prefab"));
             EmotePatch.LegsPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/plegs.prefab"));
@@ -81,10 +86,16 @@ namespace BetterEmote
             {
                 if (EmoteDefs.getEmoteNumber(name) > 2)
                 {
-                    ConfigEntry<string> keyConfig = Config.Bind("Emote Keys", $"{name} Key", $"<Keyboard>/{EmoteDefs.getEmoteNumber(name)}", $"Default keybind for {name} emote");
-                    EmotePatch.defaultKeyList[EmoteDefs.getEmoteNumber(name)] = keyConfig.Value.Equals("") ? "" : (keyConfig.Value.ToLower().StartsWith("<keyboard>") ? keyConfig.Value : $"<Keyboard>/{keyConfig.Value}");
+                    string defaultEmoteKey = "";
+                    int emoteNumber = EmoteDefs.getEmoteNumber(name);
+                    if (emoteNumber <= 10)
+                    {
+                        defaultEmoteKey = $"<Keyboard>/{emoteNumber % 10}";
+                    }
+                    ConfigEntry<string> keyConfig = Config.Bind("Emote Keys", $"{name} Key", defaultEmoteKey, $"Default keybind for {name} emote");
+                    EmotePatch.defaultKeyList[emoteNumber] = keyConfig.Value.Equals("") ? "" : (keyConfig.Value.ToLower().StartsWith("<keyboard>") ? keyConfig.Value : $"<Keyboard>/{keyConfig.Value}");
                     ConfigEntry<string> controllerConfig = Config.Bind("Emote Controller Bindings", $"{name} Button", "", $"Default controller binding for {name} emote");
-                    EmotePatch.defaultControllerList[EmoteDefs.getEmoteNumber(name)] = controllerConfig.Value.Equals("") ? "" : (controllerConfig.Value.ToLower().StartsWith("<gamepad>") ? controllerConfig.Value : $"<Gamepad>/{controllerConfig.Value}");
+                    EmotePatch.defaultControllerList[emoteNumber] = controllerConfig.Value.Equals("") ? "" : (controllerConfig.Value.ToLower().StartsWith("<gamepad>") ? controllerConfig.Value : $"<Gamepad>/{controllerConfig.Value}");
                 }
                 ConfigEntry<bool> enabledConfig = Config.Bind("Enabled Emotes", $"Enable {name}", true, $"Toggle {name} emote key");
                 EmotePatch.enabledList[EmoteDefs.getEmoteNumber(name)] = enabledConfig.Value;
@@ -106,6 +117,33 @@ namespace BetterEmote
 
             ConfigEntry<bool> configEmoteStop = Config.Bind("Emote Settings", "Stop on outer", false, "Whether or not to stop emoting when mousing to outside the emote wheel");
             EmotePatch.stopOnOuter = configEmoteStop.Value;
+        }
+
+        public static Dictionary<string, long> lastLog = new Dictionary<string, long>();
+        public static float logDelay = 1f;
+
+        public static void Debug(string message)
+        {
+            if (debug)
+            {
+                StaticLogger.LogDebug(message);
+                /*
+                long currentTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+                if (lastLog.ContainsKey(message))
+                {
+                    long lastTime = lastLog[message];
+                    if (currentTime - lastTime > logDelay * 1000)
+                    {
+                        StaticLogger.LogDebug(message);
+                        lastLog[message] = currentTime;
+                    }
+                } else
+                {
+                    StaticLogger.LogDebug(message);
+                    lastLog.Add(message, currentTime);
+                }
+                */
+            }
         }
     }
 }

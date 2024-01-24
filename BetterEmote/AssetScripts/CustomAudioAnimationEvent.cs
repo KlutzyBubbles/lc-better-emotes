@@ -26,7 +26,7 @@ namespace BetterEmote.AssetScripts
             {
                 if (player.IsOwner && player.isPlayerControlled)
                 {
-                    if (animator.GetInteger("emoteNumber") != (int)Emote.Clap)
+                    if (getCurrentEmoteID() != (int)Emote.Clap)
                     {
                         return;
                     }
@@ -44,7 +44,7 @@ namespace BetterEmote.AssetScripts
             {
                 if (player.IsOwner && player.isPlayerControlled)
                 {
-                    if (animator.GetInteger("emoteNumber") != (int)Emote.Griddy)
+                    if (getCurrentEmoteID() != (int)Emote.Griddy)
                     {
                         return;
                     }
@@ -52,6 +52,16 @@ namespace BetterEmote.AssetScripts
                 player.PlayFootstepLocal();
                 player.PlayFootstepServer();
             }
+        }
+
+        private int getCurrentEmoteID()
+        {
+            int num = animator.GetInteger("emoteNumber");
+            if (num >= 1000)
+            {
+                num -= 1000;
+            }
+            return num;
         }
     }
 }

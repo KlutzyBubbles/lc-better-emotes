@@ -14,6 +14,8 @@ namespace BetterEmote.Utils
         public InputAction Griddy => Asset["Griddy"];
         public InputAction Twerk => Asset["Twerk"];
         public InputAction Salute => Asset["Salute"];
+        public InputAction Prisyadka => Asset["Prisyadka"];
+        public InputAction Sign => Asset["Sign"];
         public InputAction EmoteWheel => Asset["EmoteWheel"];
         public InputAction EmoteWheelController => Asset["EmoteWheelController"];
 
@@ -66,6 +68,10 @@ namespace BetterEmote.Utils
                     return Twerk;
                 case Emote.Salute:
                     return Salute;
+                case Emote.Prisyadka:
+                    return Prisyadka;
+                case Emote.Sign:
+                    return Sign;
                 case Emote.Dance:
                     return component.currentActionMap.FindAction("Emote1", false);
                 case Emote.Point:

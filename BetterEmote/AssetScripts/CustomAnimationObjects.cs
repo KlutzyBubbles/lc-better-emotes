@@ -18,11 +18,13 @@ namespace BetterEmote.AssetScripts
 
         private void Start()
         {
+            Plugin.Debug("CustomAnimationObjects.Start()");
             _player = GetComponent<PlayerControllerB>();
         }
 
         private void Update()
         {
+            // Plugin.Debug("CustomAnimationObjects.Update()");
             if (_sign == null || _signText == null)
             {
                 FindSign();
@@ -75,6 +77,7 @@ namespace BetterEmote.AssetScripts
 
         private void DisableEverything()
         {
+            // Plugin.Debug("DisableEverything()");
             if (_legs != null)
             {
                 _legs.enabled = false;
@@ -92,13 +95,28 @@ namespace BetterEmote.AssetScripts
 
         private void FindSign()
         {
+            Plugin.Debug("FindSign()");
             _sign = _player.transform.Find("ScavengerModel").Find("metarig").Find("Sign").GetComponent<MeshRenderer>();
             _signText = _sign.transform.Find("Text").gameObject;
         }
 
         private void FindLegs()
         {
-            _legs = _player.transform.Find("ScavengerModel").Find("LEGS").GetComponent<SkinnedMeshRenderer>();
+            Plugin.Debug("FindLegs()");
+            Transform transform = _player.transform;
+            Plugin.Debug("transform");
+            Transform scavenger = transform.Find("ScavengerModel");
+            Plugin.Debug("ScavengerModel");
+            Transform legs = scavenger.Find("LEGS");
+            Transform legs2 = scavenger.Find("Legs");
+            Transform legs3 = scavenger.Find("legs");
+            Plugin.Debug("LEGS");
+            Plugin.Debug($"{legs == null}");
+            Plugin.Debug($"{legs2 == null}");
+            Plugin.Debug($"{legs3 == null}");
+            _legs = legs.GetComponent<SkinnedMeshRenderer>();
+            Plugin.Debug("SkinnedMeshRenderer");
+            // _legs = _player.transform.Find("ScavengerModel").Find("LEGS").GetComponent<SkinnedMeshRenderer>();
         }
     }
 }
