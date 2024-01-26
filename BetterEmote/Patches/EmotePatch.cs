@@ -11,26 +11,9 @@ namespace BetterEmote.Patches
 {
     internal class EmotePatch
     {
-        public static Keybinds keybinds;
-
         public static AssetBundle animationsBundle;
 
         public static AssetBundle animatorBundle;
-
-        public static bool stopOnOuter = false;
-
-        public static bool[] enabledList;
-        public static string[] defaultKeyList;
-        public static string[] defaultControllerList;
-
-        public static string emoteWheelKey = "<Keyboard>/v";
-        public static string emoteWheelController = "<Gamepad>/leftShoulder";
-        public static string emoteWheelControllerMove = "<Gamepad>/rightStick";
-
-        public static float griddySpeed = 0.5f;
-        public static float prisyadkaSpeed = 0.34f;
-        public static float emoteCooldown = 0.5f;
-        public static float signTextCooldown = 0.1f;
 
         public static RuntimeAnimatorController local;
 
@@ -40,18 +23,11 @@ namespace BetterEmote.Patches
 
         private static float movSpeed;
 
-        public static bool incompatibleStuff;
-
-        public static bool emoteWheelIsOpened;
-
         public static bool[] playersPerformingEmotes = new bool[40];
-
-        private static EmoteWheel selectionWheel;
 
         public static GameObject LegsPrefab;
         public static GameObject SignPrefab;
         public static GameObject SignUIPrefab;
-        public static GameObject WheelPrefab;
         private static GameObject localPlayerLevelBadge;
         private static GameObject localPlayerBetaBadge;
 
@@ -74,7 +50,7 @@ namespace BetterEmote.Patches
         {
             Plugin.Debug("AwakePost()");
             GameObject gameObject = GameObject.Find("Systems").gameObject.transform.Find("UI").gameObject.transform.Find("Canvas").gameObject;
-            selectionWheel = UnityEngine.Object.Instantiate(WheelPrefab, gameObject.transform).AddComponent<EmoteWheel>();
+            // selectionWheel = UnityEngine.Object.Instantiate(WheelPrefab, gameObject.transform).AddComponent<EmoteWheel>();
             EmoteWheel.emoteNames = new string[EmoteDefs.getEmoteCount() + 1];
             foreach (string name in Enum.GetNames(typeof(Emote)))
             {
@@ -88,7 +64,7 @@ namespace BetterEmote.Patches
         [HarmonyPostfix]
         private static void StartPostfix(PlayerControllerB __instance)
         {
-            Plugin.Debug("StartPostfix()");
+            Plugin.Debug("EmotePatch.StartPostfix()");
             GameObject gameObject = __instance.gameObject.transform.Find("ScavengerModel").transform.Find("metarig").gameObject;
             CustomAudioAnimationEvent customAudioAnimationEvent = gameObject.AddComponent<CustomAudioAnimationEvent>();
             customAudioAnimationEvent.player = __instance;
@@ -114,147 +90,6 @@ namespace BetterEmote.Patches
                 }
             }
             */
-            keybinds.MiddleFinger.performed += onEmoteKeyMiddleFinger;
-            keybinds.Griddy.performed += onEmoteKeyGriddy;
-            keybinds.Shy.performed += onEmoteKeyShy;
-            keybinds.Clap.performed += onEmoteKeyClap;
-            keybinds.Salute.performed += onEmoteKeySalute;
-            keybinds.Prisyadka.performed += onEmoteKeyPrisyadka;
-            keybinds.Sign.performed += onEmoteKeySign;
-            keybinds.Twerk.performed += onEmoteKeyTwerk;
-            keybinds.EmoteWheel.started += onEmoteKeyWheelStarted;
-            keybinds.EmoteWheel.canceled += onEmoteKeyWheelCanceled;
-            keybinds.MiddleFinger.Enable();
-            keybinds.Griddy.Enable();
-            keybinds.Shy.Enable();
-            keybinds.Clap.Enable();
-            keybinds.Salute.Enable();
-            keybinds.Prisyadka.Enable();
-            keybinds.Sign.Enable();
-            keybinds.Twerk.Enable();
-            keybinds.EmoteWheel.Enable();
-        }
-
-        [HarmonyPatch(typeof(PlayerControllerB), "OnDisable")]
-        [HarmonyPostfix]
-        public static void OnDisablePostfix(PlayerControllerB __instance)
-        {
-            Plugin.Debug("OnDisablePostfix()");
-            if (__instance == GameValues.localPlayerController)
-            {
-                keybinds.MiddleFinger.performed -= onEmoteKeyMiddleFinger;
-                keybinds.Griddy.performed -= onEmoteKeyGriddy;
-                keybinds.Shy.performed -= onEmoteKeyShy;
-                keybinds.Clap.performed -= onEmoteKeyClap;
-                keybinds.Salute.performed -= onEmoteKeySalute;
-                keybinds.Prisyadka.performed -= onEmoteKeyPrisyadka;
-                keybinds.Sign.performed -= onEmoteKeySign;
-                keybinds.Twerk.performed -= onEmoteKeyTwerk;
-                keybinds.EmoteWheel.started -= onEmoteKeyWheelStarted;
-                keybinds.EmoteWheel.canceled -= onEmoteKeyWheelCanceled;
-                keybinds.MiddleFinger.Disable();
-                keybinds.Griddy.Disable();
-                keybinds.Shy.Disable();
-                keybinds.Clap.Disable();
-                keybinds.Salute.Disable();
-                keybinds.Prisyadka.Disable();
-                keybinds.Sign.Disable();
-                keybinds.Twerk.Disable();
-                keybinds.EmoteWheel.Disable();
-            }
-        }
-
-        public static void onEmoteKeyWheelStarted(InputAction.CallbackContext context)
-        {
-            Plugin.Debug("onEmoteKeyWheelStarted()");
-            if (!emoteWheelIsOpened
-                && !GameValues.localPlayerController.isPlayerDead
-                && !GameValues.localPlayerController.inTerminalMenu
-                && !GameValues.localPlayerController.isTypingChat
-                && !GameValues.localPlayerController.quickMenuManager.isMenuOpen
-                && !customSignInputField.IsSignUIOpen)
-            {
-                emoteWheelIsOpened = true;
-                Cursor.visible = true;
-                Cursor.lockState = CursorLockMode.Confined;
-                selectionWheel.gameObject.SetActive(emoteWheelIsOpened);
-                GameValues.localPlayerController.quickMenuManager.isMenuOpen = true;
-                GameValues.localPlayerController.disableLookInput = true;
-            }
-        }
-
-        public static void onEmoteKeyWheelCanceled(InputAction.CallbackContext context)
-        {
-            Plugin.Debug("onEmoteKeyWheelCanceled()");
-            if (emoteWheelIsOpened)
-            {
-                GameValues.localPlayerController.quickMenuManager.isMenuOpen = false;
-                GameValues.localPlayerController.disableLookInput = false;
-                if (selectionWheel.selectedEmoteID >= enabledList.Length)
-                {
-                    if (selectionWheel.stopEmote)
-                    {
-                        GameValues.localPlayerController.performingEmote = false;
-                        GameValues.localPlayerController.StopPerformingEmoteServerRpc();
-                        GameValues.localPlayerController.timeSinceStartingEmote = 0f;
-                    }
-                }
-                else
-                {
-                    CheckEmoteInput(context, enabledList[selectionWheel.selectedEmoteID], selectionWheel.selectedEmoteID, GameValues.localPlayerController);
-                }
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked;
-                emoteWheelIsOpened = false;
-                selectionWheel.gameObject.SetActive(emoteWheelIsOpened);
-            }
-        }
-
-        public static void onEmoteKeyMiddleFinger(InputAction.CallbackContext context)
-        {
-            onEmoteKeyPerformed(context, Emote.Middle_Finger);
-        }
-
-        public static void onEmoteKeyGriddy(InputAction.CallbackContext context)
-        {
-            onEmoteKeyPerformed(context, Emote.Griddy);
-        }
-
-        public static void onEmoteKeyShy(InputAction.CallbackContext context)
-        {
-            onEmoteKeyPerformed(context, Emote.Shy);
-        }
-
-        public static void onEmoteKeyClap(InputAction.CallbackContext context)
-        {
-            onEmoteKeyPerformed(context, Emote.Clap);
-        }
-
-        public static void onEmoteKeySalute(InputAction.CallbackContext context)
-        {
-            onEmoteKeyPerformed(context, Emote.Salute);
-        }
-
-        public static void onEmoteKeyPrisyadka(InputAction.CallbackContext context)
-        {
-            Plugin.Debug("PlayerControllerB.onEmoteKeyPrisyadka()");
-            onEmoteKeyPerformed(context, Emote.Prisyadka);
-        }
-
-        public static void onEmoteKeySign(InputAction.CallbackContext context)
-        {
-            Plugin.Debug("PlayerControllerB.onEmoteKeySign()");
-            onEmoteKeyPerformed(context, Emote.Sign);
-        }
-
-        public static void onEmoteKeyTwerk(InputAction.CallbackContext context)
-        {
-            onEmoteKeyPerformed(context, Emote.Twerk);
-        }
-
-        public static void onEmoteKeyPerformed(InputAction.CallbackContext context, Emote emote)
-        {
-            CheckEmoteInput(context, enabledList[(int)emote], (int)emote, GameValues.localPlayerController);
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
@@ -305,18 +140,18 @@ namespace BetterEmote.Patches
                     }
                 }
                 // currentEmoteID = __instance.playerBodyAnimator.GetInteger("emoteNumber");
-                if (!incompatibleStuff)
+                if (!Settings.incompatibleStuff)
                 {
                     __instance.movementSpeed = movSpeed;
                     if (__instance.CheckConditionsForEmote() && __instance.performingEmote)
                     {
                         if (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Griddy))
                         {
-                            __instance.movementSpeed = movSpeed * griddySpeed;
+                            __instance.movementSpeed = movSpeed * Settings.griddySpeed;
                         }
                         else if (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
                         {
-                            __instance.movementSpeed = movSpeed * prisyadkaSpeed;
+                            __instance.movementSpeed = movSpeed * Settings.prisyadkaSpeed;
                         }
                     }
                 }
@@ -332,15 +167,6 @@ namespace BetterEmote.Patches
             if (__instance.IsOwner && __instance.isPlayerControlled)
             {
                 isPlayerSpawning = true;
-            }
-        }
-
-        private static void CheckEmoteInput(InputAction.CallbackContext context, bool enabled, int emoteID, PlayerControllerB player)
-        {
-            Plugin.Debug($"CheckEmoteInput({enabled}, {emoteID})");
-            if (enabled)
-            {
-                player.PerformEmote(context, emoteID);
             }
         }
 
@@ -469,7 +295,7 @@ namespace BetterEmote.Patches
                 Plugin.Debug($"Sign UI is open, is this a sign?");
                 return false;
             }
-            if (localEmoteID > 0 && localEmoteID <= EmoteDefs.getEmoteNumber(Emote.Point) && !emoteWheelIsOpened && !context.performed)
+            if (localEmoteID > 0 && localEmoteID <= EmoteDefs.getEmoteNumber(Emote.Point) && !EmoteKeybindPatch.emoteWheelIsOpened && !context.performed)
             {
                 Plugin.Debug($"Normal emote with no emote wheel or context performed");
                 return false;
@@ -515,7 +341,7 @@ namespace BetterEmote.Patches
             if (__instance.CheckConditionsForEmote())
             {
                 Plugin.Debug($"Check conditions passed");
-                if (__instance.timeSinceStartingEmote >= emoteCooldown)
+                if (__instance.timeSinceStartingEmote >= Settings.emoteCooldown)
                 {
                     Plugin.Debug($"Time elapsed since last emote cooldown");
                     Action action = delegate ()

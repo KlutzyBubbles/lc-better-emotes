@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
-using BetterEmote.Patches;
 using BetterEmote.Utils;
 
 namespace BetterEmote.AssetScripts
@@ -41,8 +40,6 @@ namespace BetterEmote.AssetScripts
         public static string[] emoteNames;
         public static string[] emoteKeybinds;
 
-        public static float controllerDeadzone = 0.25f;
-
         private Vector2 centerScreen;
 
         private StickControl joystick;
@@ -66,7 +63,7 @@ namespace BetterEmote.AssetScripts
             emoteKeybinds = new string[EmoteDefs.getEmoteCount() + 1];
             foreach (string name in Enum.GetNames(typeof(Emote)))
             {
-                emoteKeybinds[EmoteDefs.getEmoteNumber(name) - 1] = EmotePatch.keybinds.getByEmote(EmoteDefs.getEmote(name)).GetBindingDisplayString(0, 0);
+                emoteKeybinds[EmoteDefs.getEmoteNumber(name) - 1] = Settings.keybinds.getByEmote(EmoteDefs.getEmote(name)).GetBindingDisplayString(0, 0);
             }
             centerScreen = new Vector2(Screen.width / 2, Screen.height / 2);
             Cursor.visible = true;
@@ -75,7 +72,7 @@ namespace BetterEmote.AssetScripts
                 Mouse.current.WarpCursorPosition(centerScreen);
             }
             string effectivePath = "";
-            foreach (InputBinding binding in EmotePatch.keybinds.EmoteWheelController.bindings)
+            foreach (InputBinding binding in Settings.keybinds.EmoteWheelController.bindings)
             {
                 if (binding.effectivePath != null && binding.effectivePath.Length > 0)
                 {
@@ -185,7 +182,7 @@ namespace BetterEmote.AssetScripts
             bool isOuter;
             if (GameValues.localPlayerUsingController)
             {
-                isCenter = Math.Pow(diff.x, 2) + Math.Pow(diff.y, 2) <= Math.Pow(controllerDeadzone, 2);
+                isCenter = Math.Pow(diff.x, 2) + Math.Pow(diff.y, 2) <= Math.Pow(Settings.controllerDeadzone, 2);
                 isOuter = false;
             }
             else
@@ -216,7 +213,7 @@ namespace BetterEmote.AssetScripts
                 selectionBlock.localRotation = Quaternion.Euler(transform.rotation.z, transform.rotation.y, num2 * currentBlock);
                 if (isOuter)
                 {
-                    if (EmotePatch.stopOnOuter)
+                    if (Settings.stopOnOuter)
                     {
                         selectionBlock.gameObject.SetActive(false);
                         stopEmote = true;

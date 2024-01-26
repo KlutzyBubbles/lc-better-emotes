@@ -11,7 +11,6 @@ using RuntimeNetcodeRPCValidator;
 using BetterEmote.Patches;
 using BetterEmote.AssetScripts;
 using BetterEmote.Utils;
-using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace BetterEmote
@@ -27,9 +26,6 @@ namespace BetterEmote
 
         private NetcodeValidator netcodeValidator;
 
-        private static bool debug = true;
-        private static bool trace = false;
-
         private void Awake()
         {
             StaticLogger = Logger;
@@ -37,11 +33,12 @@ namespace BetterEmote
             LoadAssetBundles();
             LoadAssets();
             ConfigFile();
-            EmotePatch.keybinds = new Keybinds();
+            Settings.keybinds = new Keybinds();
             _harmony = new Harmony("BetterEmotes");
             _harmony.PatchAll(typeof(InitGamePatch));
             _harmony.PatchAll(typeof(EmotePatch));
             _harmony.PatchAll(typeof(SignChatPatch));
+            _harmony.PatchAll(typeof(EmoteKeybindPatch));
             netcodeValidator = new NetcodeValidator(PluginInfo.PLUGIN_GUID);
             netcodeValidator.PatchAll();
             netcodeValidator.BindToPreExistingObjectByBehaviour<SignEmoteText, PlayerControllerB>();
@@ -71,19 +68,17 @@ namespace BetterEmote
             EmotePatch.others = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>(Path.Combine(path, "NEWmetarigOtherPlayers.controller"));
             CustomAudioAnimationEvent.claps[0] = EmotePatch.animationsBundle.LoadAsset<AudioClip>(Path.Combine(path, "SingleClapEmote1.wav"));
             CustomAudioAnimationEvent.claps[1] = EmotePatch.animationsBundle.LoadAsset<AudioClip>(Path.Combine(path, "SingleClapEmote2.wav"));
-            //EmotePatch.SettingsPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/MoreEmotesPanel.prefab"));
-            //EmotePatch.ButtonPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/MoreEmotesButton.prefab"));
             EmotePatch.LegsPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/plegs.prefab"));
             EmotePatch.SignPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/Sign.prefab"));
             EmotePatch.SignUIPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/SignTextUI.prefab"));
-            EmotePatch.WheelPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>("Assets/MoreEmotes/Resources/MoreEmotesMenu.prefab");
+            EmoteKeybindPatch.WheelPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>("Assets/MoreEmotes/Resources/MoreEmotesMenu.prefab");
         }
 
         private void ConfigFile()
         {
-            EmotePatch.enabledList = new bool[EmoteDefs.getEmoteCount() + 1];
-            EmotePatch.defaultKeyList = new string[EmoteDefs.getEmoteCount() + 1];
-            EmotePatch.defaultControllerList = new string[EmoteDefs.getEmoteCount() + 1];
+            Settings.enabledList = new bool[EmoteDefs.getEmoteCount() + 1];
+            Settings.defaultKeyList = new string[EmoteDefs.getEmoteCount() + 1];
+            Settings.defaultControllerList = new string[EmoteDefs.getEmoteCount() + 1];
             foreach (string name in Enum.GetNames(typeof(Emote)))
             {
                 if (EmoteDefs.getEmoteNumber(name) > 2)
@@ -95,51 +90,64 @@ namespace BetterEmote
                         defaultEmoteKey = $"<Keyboard>/{emoteNumber % 10}";
                     }
                     ConfigEntry<string> keyConfig = Config.Bind("Emote Keys", $"{name} Key", defaultEmoteKey, $"Default keybind for {name} emote");
-                    EmotePatch.defaultKeyList[emoteNumber] = keyConfig.Value.Equals("") ? "" : (keyConfig.Value.ToLower().StartsWith("<keyboard>") ? keyConfig.Value : $"<Keyboard>/{keyConfig.Value}");
+                    Settings.defaultKeyList[emoteNumber] = Settings.validatePrefix("<Keyboard>", keyConfig.Value);
                     ConfigEntry<string> controllerConfig = Config.Bind("Emote Controller Bindings", $"{name} Button", "", $"Default controller binding for {name} emote");
-                    EmotePatch.defaultControllerList[emoteNumber] = controllerConfig.Value.Equals("") ? "" : (controllerConfig.Value.ToLower().StartsWith("<gamepad>") ? controllerConfig.Value : $"<Gamepad>/{controllerConfig.Value}");
+                    Settings.defaultControllerList[emoteNumber] = Settings.validatePrefix("<Gamepad>", controllerConfig.Value);
                 }
                 ConfigEntry<bool> enabledConfig = Config.Bind("Enabled Emotes", $"Enable {name}", true, $"Toggle {name} emote key");
-                EmotePatch.enabledList[EmoteDefs.getEmoteNumber(name)] = enabledConfig.Value;
+                Settings.enabledList[EmoteDefs.getEmoteNumber(name)] = enabledConfig.Value;
             }
             ConfigEntry<string> configEmoteKey = Config.Bind("Emote Keys", "Emote Wheel Key", "<Keyboard>/v", "Default keybind for the emote wheel");
-            EmotePatch.emoteWheelKey = configEmoteKey.Value.Equals("") ? "" : (configEmoteKey.Value.ToLower().StartsWith("<keyboard>") ? configEmoteKey.Value : $"<Keyboard>/{configEmoteKey.Value}");
+            Settings.emoteWheelKey = Settings.validatePrefix("<Keyboard>", configEmoteKey.Value);
             ConfigEntry<string> configEmoteController = Config.Bind("Emote Controller Bindings", "Emote Wheel Button", "<Gamepad>/leftShoulder", "Default controller binding for the emote wheel");
-            EmotePatch.emoteWheelController = configEmoteController.Value.Equals("") ? "" : (configEmoteController.Value.ToLower().StartsWith("<gamepad>") ? configEmoteController.Value : $"<Gamepad>/{configEmoteController.Value}");
+            Settings.emoteWheelController = Settings.validatePrefix("<Gamepad>", configEmoteController.Value);
             ConfigEntry<string> configEmoteControllerMove = Config.Bind("Emote Controller Bindings", "Emote Wheel Move", "<Gamepad>/rightStick", "Default controller binding for the emote wheel movement");
-            EmotePatch.emoteWheelControllerMove = configEmoteControllerMove.Value.Equals("") ? "" : (configEmoteControllerMove.Value.ToLower().StartsWith("<gamepad>") ? configEmoteControllerMove.Value : $"<Gamepad>/{configEmoteControllerMove.Value}");
+            Settings.emoteWheelControllerMove = Settings.validatePrefix("<Gamepad>", configEmoteControllerMove.Value);
             ConfigEntry<float> configEmoteControllerDeadzone = Config.Bind("Emote Controller Bindings", "Emote Wheel Deadzone", 0.25f, "Default controller deadzone for emote selection");
-            EmoteWheel.controllerDeadzone = configEmoteControllerDeadzone.Value < 0 ? 0 : configEmoteControllerDeadzone.Value;
+            Settings.controllerDeadzone = Settings.validateGreaterThanEqualToZero(configEmoteControllerDeadzone.Value);
 
             ConfigEntry<float> configGriddySpeed = Config.Bind("Emote Settings", "Griddy Speed", 0.5f, "Speed of griddy relative to regular speed");
-            EmotePatch.griddySpeed = configGriddySpeed.Value < 0 ? 0 : configGriddySpeed.Value;
+            Settings.griddySpeed = Settings.validateGreaterThanEqualToZero(configGriddySpeed.Value);
+            ConfigEntry<float> configPrisyadkaSpeed = Config.Bind("Emote Settings", "Prisyadka Speed", 0.5f, "Speed of Prisyadka relative to regular speed");
+            Settings.prisyadkaSpeed = Settings.validateGreaterThanEqualToZero(configPrisyadkaSpeed.Value);
 
             ConfigEntry<float> configEmoteCooldown = Config.Bind("Emote Settings", "Cooldown", 0.5f, "Time (in seconds) to wait before being able to switch emotes");
-            EmotePatch.emoteCooldown = configEmoteCooldown.Value < 0 ? 0 : configEmoteCooldown.Value;
+            Settings.emoteCooldown = Settings.validateGreaterThanEqualToZero(configEmoteCooldown.Value);
+
+            ConfigEntry<float> configSignEmoteCooldown = Config.Bind("Emote Settings", "Sign Text Cooldown", 0.5f, "Time (in seconds) to wait before being able to finish typing (was hard coded into MoreEmotes)");
+            Settings.signTextCooldown = Settings.validateGreaterThanEqualToZero(configSignEmoteCooldown.Value);
 
             ConfigEntry<bool> configEmoteStop = Config.Bind("Emote Settings", "Stop on outer", false, "Whether or not to stop emoting when mousing to outside the emote wheel");
-            EmotePatch.stopOnOuter = configEmoteStop.Value;
+            Settings.stopOnOuter = configEmoteStop.Value;
+
+            ConfigEntry<float> configTraceDelay = Config.Bind("Debug Settings", "Trace Delay", 0.5f, "Time (in seconds) to wait before writing the same trace line, trace messages are very spammy");
+            Settings.logDelay = Settings.validateGreaterThanEqualToZero(configTraceDelay.Value);
+            ConfigEntry<bool> configDebug = Config.Bind("Debug Settings", "Debug", false, "Whether or not to enable debug log messages, bepinex also needs to be configured to show debug logs");
+            Settings.debug = configDebug.Value;
+            ConfigEntry<bool> configTrace = Config.Bind("Debug Settings", "Trace", false, "Whether or not to enable trace log messages, bepinex also needs to be configured to show debug logs");
+            Settings.trace = configTrace.Value;
+            ConfigEntry<bool> configIncompat = Config.Bind("Debug Settings", "Incompatible Things", false, "Whether or not to tell the mod there are incompatible mods, this disables things like speed changes");
+            Settings.incompatibleStuff = configIncompat.Value;
         }
 
         public static Dictionary<string, long> lastLog = new Dictionary<string, long>();
-        public static float logDelay = 1f;
 
         public static void Debug(string message)
         {
-            if (debug)
+            if (Settings.debug)
             {
                 StaticLogger.LogDebug($"[DEBUG] {message}");
             }
         }
         public static void Trace(string message)
         {
-            if (trace)
+            if (Settings.trace)
             {
                 long currentTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                 if (lastLog.ContainsKey(message))
                 {
                     long lastTime = lastLog[message];
-                    if (currentTime - lastTime > logDelay * 1000)
+                    if (currentTime - lastTime > Settings.logDelay * 1000)
                     {
                         StaticLogger.LogDebug($"[TRACE] {message}");
                         lastLog[message] = currentTime;

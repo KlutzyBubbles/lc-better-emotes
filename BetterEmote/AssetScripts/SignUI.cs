@@ -1,10 +1,5 @@
 ﻿using BetterEmote.Patches;
 using GameNetcodeStuff;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -72,7 +67,7 @@ namespace BetterEmote.AssetScripts
                 Plugin.Debug("Enter was pressed without shift");
                 SubmitText();
             }
-            if (Player.quickMenuManager.isMenuOpen || EmotePatch.emoteWheelIsOpened || Mouse.current["rightButton"].IsPressed(0f))
+            if (Player.quickMenuManager.isMenuOpen || EmoteKeybindPatch.emoteWheelIsOpened || Mouse.current["rightButton"].IsPressed(0f))
             {
                 Plugin.Debug("Menu is open or right mouse button is clicked");
                 Close(true);
@@ -126,7 +121,7 @@ namespace BetterEmote.AssetScripts
             {
                 Plugin.Debug($"Submitted {this._inputField.text} to server");
                 Player.GetComponent<SignEmoteText>().UpdateSignText(_inputField.text);
-                if (Player.timeSinceStartingEmote > EmotePatch.signTextCooldown)
+                if (Player.timeSinceStartingEmote > Settings.signTextCooldown)
                 {
                     Plugin.Debug($"Time elapsed, time to perform");
                     InputAction.CallbackContext context = default(InputAction.CallbackContext);

@@ -1,12 +1,11 @@
-﻿using BetterEmote.Patches;
-using LethalCompanyInputUtils.Api;
+﻿using LethalCompanyInputUtils.Api;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace BetterEmote.Utils
 {
-    internal class Keybinds : LcInputActions
+    public class Keybinds : LcInputActions
     {
         public InputAction MiddleFinger => Asset["Middle_Finger"];
         public InputAction Clap => Asset["Clap"];
@@ -29,24 +28,24 @@ namespace BetterEmote.Utils
                     builder.NewActionBinding()
                         .WithActionId(name)
                         .WithActionType(InputActionType.Button)
-                        .WithKbmPath(EmotePatch.defaultKeyList[EmoteDefs.getEmoteNumber(name)])
+                        .WithKbmPath(Settings.defaultKeyList[EmoteDefs.getEmoteNumber(name)])
                         .WithBindingName(name)
-                        .WithGamepadPath(EmotePatch.defaultControllerList[EmoteDefs.getEmoteNumber(name)])
+                        .WithGamepadPath(Settings.defaultControllerList[EmoteDefs.getEmoteNumber(name)])
                         .Finish();
                 }
             }
             builder.NewActionBinding()
                 .WithActionId("EmoteWheel")
                 .WithActionType(InputActionType.Button)
-                .WithKbmPath(EmotePatch.emoteWheelKey)
-                .WithGamepadPath(EmotePatch.emoteWheelController)
+                .WithKbmPath(Settings.emoteWheelKey)
+                .WithGamepadPath(Settings.emoteWheelController)
                 .WithBindingName("Emote Wheel")
                 .Finish();
             builder.NewActionBinding()
                 .WithActionId("EmoteWheelController")
                 .WithActionType(InputActionType.Value)
                 .WithKbmPath("")
-                .WithGamepadPath(EmotePatch.emoteWheelControllerMove)
+                .WithGamepadPath(Settings.emoteWheelControllerMove)
                 .WithBindingName("Emote Wheel CONTROLLER ONLY")
                 .Finish();
         }
