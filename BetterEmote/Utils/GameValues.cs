@@ -1,15 +1,15 @@
 ﻿using GameNetcodeStuff;
 
-namespace BetterEmote
+namespace BetterEmote.Utils
 {
-    internal class Utils
+    internal class GameValues
     {
         public static PlayerControllerB localPlayerController
         {
             get
             {
                 StartOfRound instance = StartOfRound.Instance;
-                return (instance != null) ? instance.localPlayerController : null;
+                return instance != null ? instance.localPlayerController : null;
             }
         }
         public static bool localPlayerUsingController
@@ -17,7 +17,7 @@ namespace BetterEmote
             get
             {
                 StartOfRound instance = StartOfRound.Instance;
-                return (instance != null) ? instance.localPlayerUsingController : false;
+                return instance != null ? instance.localPlayerUsingController : false;
             }
         }
     }

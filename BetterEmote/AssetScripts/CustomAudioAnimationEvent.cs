@@ -1,7 +1,8 @@
-﻿using GameNetcodeStuff;
+﻿using BetterEmote.Utils;
+using GameNetcodeStuff;
 using UnityEngine;
 
-namespace BetterEmote
+namespace BetterEmote.AssetScripts
 {
     public class CustomAudioAnimationEvent : MonoBehaviour
     {
@@ -25,7 +26,7 @@ namespace BetterEmote
             {
                 if (player.IsOwner && player.isPlayerControlled)
                 {
-                    if (animator.GetInteger("emoteNumber") != (int)Emote.Clap)
+                    if (getCurrentEmoteID() != (int)Emote.Clap)
                     {
                         return;
                     }
@@ -43,7 +44,7 @@ namespace BetterEmote
             {
                 if (player.IsOwner && player.isPlayerControlled)
                 {
-                    if (animator.GetInteger("emoteNumber") != (int)Emote.Griddy)
+                    if (getCurrentEmoteID() != (int)Emote.Griddy)
                     {
                         return;
                     }
@@ -51,6 +52,11 @@ namespace BetterEmote
                 player.PlayFootstepLocal();
                 player.PlayFootstepServer();
             }
+        }
+
+        private int getCurrentEmoteID()
+        {
+            return EmoteDefs.normalizeEmoteNumber(animator.GetInteger("emoteNumber"));
         }
     }
 }

@@ -3,9 +3,9 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace BetterEmote
+namespace BetterEmote.Utils
 {
-    internal class Keybinds : LcInputActions
+    public class Keybinds : LcInputActions
     {
         public InputAction MiddleFinger => Asset["Middle_Finger"];
         public InputAction Clap => Asset["Clap"];
@@ -13,7 +13,11 @@ namespace BetterEmote
         public InputAction Griddy => Asset["Griddy"];
         public InputAction Twerk => Asset["Twerk"];
         public InputAction Salute => Asset["Salute"];
+        public InputAction Prisyadka => Asset["Prisyadka"];
+        public InputAction Sign => Asset["Sign"];
         public InputAction EmoteWheel => Asset["EmoteWheel"];
+        public InputAction EmoteWheelNextPage => Asset["EmoteWheelNextPage"];
+        public InputAction EmoteWheelPreviousPage => Asset["EmoteWheelPreviousPage"];
         public InputAction EmoteWheelController => Asset["EmoteWheelController"];
 
         public override void CreateInputActions(in InputActionMapBuilder builder)
@@ -26,24 +30,38 @@ namespace BetterEmote
                     builder.NewActionBinding()
                         .WithActionId(name)
                         .WithActionType(InputActionType.Button)
-                        .WithKbmPath(EmotePatch.defaultKeyList[EmoteDefs.getEmoteNumber(name)])
+                        .WithKbmPath(Settings.defaultKeyList[EmoteDefs.getEmoteNumber(name)])
                         .WithBindingName(name)
-                        .WithGamepadPath(EmotePatch.defaultControllerList[EmoteDefs.getEmoteNumber(name)])
+                        .WithGamepadPath(Settings.defaultControllerList[EmoteDefs.getEmoteNumber(name)])
                         .Finish();
                 }
             }
             builder.NewActionBinding()
                 .WithActionId("EmoteWheel")
                 .WithActionType(InputActionType.Button)
-                .WithKbmPath(EmotePatch.emoteWheelKey)
-                .WithGamepadPath(EmotePatch.emoteWheelController)
+                .WithKbmPath(Settings.emoteWheelKey)
+                .WithGamepadPath(Settings.emoteWheelController)
                 .WithBindingName("Emote Wheel")
+                .Finish();
+            builder.NewActionBinding()
+                .WithActionId("EmoteWheelNextPage")
+                .WithActionType(InputActionType.Button)
+                .WithKbmPath(Settings.emoteWheelNextKey)
+                .WithGamepadPath(Settings.emoteWheelNextController)
+                .WithBindingName("Emote Wheel Next Page")
+                .Finish();
+            builder.NewActionBinding()
+                .WithActionId("EmoteWheelPreviousPage")
+                .WithActionType(InputActionType.Button)
+                .WithKbmPath(Settings.emoteWheelPreviousKey)
+                .WithGamepadPath(Settings.emoteWheelPreviousController)
+                .WithBindingName("Emote Wheel Previous Page")
                 .Finish();
             builder.NewActionBinding()
                 .WithActionId("EmoteWheelController")
                 .WithActionType(InputActionType.Value)
                 .WithKbmPath("")
-                .WithGamepadPath(EmotePatch.emoteWheelControllerMove)
+                .WithGamepadPath(Settings.emoteWheelControllerMove)
                 .WithBindingName("Emote Wheel CONTROLLER ONLY")
                 .Finish();
         }
@@ -54,17 +72,21 @@ namespace BetterEmote
             switch (emote)
             {
                 case Emote.Middle_Finger:
-                    return this.MiddleFinger;
+                    return MiddleFinger;
                 case Emote.Clap:
-                    return this.Clap;
+                    return Clap;
                 case Emote.Shy:
-                    return this.Shy;
+                    return Shy;
                 case Emote.Griddy:
-                    return this.Griddy;
+                    return Griddy;
                 case Emote.Twerk:
-                    return this.Twerk;
+                    return Twerk;
                 case Emote.Salute:
-                    return this.Salute;
+                    return Salute;
+                case Emote.Prisyadka:
+                    return Prisyadka;
+                case Emote.Sign:
+                    return Sign;
                 case Emote.Dance:
                     return component.currentActionMap.FindAction("Emote1", false);
                 case Emote.Point:

@@ -3,12 +3,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+using BetterEmote.Utils;
 
-namespace BetterEmote
+namespace BetterEmote.AssetScripts
 {
-    internal class SelectionWheel : MonoBehaviour
+    internal class EmoteWheel : MonoBehaviour
     {
         public RectTransform selectionBlock;
+        public RectTransform selectionArrow;
 
         public bool stopEmote;
 
@@ -28,7 +30,7 @@ namespace BetterEmote
 
         private float pageCooldown = 0.1f;
 
-        public GameObject[] Pages;
+        public GameObject[] pages;
 
         public float wheelMovementOffset = 3.3f;
 
@@ -38,8 +40,6 @@ namespace BetterEmote
         public static string[] emoteNames;
         public static string[] emoteKeybinds;
 
-        public static float controllerDeadzone = 0.25f;
-
         private Vector2 centerScreen;
 
         private StickControl joystick;
@@ -47,32 +47,32 @@ namespace BetterEmote
         private float ignoreRadius = 235;
         private float stopRadius = 470;
 
+        private float selectionArrowDelaySpeed = 20f;
+
+        private void Awake()
+        {
+            Plugin.Debug("EmoteWheel.Awake()");
+            findGraphics();
+            findPages(gameObject.transform.Find("FunctionalContent"));
+            updatePageInfo();
+        }
+
         private void OnEnable()
         {
-            centerScreen = new Vector2(Screen.width / 2, Screen.height / 2);
+            Plugin.Debug("EmoteWheel.OnEnable()");
             emoteKeybinds = new string[EmoteDefs.getEmoteCount() + 1];
             foreach (string name in Enum.GetNames(typeof(Emote)))
             {
-                emoteKeybinds[EmoteDefs.getEmoteNumber(name) - 1] = EmotePatch.keybinds.getByEmote(EmoteDefs.getEmote(name)).GetBindingDisplayString(0, 0);
+                emoteKeybinds[EmoteDefs.getEmoteNumber(name) - 1] = Settings.keybinds.getByEmote(EmoteDefs.getEmote(name)).GetBindingDisplayString(0, 0);
             }
+            centerScreen = new Vector2(Screen.width / 2, Screen.height / 2);
             Cursor.visible = true;
-            selectionBlock = gameObject.transform.Find("SelectedEmote").gameObject.GetComponent<RectTransform>();
-            selectionBlock.gameObject.SetActive(false);
-            GameObject localGameObject = gameObject.transform.Find("FunctionalContent").gameObject;
-            emoteInformation = gameObject.transform.Find("Graphics").gameObject.transform.Find("EmoteInfo").GetComponent<Text>();
-            Pages = new GameObject[localGameObject.transform.childCount];
-            pageInformation = gameObject.transform.Find("Graphics").gameObject.transform.Find("PageNumber").GetComponent<Text>();
-            pageInformation.text = "Page " + Pages.Length.ToString() + "/" + (pageNumber + 1).ToString();
-            for (int i = 0; i < localGameObject.transform.childCount; i++)
-            {
-                Pages[i] = localGameObject.transform.GetChild(i).gameObject;
-            }
-            if (!Utils.localPlayerUsingController)
+            if (!GameValues.localPlayerUsingController)
             {
                 Mouse.current.WarpCursorPosition(centerScreen);
             }
             string effectivePath = "";
-            foreach (InputBinding binding in EmotePatch.keybinds.EmoteWheelController.bindings)
+            foreach (InputBinding binding in Settings.keybinds.EmoteWheelController.bindings)
             {
                 if (binding.effectivePath != null && binding.effectivePath.Length > 0)
                 {
@@ -98,27 +98,60 @@ namespace BetterEmote
             if (screen >= 16 / 9)
             {
                 // Wide aspect ratio calcualte off height
-                ignoreRadius = (Screen.height * 0.365f) / 2;
-                stopRadius = (Screen.height * 0.729f) / 2;
+                ignoreRadius = Screen.height * 0.365f / 2;
+                stopRadius = Screen.height * 0.729f / 2;
             }
             else
             {
                 // Vertical aspect calcualte off width
-                ignoreRadius = (Screen.width * 0.183f) / 2;
-                stopRadius = (Screen.width * 0.368f) / 2;
+                ignoreRadius = Screen.width * 0.183f / 2;
+                stopRadius = Screen.width * 0.368f / 2;
+            }
+        }
+
+        private void findGraphics()
+        {
+            Plugin.Debug("EmoteWheel.findGraphics()");
+            selectionArrow = gameObject.transform.Find("Graphics").gameObject.transform.Find("SelectionArrow").gameObject.GetComponent<RectTransform>();
+            selectionBlock = gameObject.transform.Find("SelectedEmote").gameObject.GetComponent<RectTransform>();
+            emoteInformation = gameObject.transform.Find("Graphics").gameObject.transform.Find("EmoteInfo").GetComponent<Text>();
+            pageInformation = gameObject.transform.Find("Graphics").gameObject.transform.Find("PageNumber").GetComponent<Text>();
+        }
+
+        private void findPages(Transform contentParent)
+        {
+            pages = new GameObject[contentParent.transform.childCount];
+            pageInformation.text = string.Concat(new string[]
+            {
+                "< Page ",
+                (pageNumber + 1).ToString(),
+                "/",
+                pages.Length.ToString(),
+                " >"
+            });
+            for (int i = 0; i < contentParent.transform.childCount; i++)
+            {
+                pages[i] = contentParent.transform.GetChild(i).gameObject;
             }
         }
 
         private void Update()
         {
+            Plugin.Trace("EmoteWheel.Update()");
             wheelSelection();
-            pageSelection();
+            updateSelectionArrow();
+            if (pageCooldown > 0f)
+            {
+                pageCooldown -= Time.deltaTime;
+            }
             if (selectionBlock.gameObject.activeSelf)
             {
+                Plugin.Trace("Selection block active self");
                 selectedEmoteID = currentBlock + Mathf.RoundToInt(blocksNumber / 4) + blocksNumber * pageNumber;
             }
             else
             {
+                Plugin.Trace("Selection block nooo active self");
                 selectedEmoteID = emoteNames.Length + 2;
             }
             displayEmoteInfo();
@@ -126,9 +159,10 @@ namespace BetterEmote
 
         private void wheelSelection()
         {
+            Plugin.Trace("EmoteWheel.wheelSelection()");
             Vector2 center;
             Vector2 pointer;
-            if (joystick != null && Utils.localPlayerUsingController)
+            if (joystick != null && GameValues.localPlayerUsingController)
             {
                 if (Vector2.Distance(Vector2.zero, joystick.ReadValue()) < wheelMovementOffset / 100)
                 {
@@ -149,9 +183,9 @@ namespace BetterEmote
             Vector2 diff = pointer - center;
             bool isCenter;
             bool isOuter;
-            if (Utils.localPlayerUsingController)
+            if (GameValues.localPlayerUsingController)
             {
-                isCenter = Math.Pow(diff.x, 2) + Math.Pow(diff.y, 2) <= Math.Pow(controllerDeadzone, 2);
+                isCenter = Math.Pow(diff.x, 2) + Math.Pow(diff.y, 2) <= Math.Pow(Settings.controllerDeadzone, 2);
                 isOuter = false;
             }
             else
@@ -159,8 +193,8 @@ namespace BetterEmote
                 isCenter = Math.Pow(diff.x, 2) + Math.Pow(diff.y, 2) < Math.Pow(ignoreRadius, 2);
                 isOuter = Math.Pow(diff.x, 2) + Math.Pow(diff.y, 2) >= Math.Pow(stopRadius, 2);
             }
-            int corner = diff.x > 0 ? (diff.y > 0 ? 1 : 4) : (diff.y > 0 ? 2 : 3);
-            float num = 180 * (corner - ((corner > 2) ? 2 : 1));
+            int corner = diff.x > 0 ? diff.y > 0 ? 1 : 4 : diff.y > 0 ? 2 : 3;
+            float num = 180 * (corner - (corner > 2 ? 2 : 1));
             angle = Mathf.Atan(diff.y / diff.x) * 57.295776f + num;
             if (angle == 90f)
             {
@@ -182,7 +216,7 @@ namespace BetterEmote
                 selectionBlock.localRotation = Quaternion.Euler(transform.rotation.z, transform.rotation.y, num2 * currentBlock);
                 if (isOuter)
                 {
-                    if (EmotePatch.stopOnOuter)
+                    if (Settings.stopOnOuter)
                     {
                         selectionBlock.gameObject.SetActive(false);
                         stopEmote = true;
@@ -195,57 +229,52 @@ namespace BetterEmote
             }
         }
 
-        private void pageSelection()
+        public void alterPage(int byValue)
         {
-            pageInformation.text = "Page " + Pages.Length.ToString() + "/" + (pageNumber + 1).ToString();
-            if (pageCooldown > 0f)
+            Plugin.Trace("EmoteWheel.pageSelection()");
+            if (pageCooldown <= 0)
             {
-                pageCooldown -= Time.deltaTime;
-            }
-            else
-            {
-                if (Mouse.current.scroll.y.ReadValue() != 0f)
+                foreach (GameObject gameObject in pages)
                 {
-                    foreach (GameObject gameObject in Pages)
-                    {
-                        gameObject.SetActive(false);
-                    }
-                    int num = (Mouse.current.scroll.y.ReadValue() > 0f) ? 1 : -1;
-                    if (pageNumber + 1 > Pages.Length - 1 && num > 0)
-                    {
-                        pageNumber = 0;
-                    }
-                    else
-                    {
-                        if (pageNumber - 1 < 0 && num < 0)
-                        {
-                            pageNumber = Pages.Length - 1;
-                        }
-                        else
-                        {
-                            pageNumber += num;
-                        }
-                    }
-                    Pages[pageNumber].SetActive(true);
-                    pageCooldown = 0.1f;
+                    gameObject.SetActive(false);
                 }
+                pageNumber = (pageNumber + byValue + pages.Length) % pages.Length;
+                pages[pageNumber].SetActive(true);
+                pageCooldown = 0.1f;
+                updatePageInfo();
             }
+        }
+
+        private void updatePageInfo()
+        {
+            Plugin.Trace($"EmoteWheel.updatePageInfo({pageNumber}, {pages.Length})");
+            pageInformation.text = $"<color=#fe6b02><</color> Page {pageNumber + 1}/{pages.Length} <color=#fe6b02>></color>";
         }
 
         private void displayEmoteInfo()
         {
-            string text = (selectedEmoteID > emoteKeybinds.Length) ? "" : emoteKeybinds[selectedEmoteID - 1];
+            Plugin.Trace($"EmoteWheel.displayEmoteInfo({selectedEmoteID})");
+            string text = selectedEmoteID > emoteKeybinds.Length ? "" : emoteKeybinds[selectedEmoteID - 1];
             string text2;
             if (selectedEmoteID <= Enum.GetValues(typeof(Emote)).Length)
             {
+                Plugin.Trace($"selectedEmoteID less or equal to emotes length");
                 Emote emotes = (Emote)selectedEmoteID;
                 text2 = emotes.ToString().Replace("_", " ");
             }
             else
             {
+                Plugin.Trace("selectedEmoteID out of range of emotes");
                 text2 = "EMPTY";
             }
-            emoteInformation.text = text2 + "\n[" + text.ToUpper() + "]";
+            emoteInformation.text = $"{text2 ?? ""}\n[{(text ?? "").ToUpper()}]";
+        }
+        private void updateSelectionArrow()
+        {
+            Plugin.Trace("EmoteWheel.updateSelectionArrow()");
+            float num = 360 / blocksNumber;
+            Quaternion b = Quaternion.Euler(0f, 0f, angle - num * 2f);
+            selectionArrow.localRotation = Quaternion.Lerp(selectionArrow.localRotation, b, Time.deltaTime * selectionArrowDelaySpeed);
         }
     }
 }

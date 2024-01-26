@@ -2,8 +2,9 @@
 using BepInEx;
 using HarmonyLib;
 using System.Collections.Generic;
+using BetterEmote.Utils;
 
-namespace BetterEmote
+namespace BetterEmote.Patches
 {
     internal class InitGamePatch
     {
@@ -16,7 +17,7 @@ namespace BetterEmote
                 BepInPlugin metadata = keyValuePair.Value.Metadata;
                 if (metadata.GUID.Equals("com.malco.lethalcompany.moreshipupgrades") || metadata.GUID.Equals("Stoneman.LethalProgression"))
                 {
-                    EmotePatch.incompatibleStuff = true;
+                    Settings.incompatibleStuff = true;
                     break;
                 }
             }
