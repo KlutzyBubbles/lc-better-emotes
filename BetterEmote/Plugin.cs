@@ -28,6 +28,7 @@ namespace BetterEmote
         private NetcodeValidator netcodeValidator;
 
         private static bool debug = true;
+        private static bool trace = false;
 
         private void Awake()
         {
@@ -40,6 +41,7 @@ namespace BetterEmote
             _harmony = new Harmony("BetterEmotes");
             _harmony.PatchAll(typeof(InitGamePatch));
             _harmony.PatchAll(typeof(EmotePatch));
+            _harmony.PatchAll(typeof(SignChatPatch));
             netcodeValidator = new NetcodeValidator(PluginInfo.PLUGIN_GUID);
             netcodeValidator.PatchAll();
             netcodeValidator.BindToPreExistingObjectByBehaviour<SignEmoteText, PlayerControllerB>();
@@ -126,23 +128,27 @@ namespace BetterEmote
         {
             if (debug)
             {
-                StaticLogger.LogDebug(message);
-                /*
+                StaticLogger.LogDebug($"[DEBUG] {message}");
+            }
+        }
+        public static void Trace(string message)
+        {
+            if (trace)
+            {
                 long currentTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
                 if (lastLog.ContainsKey(message))
                 {
                     long lastTime = lastLog[message];
                     if (currentTime - lastTime > logDelay * 1000)
                     {
-                        StaticLogger.LogDebug(message);
+                        StaticLogger.LogDebug($"[TRACE] {message}");
                         lastLog[message] = currentTime;
                     }
                 } else
                 {
-                    StaticLogger.LogDebug(message);
+                    StaticLogger.LogDebug($"[TRACE] {message}");
                     lastLog.Add(message, currentTime);
                 }
-                */
             }
         }
     }

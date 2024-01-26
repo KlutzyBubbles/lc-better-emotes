@@ -1,4 +1,5 @@
 ﻿using BetterEmote.Patches;
+using BetterEmote.Utils;
 using GameNetcodeStuff;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace BetterEmote.AssetScripts
 
         private void Update()
         {
-            // Plugin.Debug("CustomAnimationObjects.Update()");
+            Plugin.Trace("CustomAnimationObjects.Update()");
             if (_sign == null || _signText == null)
             {
                 FindSign();
@@ -42,33 +43,29 @@ namespace BetterEmote.AssetScripts
                     if (_player.performingEmote)
                     {
                         int emoteNumber = _player.playerBodyAnimator.GetInteger("emoteNumber");
-                        if (emoteNumber != -10)
+                        if (emoteNumber == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
                         {
-                            if (emoteNumber == 9)
+                            if (_legs != null)
                             {
-                                if (_legs != null)
-                                {
-                                    _legs.enabled = true;
-                                }
-                                if (_player.IsOwner)
-                                {
-                                    EmotePatch.isLocalArmsSeparatedFromCamera = true;
-                                }
-                                return;
+                                _legs.enabled = true;
                             }
-                            if (emoteNumber != 10)
+                            if (_player.IsOwner)
                             {
-                                return;
+                                EmotePatch.isLocalArmsSeparatedFromCamera = true;
                             }
                         }
-                        _sign.enabled = true;
-                        if (!_signText.activeSelf)
+                        else if (emoteNumber == EmoteDefs.getEmoteNumber(Emote.Sign) || emoteNumber == EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
                         {
-                            _signText.SetActive(true);
-                        }
-                        if (_player.IsOwner)
-                        {
-                            EmotePatch.isLocalArmsSeparatedFromCamera = true;
+                            _sign.enabled = true;
+                            if (!_signText.activeSelf)
+                            {
+                                Plugin.Trace("Sign isnt active self");
+                                _signText.SetActive(true);
+                            }
+                            if (_player.IsOwner)
+                            {
+                                EmotePatch.isLocalArmsSeparatedFromCamera = true;
+                            }
                         }
                     }
                 }
@@ -77,7 +74,7 @@ namespace BetterEmote.AssetScripts
 
         private void DisableEverything()
         {
-            // Plugin.Debug("DisableEverything()");
+            Plugin.Trace("DisableEverything()");
             if (_legs != null)
             {
                 _legs.enabled = false;
@@ -103,20 +100,7 @@ namespace BetterEmote.AssetScripts
         private void FindLegs()
         {
             Plugin.Debug("FindLegs()");
-            Transform transform = _player.transform;
-            Plugin.Debug("transform");
-            Transform scavenger = transform.Find("ScavengerModel");
-            Plugin.Debug("ScavengerModel");
-            Transform legs = scavenger.Find("LEGS");
-            Transform legs2 = scavenger.Find("Legs");
-            Transform legs3 = scavenger.Find("legs");
-            Plugin.Debug("LEGS");
-            Plugin.Debug($"{legs == null}");
-            Plugin.Debug($"{legs2 == null}");
-            Plugin.Debug($"{legs3 == null}");
-            _legs = legs.GetComponent<SkinnedMeshRenderer>();
-            Plugin.Debug("SkinnedMeshRenderer");
-            // _legs = _player.transform.Find("ScavengerModel").Find("LEGS").GetComponent<SkinnedMeshRenderer>();
+            _legs = _player.transform.Find("ScavengerModel").Find("LEGS").GetComponent<SkinnedMeshRenderer>();
         }
     }
 }

@@ -54,6 +54,7 @@ namespace BetterEmote.AssetScripts
 
         private void Awake()
         {
+            Plugin.Debug("EmoteWheel.Awake()");
             findGraphics();
             findPages(base.gameObject.transform.Find("FunctionalContent"));
             updatePageInfo();
@@ -61,6 +62,7 @@ namespace BetterEmote.AssetScripts
 
         private void OnEnable()
         {
+            Plugin.Debug("EmoteWheel.OnEnable()");
             emoteKeybinds = new string[EmoteDefs.getEmoteCount() + 1];
             foreach (string name in Enum.GetNames(typeof(Emote)))
             {
@@ -112,6 +114,7 @@ namespace BetterEmote.AssetScripts
 
         private void findGraphics()
         {
+            Plugin.Debug("EmoteWheel.findGraphics()");
             selectionArrow = base.gameObject.transform.Find("Graphics").gameObject.transform.Find("SelectionArrow").gameObject.GetComponent<RectTransform>();
             selectionBlock = base.gameObject.transform.Find("SelectedEmote").gameObject.GetComponent<RectTransform>();
             emoteInformation = base.gameObject.transform.Find("Graphics").gameObject.transform.Find("EmoteInfo").GetComponent<Text>();
@@ -137,30 +140,26 @@ namespace BetterEmote.AssetScripts
 
         private void Update()
         {
-            Plugin.Debug("EmoteWheel.Update()");
+            Plugin.Trace("EmoteWheel.Update()");
             wheelSelection();
             updateSelectionArrow();
             pageSelection();
-            Plugin.Debug("Inbetween 1");
-            Plugin.Debug($"{selectionBlock == null}");
-            Plugin.Debug($"{selectionBlock.gameObject == null}");
             if (selectionBlock.gameObject.activeSelf)
             {
-                Plugin.Debug("if 1");
+                Plugin.Trace("Selection block active self");
                 selectedEmoteID = currentBlock + Mathf.RoundToInt(blocksNumber / 4) + blocksNumber * pageNumber;
             }
             else
             {
-                Plugin.Debug("if 2");
+                Plugin.Trace("Selection block nooo active self");
                 selectedEmoteID = emoteNames.Length + 2;
             }
-            Plugin.Debug("Inbetween 2");
             displayEmoteInfo();
         }
 
         private void wheelSelection()
         {
-            Plugin.Debug("EmoteWheel.wheelSelection()");
+            Plugin.Trace("EmoteWheel.wheelSelection()");
             Vector2 center;
             Vector2 pointer;
             if (joystick != null && GameValues.localPlayerUsingController)
@@ -232,9 +231,8 @@ namespace BetterEmote.AssetScripts
 
         private void pageSelection()
         {
-            Plugin.Debug("EmoteWheel.pageSelection()");
+            Plugin.Trace("EmoteWheel.pageSelection()");
             updatePageInfo();
-            Plugin.Debug("between 3");
             if (pageCooldown > 0f)
             {
                 pageCooldown -= Time.deltaTime;
@@ -267,38 +265,34 @@ namespace BetterEmote.AssetScripts
                     pageCooldown = 0.1f;
                 }
             }
-            Plugin.Debug("between 4");
         }
         private void updatePageInfo()
         {
-            Plugin.Debug("EmoteWheel.updatePageInfo()");
+            Plugin.Trace($"EmoteWheel.updatePageInfo({pageNumber}, {pages.Length})");
             pageInformation.text = $"<color=#fe6b02><</color> Page {pageNumber + 1}/{pages.Length} <color=#fe6b02>></color>";
         }
 
         private void displayEmoteInfo()
         {
-            Plugin.Debug($"EmoteWheel.displayEmoteInfo({selectedEmoteID})");
+            Plugin.Trace($"EmoteWheel.displayEmoteInfo({selectedEmoteID})");
             string text = selectedEmoteID > emoteKeybinds.Length ? "" : emoteKeybinds[selectedEmoteID - 1];
             string text2;
-            Plugin.Debug("between 7");
             if (selectedEmoteID <= Enum.GetValues(typeof(Emote)).Length)
             {
-                Plugin.Debug($"smaller than equal");
+                Plugin.Trace($"selectedEmoteID less or equal to emotes length");
                 Emote emotes = (Emote)selectedEmoteID;
                 text2 = emotes.ToString().Replace("_", " ");
             }
             else
             {
-                Plugin.Debug("between 6");
+                Plugin.Trace("selectedEmoteID out of range of emotes");
                 text2 = "EMPTY";
             }
-            Plugin.Debug("between 5");
             emoteInformation.text = $"{text2 ?? ""}\n[{(text ?? "").ToUpper()}]";
-            Plugin.Debug("between 4");
         }
         private void updateSelectionArrow()
         {
-            Plugin.Debug("EmoteWheel.updateSelectionArrow()");
+            Plugin.Trace("EmoteWheel.updateSelectionArrow()");
             float num = 360 / blocksNumber;
             Quaternion b = Quaternion.Euler(0f, 0f, angle - num * 2f);
             selectionArrow.localRotation = Quaternion.Lerp(selectionArrow.localRotation, b, Time.deltaTime * selectionArrowDelaySpeed);

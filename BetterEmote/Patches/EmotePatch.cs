@@ -30,6 +30,7 @@ namespace BetterEmote.Patches
         public static float griddySpeed = 0.5f;
         public static float prisyadkaSpeed = 0.34f;
         public static float emoteCooldown = 0.5f;
+        public static float signTextCooldown = 0.1f;
 
         public static RuntimeAnimatorController local;
 
@@ -47,8 +48,6 @@ namespace BetterEmote.Patches
 
         private static EmoteWheel selectionWheel;
 
-        //public static GameObject ButtonPrefab;
-        //public static GameObject SettingsPrefab;
         public static GameObject LegsPrefab;
         public static GameObject SignPrefab;
         public static GameObject SignUIPrefab;
@@ -61,13 +60,7 @@ namespace BetterEmote.Patches
         private static SyncAnimatorToOthers syncAnimator;
 
         private static bool isPlayerFirstFrame;
-        private static bool isFirstTimeOnMenu;
         private static bool isPlayerSpawning;
-
-        private static Emote[] doubleEmotesIDS = {
-            Emote.Middle_Finger,
-            Emote.Clap
-        };
 
         public static bool isLocalArmsSeparatedFromCamera;
 
@@ -126,8 +119,8 @@ namespace BetterEmote.Patches
             keybinds.Shy.performed += onEmoteKeyShy;
             keybinds.Clap.performed += onEmoteKeyClap;
             keybinds.Salute.performed += onEmoteKeySalute;
-            keybinds.Prisyadka.performed -= onEmoteKeyPrisyadka;
-            keybinds.Sign.performed -= onEmoteKeySign;
+            keybinds.Prisyadka.performed += onEmoteKeyPrisyadka;
+            keybinds.Sign.performed += onEmoteKeySign;
             keybinds.Twerk.performed += onEmoteKeyTwerk;
             keybinds.EmoteWheel.started += onEmoteKeyWheelStarted;
             keybinds.EmoteWheel.canceled += onEmoteKeyWheelCanceled;
@@ -174,7 +167,12 @@ namespace BetterEmote.Patches
         public static void onEmoteKeyWheelStarted(InputAction.CallbackContext context)
         {
             Plugin.Debug("onEmoteKeyWheelStarted()");
-            if (!emoteWheelIsOpened && !GameValues.localPlayerController.isPlayerDead && !GameValues.localPlayerController.inTerminalMenu && !GameValues.localPlayerController.quickMenuManager.isMenuOpen)
+            if (!emoteWheelIsOpened
+                && !GameValues.localPlayerController.isPlayerDead
+                && !GameValues.localPlayerController.inTerminalMenu
+                && !GameValues.localPlayerController.isTypingChat
+                && !GameValues.localPlayerController.quickMenuManager.isMenuOpen
+                && !customSignInputField.IsSignUIOpen)
             {
                 emoteWheelIsOpened = true;
                 Cursor.visible = true;
@@ -188,25 +186,28 @@ namespace BetterEmote.Patches
         public static void onEmoteKeyWheelCanceled(InputAction.CallbackContext context)
         {
             Plugin.Debug("onEmoteKeyWheelCanceled()");
-            GameValues.localPlayerController.quickMenuManager.isMenuOpen = false;
-            GameValues.localPlayerController.disableLookInput = false;
-            if (selectionWheel.selectedEmoteID >= enabledList.Length)
+            if (emoteWheelIsOpened)
             {
-                if (selectionWheel.stopEmote)
+                GameValues.localPlayerController.quickMenuManager.isMenuOpen = false;
+                GameValues.localPlayerController.disableLookInput = false;
+                if (selectionWheel.selectedEmoteID >= enabledList.Length)
                 {
-                    GameValues.localPlayerController.performingEmote = false;
-                    GameValues.localPlayerController.StopPerformingEmoteServerRpc();
-                    GameValues.localPlayerController.timeSinceStartingEmote = 0f;
+                    if (selectionWheel.stopEmote)
+                    {
+                        GameValues.localPlayerController.performingEmote = false;
+                        GameValues.localPlayerController.StopPerformingEmoteServerRpc();
+                        GameValues.localPlayerController.timeSinceStartingEmote = 0f;
+                    }
                 }
+                else
+                {
+                    CheckEmoteInput(context, enabledList[selectionWheel.selectedEmoteID], selectionWheel.selectedEmoteID, GameValues.localPlayerController);
+                }
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+                emoteWheelIsOpened = false;
+                selectionWheel.gameObject.SetActive(emoteWheelIsOpened);
             }
-            else
-            {
-                CheckEmoteInput(context, enabledList[selectionWheel.selectedEmoteID], selectionWheel.selectedEmoteID, GameValues.localPlayerController);
-            }
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-            emoteWheelIsOpened = false;
-            selectionWheel.gameObject.SetActive(emoteWheelIsOpened);
         }
 
         public static void onEmoteKeyMiddleFinger(InputAction.CallbackContext context)
@@ -260,18 +261,15 @@ namespace BetterEmote.Patches
         [HarmonyPrefix]
         private static void UpdatePrefix(PlayerControllerB __instance)
         {
-            // Plugin.Debug("PlayerControllerB.UpdatePrefix()");
-            bool performingEmote = __instance.performingEmote;
+            Plugin.Trace("PlayerControllerB.UpdatePrefix()");
             checked
             {
-                if (performingEmote)
+                if (__instance.performingEmote)
                 {
-                    playersPerformingEmotes[(int)((IntPtr)__instance.playerClientId)] = true;
-                }
-                bool flag2 = !__instance.performingEmote && playersPerformingEmotes[(int)((IntPtr)__instance.playerClientId)];
-                if (!__instance.performingEmote && playersPerformingEmotes[(int)((IntPtr)__instance.playerClientId)])
+                    playersPerformingEmotes[__instance.playerClientId] = true;
+                } else if (playersPerformingEmotes[__instance.playerClientId])
                 {
-                    playersPerformingEmotes[(int)((IntPtr)__instance.playerClientId)] = false;
+                    playersPerformingEmotes[__instance.playerClientId] = false;
                     ResetIKWeights(__instance);
                 }
             }
@@ -281,7 +279,7 @@ namespace BetterEmote.Patches
         [HarmonyPostfix]
         private static void UpdatePostfix(PlayerControllerB __instance)
         {
-            // Plugin.Debug("PlayerControllerB.UpdatePostfix()");
+            Plugin.Trace("PlayerControllerB.UpdatePostfix()");
             if (!__instance.isPlayerControlled || !__instance.IsOwner)
             {
                 __instance.playerBodyAnimator.runtimeAnimatorController = others;
@@ -306,7 +304,7 @@ namespace BetterEmote.Patches
                         isPlayerSpawning = false;
                     }
                 }
-                currentEmoteID = __instance.playerBodyAnimator.GetInteger("emoteNumber");
+                // currentEmoteID = __instance.playerBodyAnimator.GetInteger("emoteNumber");
                 if (!incompatibleStuff)
                 {
                     __instance.movementSpeed = movSpeed;
@@ -399,7 +397,7 @@ namespace BetterEmote.Patches
             ChainIKConstraint component6 = transform2.Find("LeftArm").GetComponent<ChainIKConstraint>();
             component.weight = 1f;
             component2.weight = 1f;
-            component.weight = 1f;
+            component3.weight = 1f;
             component4.weight = 1f;
             component5.weight = 1f;
             component6.weight = 1f;
@@ -426,7 +424,7 @@ namespace BetterEmote.Patches
 
         private static void TogglePlayerBadges(bool enabled)
         {
-            Plugin.Debug("TogglePlayerBadges()");
+            Plugin.Debug($"TogglePlayerBadges({enabled})");
             if (localPlayerBetaBadge != null)
             {
                 localPlayerBetaBadge.GetComponent<MeshRenderer>().enabled = enabled;
@@ -443,7 +441,7 @@ namespace BetterEmote.Patches
 
         private static void turnControllerIntoAnOverrideController(RuntimeAnimatorController controller)
         {
-            // Plugin.Debug("turnControllerIntoAnOverrideController()");
+            Plugin.Trace("turnControllerIntoAnOverrideController()");
             if (controller is not AnimatorOverrideController)
             {
                 controller = new AnimatorOverrideController(controller);
@@ -458,55 +456,88 @@ namespace BetterEmote.Patches
             int localEmoteID = emoteID;
             if (CheckIfTooManyEmotesIsPlaying(__instance) && localEmoteID > EmoteDefs.getEmoteNumber(Emote.Point))
             {
+                Plugin.Debug($"Is custom emote with too many emotes currently playing");
                 return false;
             }
             if ((!__instance.IsOwner || !__instance.isPlayerControlled || (__instance.IsServer && !__instance.isHostPlayerObject)) && !__instance.isTestingPlayer)
             {
+                Plugin.Debug($"Is player controllered or owner check failed");
                 return false;
             }
-            if (customSignInputField.IsSignUIOpen && localEmoteID == EmoteDefs.getEmoteNumber(DoubleEmote.Double_Sign))
+            if (customSignInputField.IsSignUIOpen && localEmoteID != EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
             {
+                Plugin.Debug($"Sign UI is open, is this a sign?");
                 return false;
             }
-            if (localEmoteID > 0 && localEmoteID <= EmoteDefs.getEmoteNumber(Emote.Dance) && !emoteWheelIsOpened && !context.performed)
+            if (localEmoteID > 0 && localEmoteID <= EmoteDefs.getEmoteNumber(Emote.Point) && !emoteWheelIsOpened && !context.performed)
             {
+                Plugin.Debug($"Normal emote with no emote wheel or context performed");
                 return false;
             }
             foreach (string name in Enum.GetNames(typeof(DoubleEmote)))
             {
-                int num = EmoteDefs.getEmoteNumber(EmoteDefs.getDoubleEmote(name));
+                Plugin.Debug($"Checking double emote {name}");
+                int num = EmoteDefs.getEmoteNumber(EmoteDefs.getEmote(name));
                 bool invCheck = false;
-                if (localEmoteID == num && currentEmoteID == localEmoteID && __instance.performingEmote && (!__instance.isHoldingObject || !invCheck))
+                if (currentEmoteID == localEmoteID && localEmoteID >= EmoteDefs.getEmoteNumber(Emote.Point) && __instance.performingEmote && (!__instance.isHoldingObject || !invCheck))
                 {
-                    localEmoteID += 1000;
+                    Plugin.Debug($"Damn, emote ids match with all other checks");
+                    if (localEmoteID == num)
+                    {
+                        Plugin.Debug($"Adding offset");
+                        localEmoteID += 1000;
+                    } else if (localEmoteID > 1000)
+                    {
+                        Plugin.Debug($"Removing offset");
+                        localEmoteID -= 1000;
+                    }
                 }
             }
-            if ((localEmoteID != currentEmoteID && localEmoteID <= EmoteDefs.getEmoteNumber(Emote.Dance)) || !__instance.performingEmote)
+            Plugin.Debug($"localEmoteID after: {localEmoteID}");
+            if ((localEmoteID != currentEmoteID && localEmoteID <= EmoteDefs.getEmoteNumber(Emote.Point)) || !__instance.performingEmote)
             {
+                Plugin.Debug($"Ressetting IKWeights because its not a custom emote");
                 ResetIKWeights(__instance);
             }
+            Plugin.Trace($"__instance.inSpecialInteractAnimation: {__instance.inSpecialInteractAnimation}");
+            Plugin.Trace($"__instance.isPlayerDead: {__instance.isPlayerDead}");
+            Plugin.Trace($"__instance.isJumping: {__instance.isJumping}");
+            Plugin.Trace($"__instance.moveInputVector.x: {__instance.moveInputVector.x}");
+            Plugin.Trace($"__instance.isWalking: {__instance.isWalking}");
+            Plugin.Trace($"__instance.isSprinting: {__instance.isSprinting}");
+            Plugin.Trace($"__instance.isCrouching: {__instance.isCrouching}");
+            Plugin.Trace($"__instance.isClimbingLadder: {__instance.isClimbingLadder}");
+            Plugin.Trace($"__instance.isGrabbingObjectAnimation: {__instance.isGrabbingObjectAnimation}");
+            Plugin.Trace($"__instance.inTerminalMenu: {__instance.inTerminalMenu}");
+            Plugin.Trace($"__instance.isTypingChat: {__instance.isTypingChat}");
+            int previousEmote = currentEmoteID;
+            currentEmoteID = localEmoteID;
             if (__instance.CheckConditionsForEmote())
             {
+                Plugin.Debug($"Check conditions passed");
                 if (__instance.timeSinceStartingEmote >= emoteCooldown)
                 {
-                    currentEmoteID = emoteID;
+                    Plugin.Debug($"Time elapsed since last emote cooldown");
                     Action action = delegate ()
                     {
+                        Plugin.Debug($"Starting emote {localEmoteID}");
                         __instance.timeSinceStartingEmote = 0f;
                         __instance.playerBodyAnimator.SetInteger("emoteNumber", localEmoteID);
                         __instance.performingEmote = true;
                         __instance.StartPerformingEmoteServerRpc();
-                        syncAnimator.UpdateEmoteIDForOthers(emoteID);
+                        syncAnimator.UpdateEmoteIDForOthers(localEmoteID);
                         TogglePlayerBadges(false);
                     };
                     if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
                     {
+                        Plugin.Debug($"Adding UpdateLegsMaterial for Prisyadka");
                         action = (Action)Delegate.Combine(action, new Action(delegate ()
                         {
                             UpdateLegsMaterial(__instance);
                         }));
                     } else if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign))
                     {
+                        Plugin.Debug($"Adding customSignInputField setActive for Sign");
                         action = (Action)Delegate.Combine(action, new Action(delegate ()
                         {
                             customSignInputField.gameObject.SetActive(true);
@@ -517,30 +548,84 @@ namespace BetterEmote.Patches
                 }
                 else
                 {
+                    currentEmoteID = previousEmote;
+                    Plugin.Debug($"Emote cooldown still in effect, try again soon");
                     return false;
                 }
             }
             else
             {
+                currentEmoteID = previousEmote;
+                Plugin.Debug($"Check confitions failed");
                 return false;
             }
         }
+
+        /*
+    [HarmonyPatch(typeof(PlayerControllerB), "CheckConditionsForEmote")]
+    [HarmonyPostfix]
+    private static void postfixCheckConditions(ref bool __result, PlayerControllerB __instance)
+    {
+        Plugin.Debug($"prefixCheckConditions({currentEmoteID})");
+
+        if (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Griddy) || currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
+        {
+            __result = !__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat;
+        }
+        else
+        {
+            if (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign) || currentEmoteID == EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
+            {
+                __result = !__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && !__instance.isWalking && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu;
+            }
+        }
+        /*
+        if ((currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Griddy) && griddySpeed != 0) || (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka) && prisyadkaSpeed != 0))
+        {
+            __result = !__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat;
+            return false;
+        } else if (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign) || currentEmoteID == EmoteDefs.getEmoteNumber(DoubleEmote.Double_Sign))
+        {
+            __result = !__instance.inSpecialInteractAnimation && !!__instance.isPlayerDead && !__instance.isJumping && !__instance.isWalking && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu;
+            return false;
+        }
+    }
+        */
 
         [HarmonyPatch(typeof(PlayerControllerB), "CheckConditionsForEmote")]
         [HarmonyPrefix]
         private static bool prefixCheckConditions(ref bool __result, PlayerControllerB __instance)
         {
-            // Plugin.Debug("prefixCheckConditions()");
-            if ((currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Griddy) && griddySpeed != 0) || (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka) && prisyadkaSpeed != 0))
+            Plugin.Trace($"prefixCheckConditions({currentEmoteID})");
+
+            if (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Griddy) || currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
             {
                 __result = !__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat;
                 return false;
-            } else if (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign) || currentEmoteID == EmoteDefs.getEmoteNumber(DoubleEmote.Double_Sign))
+            }
+            else
             {
-                __result = !__instance.inSpecialInteractAnimation && !!__instance.isPlayerDead && !__instance.isJumping && !__instance.isWalking && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu;
-                return false;
+                if (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign) || currentEmoteID == EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
+                {
+                    __result = !__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && !__instance.isWalking && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu;
+                    return false;
+                }
             }
             return true;
+        }
+
+        [HarmonyPatch(typeof(PlayerControllerB), "StopPerformingEmoteServerRpc")]
+        [HarmonyPostfix]
+        private static void StopPerformingEmoteServerPrefix(PlayerControllerB __instance)
+        {
+            Plugin.Debug("prefixCheckConditions()");
+            if (__instance.IsOwner && __instance.isPlayerControlled)
+            {
+                __instance.playerBodyAnimator.SetInteger("emoteNumber", 0);
+            }
+            TogglePlayerBadges(true);
+            syncAnimator.UpdateEmoteIDForOthers(0);
+            currentEmoteID = 0;
         }
     }
 }

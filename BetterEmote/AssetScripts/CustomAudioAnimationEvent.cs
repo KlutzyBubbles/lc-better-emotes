@@ -56,12 +56,7 @@ namespace BetterEmote.AssetScripts
 
         private int getCurrentEmoteID()
         {
-            int num = animator.GetInteger("emoteNumber");
-            if (num >= 1000)
-            {
-                num -= 1000;
-            }
-            return num;
+            return EmoteDefs.normalizeEmoteNumber(animator.GetInteger("emoteNumber"));
         }
     }
 }

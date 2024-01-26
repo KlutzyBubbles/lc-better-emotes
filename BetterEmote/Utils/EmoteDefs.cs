@@ -17,9 +17,12 @@ namespace BetterEmote.Utils
     }
     public enum DoubleEmote : int
     {
-        Double_Sign = 1010,
         Double_Clap = 1004,
         Double_Middle_Finger = 1003
+    }
+    public enum AltEmote : int
+    {
+        Sign_Text = 1010
     }
 
     internal class EmoteDefs
@@ -29,6 +32,10 @@ namespace BetterEmote.Utils
             return (int)emote;
         }
         public static int getEmoteNumber(DoubleEmote emote)
+        {
+            return (int)emote;
+        }
+        public static int getEmoteNumber(AltEmote emote)
         {
             return (int)emote;
         }
@@ -44,17 +51,28 @@ namespace BetterEmote.Utils
             }
             catch (Exception)
             {
-                DoubleEmote dEmote = (DoubleEmote)Enum.Parse(typeof(DoubleEmote), name);
-                switch (dEmote)
+                try
                 {
-                    case DoubleEmote.Double_Middle_Finger:
-                        return Emote.Middle_Finger;
-                    case DoubleEmote.Double_Clap:
-                        return Emote.Clap;
-                    case DoubleEmote.Double_Sign:
-                        return Emote.Sign;
-                    default:
-                        return Emote.Dance;
+                    DoubleEmote dEmote = (DoubleEmote)Enum.Parse(typeof(DoubleEmote), name);
+                    switch (dEmote)
+                    {
+                        case DoubleEmote.Double_Middle_Finger:
+                            return Emote.Middle_Finger;
+                        case DoubleEmote.Double_Clap:
+                            return Emote.Clap;
+                        default:
+                            return Emote.Dance;
+                    }
+                } catch (Exception)
+                {
+                    AltEmote aEmote = (AltEmote)Enum.Parse(typeof(AltEmote), name);
+                    switch (aEmote)
+                    {
+                        case AltEmote.Sign_Text:
+                            return Emote.Sign;
+                        default:
+                            return Emote.Dance;
+                    }
                 }
             }
         }
@@ -62,9 +80,22 @@ namespace BetterEmote.Utils
         {
             return (DoubleEmote)Enum.Parse(typeof(DoubleEmote), name);
         }
+        public static AltEmote getAltEmote(string name)
+        {
+            return (AltEmote)Enum.Parse(typeof(AltEmote), name);
+        }
         public static int getEmoteCount()
         {
             return Enum.GetNames(typeof(Emote)).Length;
+        }
+
+        public static int normalizeEmoteNumber(int number)
+        {
+            if (number >= 1000)
+            {
+                number -= 1000;
+            }
+            return number;
         }
     }
 }

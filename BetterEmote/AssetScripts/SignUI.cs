@@ -10,6 +10,7 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine;
 using UnityEngine.UI;
+using BetterEmote.Utils;
 
 namespace BetterEmote.AssetScripts
 {
@@ -31,6 +32,7 @@ namespace BetterEmote.AssetScripts
 
         private void Awake()
         {
+            Plugin.Debug("SignUI.Awake()");
             FindComponents();
             _submitButton.onClick.AddListener(new UnityAction(this.SubmitText));
             _cancelButton.onClick.AddListener(delegate ()
@@ -46,6 +48,7 @@ namespace BetterEmote.AssetScripts
 
         private void OnEnable()
         {
+            Plugin.Debug("SignUI.OnEnable()");
             Player.isTypingChat = true;
             IsSignUIOpen = true;
             _inputField.Select();
@@ -56,28 +59,35 @@ namespace BetterEmote.AssetScripts
 
         private void Update()
         {
+            Plugin.Trace("SignUI.Update()");
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.Confined;
             if (!Player.performingEmote)
             {
+                Plugin.Debug("SignUI Player isnt performing emote");
                 Close(true);
             }
             if (Keyboard.current[Key.Enter].wasPressedThisFrame && !Keyboard.current[Key.LeftShift].isPressed)
             {
+                Plugin.Debug("Enter was pressed without shift");
                 SubmitText();
             }
             if (Player.quickMenuManager.isMenuOpen || EmotePatch.emoteWheelIsOpened || Mouse.current["rightButton"].IsPressed(0f))
             {
+                Plugin.Debug("Menu is open or right mouse button is clicked");
                 Close(true);
             }
             if (Gamepad.all.Count != 0)
             {
+                Plugin.Trace("Has gamepad");
                 if (Gamepad.current.buttonWest.isPressed || Gamepad.current.startButton.isPressed)
                 {
+                    Plugin.Debug("Button west or start button pressed");
                     SubmitText();
                 }
                 if (Gamepad.current.buttonEast.isPressed || Gamepad.current.selectButton.isPressed)
                 {
+                    Plugin.Debug("Button east or select button pressed");
                     Close(true);
                 }
             }
@@ -85,6 +95,7 @@ namespace BetterEmote.AssetScripts
 
         private void FindComponents()
         {
+            Plugin.Debug("SignUI.FindComponents()");
             _inputField = transform.Find("InputField").GetComponent<TMP_InputField>();
             _charactersLeftText = transform.Find("CharsLeft").GetComponent<Text>();
             _submitButton = transform.Find("Submit").GetComponent<Button>();
@@ -94,28 +105,32 @@ namespace BetterEmote.AssetScripts
 
         private void UpdateCharactersLeftText()
         {
+            Plugin.Debug("SignUI.UpdateCharactersLeftText()");
             _charactersLeftText.text = $"CHARACTERS LEFT: <color=yellow>{this._inputField.characterLimit - this._inputField.text.Length}</color>";
         }
 
         private void UpdatePreviewText(string text)
         {
+            Plugin.Debug($"SignUI.UpdatePreviewText({text})");
             _previewText.text = text;
         }
 
         private void SubmitText()
         {
+            Plugin.Debug("SignUI.SubmitText()");
             if (_inputField.text.Equals(string.Empty))
             {
                 Close(true);
             }
             else
             {
-                // D.L("Submitted " + this._inputField.text + " to server");
+                Plugin.Debug($"Submitted {this._inputField.text} to server");
                 Player.GetComponent<SignEmoteText>().UpdateSignText(_inputField.text);
-                if (Player.timeSinceStartingEmote > 0.5f)
+                if (Player.timeSinceStartingEmote > EmotePatch.signTextCooldown)
                 {
+                    Plugin.Debug($"Time elapsed, time to perform");
                     InputAction.CallbackContext context = default(InputAction.CallbackContext);
-                    Player.PerformEmote(context, -10);
+                    Player.PerformEmote(context, EmoteDefs.getEmoteNumber(AltEmote.Sign_Text));
                 }
                 Close(false);
             }
@@ -123,6 +138,7 @@ namespace BetterEmote.AssetScripts
 
         private void Close(bool cancelAction)
         {
+            Plugin.Debug($"SignUI.Close({cancelAction})");
             Player.isTypingChat = false;
             IsSignUIOpen = false;
             if (cancelAction)

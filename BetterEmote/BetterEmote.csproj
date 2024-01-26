@@ -23,4 +23,8 @@
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
     </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="echo F|xcopy &quot;$(ProjectDir)\bin\Release\netstandard2.1\BetterEmotes.dll&quot; &quot;$(ProjectDir)\..\ModPackage\BetterEmotes.dll&quot; /Y&#xD;&#xA;del &quot;$(ProjectDir)..\ModPackage\ModPackage.zip&quot;&#xD;&#xA;powershell Compress-Archive -Path &quot;$(ProjectDir)\..\ModPackage\*&quot; -DestinationPath &quot;$(ProjectDir)\..\ModPackage\ModPackage.zip&quot; -Force" />
+    </Target>
 </Project>
