@@ -39,6 +39,8 @@ namespace BetterEmote.Patches
             Settings.keybinds.Twerk.performed += onEmoteKeyTwerk;
             Settings.keybinds.EmoteWheel.started += onEmoteKeyWheelStarted;
             Settings.keybinds.EmoteWheel.canceled += onEmoteKeyWheelCanceled;
+            Settings.keybinds.EmoteWheelNextPage.performed += onEmoteKeyWheelNext;
+            Settings.keybinds.EmoteWheelPreviousPage.performed += onEmoteKeyWheelPrevious;
             Settings.keybinds.MiddleFinger.Enable();
             Settings.keybinds.Griddy.Enable();
             Settings.keybinds.Shy.Enable();
@@ -48,6 +50,8 @@ namespace BetterEmote.Patches
             Settings.keybinds.Sign.Enable();
             Settings.keybinds.Twerk.Enable();
             Settings.keybinds.EmoteWheel.Enable();
+            Settings.keybinds.EmoteWheelNextPage.Enable();
+            Settings.keybinds.EmoteWheelPreviousPage.Enable();
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "OnDisable")]
@@ -67,6 +71,8 @@ namespace BetterEmote.Patches
                 Settings.keybinds.Twerk.performed -= onEmoteKeyTwerk;
                 Settings.keybinds.EmoteWheel.started -= onEmoteKeyWheelStarted;
                 Settings.keybinds.EmoteWheel.canceled -= onEmoteKeyWheelCanceled;
+                Settings.keybinds.EmoteWheelNextPage.performed -= onEmoteKeyWheelNext;
+                Settings.keybinds.EmoteWheelPreviousPage.performed -= onEmoteKeyWheelPrevious;
                 Settings.keybinds.MiddleFinger.Disable();
                 Settings.keybinds.Griddy.Disable();
                 Settings.keybinds.Shy.Disable();
@@ -76,6 +82,8 @@ namespace BetterEmote.Patches
                 Settings.keybinds.Sign.Disable();
                 Settings.keybinds.Twerk.Disable();
                 Settings.keybinds.EmoteWheel.Disable();
+                Settings.keybinds.EmoteWheelNextPage.Disable();
+                Settings.keybinds.EmoteWheelPreviousPage.Disable();
             }
         }
 
@@ -126,45 +134,69 @@ namespace BetterEmote.Patches
             }
         }
 
+        public static void onEmoteKeyWheelNext(InputAction.CallbackContext context)
+        {
+            Plugin.Debug("onEmoteKeyWheelNext()");
+            if (emoteWheelIsOpened)
+            {
+                selectionWheel.alterPage(1);
+            }
+        }
+
+        public static void onEmoteKeyWheelPrevious(InputAction.CallbackContext context)
+        {
+            Plugin.Debug("onEmoteKeyWheelPrevious()");
+            if (emoteWheelIsOpened)
+            {
+                selectionWheel.alterPage(-1);
+            }
+        }
+
         public static void onEmoteKeyMiddleFinger(InputAction.CallbackContext context)
         {
+            Plugin.Debug("onEmoteKeyMiddleFinger()");
             onEmoteKeyPerformed(context, Emote.Middle_Finger);
         }
 
         public static void onEmoteKeyGriddy(InputAction.CallbackContext context)
         {
+            Plugin.Debug("onEmoteKeyGriddy()");
             onEmoteKeyPerformed(context, Emote.Griddy);
         }
 
         public static void onEmoteKeyShy(InputAction.CallbackContext context)
         {
+            Plugin.Debug("onEmoteKeyShy()");
             onEmoteKeyPerformed(context, Emote.Shy);
         }
 
         public static void onEmoteKeyClap(InputAction.CallbackContext context)
         {
+            Plugin.Debug("onEmoteKeyClap()");
             onEmoteKeyPerformed(context, Emote.Clap);
         }
 
         public static void onEmoteKeySalute(InputAction.CallbackContext context)
         {
+            Plugin.Debug("onEmoteKeySalute()");
             onEmoteKeyPerformed(context, Emote.Salute);
         }
 
         public static void onEmoteKeyPrisyadka(InputAction.CallbackContext context)
         {
-            Plugin.Debug("PlayerControllerB.onEmoteKeyPrisyadka()");
+            Plugin.Debug("onEmoteKeyPrisyadka()");
             onEmoteKeyPerformed(context, Emote.Prisyadka);
         }
 
         public static void onEmoteKeySign(InputAction.CallbackContext context)
         {
-            Plugin.Debug("PlayerControllerB.onEmoteKeySign()");
+            Plugin.Debug("onEmoteKeySign()");
             onEmoteKeyPerformed(context, Emote.Sign);
         }
 
         public static void onEmoteKeyTwerk(InputAction.CallbackContext context)
         {
+            Plugin.Debug("onEmoteKeyTwerk()");
             onEmoteKeyPerformed(context, Emote.Twerk);
         }
 

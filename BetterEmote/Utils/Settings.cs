@@ -15,6 +15,10 @@
 
         public static string emoteWheelKey = "<Keyboard>/v";
         public static string emoteWheelController = "<Gamepad>/leftShoulder";
+        public static string emoteWheelNextKey = "<Mouse>/scroll/up";
+        public static string emoteWheelNextController = "<Gamepad>/dpad/right";
+        public static string emoteWheelPreviousKey = "<Mouse>/scroll/down";
+        public static string emoteWheelPreviousController = "<Gamepad>/dpad/left";
         public static string emoteWheelControllerMove = "<Gamepad>/rightStick";
 
         public static float griddySpeed = 0.5f;

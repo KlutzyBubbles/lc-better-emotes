@@ -371,7 +371,7 @@ namespace BetterEmote.Patches
         [HarmonyPostfix]
         private static void postfixCheckConditions(ref bool __result, PlayerControllerB __instance)
         {
-            Plugin.Debug($"prefixCheckConditions({currentEmoteID})");
+            Plugin.Trace($"prefixCheckConditions({currentEmoteID})");
 
             if (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Griddy) || currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
             {

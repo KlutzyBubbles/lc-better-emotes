@@ -53,7 +53,7 @@ namespace BetterEmote.AssetScripts
         {
             Plugin.Debug("EmoteWheel.Awake()");
             findGraphics();
-            findPages(base.gameObject.transform.Find("FunctionalContent"));
+            findPages(gameObject.transform.Find("FunctionalContent"));
             updatePageInfo();
         }
 
@@ -112,10 +112,10 @@ namespace BetterEmote.AssetScripts
         private void findGraphics()
         {
             Plugin.Debug("EmoteWheel.findGraphics()");
-            selectionArrow = base.gameObject.transform.Find("Graphics").gameObject.transform.Find("SelectionArrow").gameObject.GetComponent<RectTransform>();
-            selectionBlock = base.gameObject.transform.Find("SelectedEmote").gameObject.GetComponent<RectTransform>();
-            emoteInformation = base.gameObject.transform.Find("Graphics").gameObject.transform.Find("EmoteInfo").GetComponent<Text>();
-            pageInformation = base.gameObject.transform.Find("Graphics").gameObject.transform.Find("PageNumber").GetComponent<Text>();
+            selectionArrow = gameObject.transform.Find("Graphics").gameObject.transform.Find("SelectionArrow").gameObject.GetComponent<RectTransform>();
+            selectionBlock = gameObject.transform.Find("SelectedEmote").gameObject.GetComponent<RectTransform>();
+            emoteInformation = gameObject.transform.Find("Graphics").gameObject.transform.Find("EmoteInfo").GetComponent<Text>();
+            pageInformation = gameObject.transform.Find("Graphics").gameObject.transform.Find("PageNumber").GetComponent<Text>();
         }
 
         private void findPages(Transform contentParent)
@@ -140,7 +140,10 @@ namespace BetterEmote.AssetScripts
             Plugin.Trace("EmoteWheel.Update()");
             wheelSelection();
             updateSelectionArrow();
-            pageSelection();
+            if (pageCooldown > 0f)
+            {
+                pageCooldown -= Time.deltaTime;
+            }
             if (selectionBlock.gameObject.activeSelf)
             {
                 Plugin.Trace("Selection block active self");
@@ -226,43 +229,22 @@ namespace BetterEmote.AssetScripts
             }
         }
 
-        private void pageSelection()
+        public void alterPage(int byValue)
         {
             Plugin.Trace("EmoteWheel.pageSelection()");
-            updatePageInfo();
-            if (pageCooldown > 0f)
+            if (pageCooldown <= 0)
             {
-                pageCooldown -= Time.deltaTime;
-            }
-            else
-            {
-                if (Mouse.current.scroll.y.ReadValue() != 0f)
+                foreach (GameObject gameObject in pages)
                 {
-                    foreach (GameObject gameObject in pages)
-                    {
-                        gameObject.SetActive(false);
-                    }
-                    int num = Mouse.current.scroll.y.ReadValue() > 0f ? 1 : -1;
-                    if (pageNumber + 1 > pages.Length - 1 && num > 0)
-                    {
-                        pageNumber = 0;
-                    }
-                    else
-                    {
-                        if (pageNumber - 1 < 0 && num < 0)
-                        {
-                            pageNumber = pages.Length - 1;
-                        }
-                        else
-                        {
-                            pageNumber += num;
-                        }
-                    }
-                    pages[pageNumber].SetActive(true);
-                    pageCooldown = 0.1f;
+                    gameObject.SetActive(false);
                 }
+                pageNumber = (pageNumber + byValue + pages.Length) % pages.Length;
+                pages[pageNumber].SetActive(true);
+                pageCooldown = 0.1f;
+                updatePageInfo();
             }
         }
+
         private void updatePageInfo()
         {
             Plugin.Trace($"EmoteWheel.updatePageInfo({pageNumber}, {pages.Length})");

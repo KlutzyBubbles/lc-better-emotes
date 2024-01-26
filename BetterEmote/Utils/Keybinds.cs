@@ -16,6 +16,8 @@ namespace BetterEmote.Utils
         public InputAction Prisyadka => Asset["Prisyadka"];
         public InputAction Sign => Asset["Sign"];
         public InputAction EmoteWheel => Asset["EmoteWheel"];
+        public InputAction EmoteWheelNextPage => Asset["EmoteWheelNextPage"];
+        public InputAction EmoteWheelPreviousPage => Asset["EmoteWheelPreviousPage"];
         public InputAction EmoteWheelController => Asset["EmoteWheelController"];
 
         public override void CreateInputActions(in InputActionMapBuilder builder)
@@ -40,6 +42,20 @@ namespace BetterEmote.Utils
                 .WithKbmPath(Settings.emoteWheelKey)
                 .WithGamepadPath(Settings.emoteWheelController)
                 .WithBindingName("Emote Wheel")
+                .Finish();
+            builder.NewActionBinding()
+                .WithActionId("EmoteWheelNextPage")
+                .WithActionType(InputActionType.Button)
+                .WithKbmPath(Settings.emoteWheelNextKey)
+                .WithGamepadPath(Settings.emoteWheelNextController)
+                .WithBindingName("Emote Wheel Next Page")
+                .Finish();
+            builder.NewActionBinding()
+                .WithActionId("EmoteWheelPreviousPage")
+                .WithActionType(InputActionType.Button)
+                .WithKbmPath(Settings.emoteWheelPreviousKey)
+                .WithGamepadPath(Settings.emoteWheelPreviousController)
+                .WithBindingName("Emote Wheel Previous Page")
                 .Finish();
             builder.NewActionBinding()
                 .WithActionId("EmoteWheelController")
