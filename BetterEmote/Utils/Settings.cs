@@ -13,16 +13,18 @@ namespace BetterEmote.Utils
         public static bool stopOnOuter = false;
 
         public static bool[] enabledList = [];
-        public static string[] defaultKeyList = [];
-        public static string[] defaultControllerList = [];
 
-        public static string emoteWheelKey = "<Keyboard>/v";
-        public static string emoteWheelController = "<Gamepad>/leftShoulder";
-        public static string emoteWheelNextKey = "<Mouse>/scroll/up";
-        public static string emoteWheelNextController = "<Gamepad>/dpad/right";
-        public static string emoteWheelPreviousKey = "<Mouse>/scroll/down";
-        public static string emoteWheelPreviousController = "<Gamepad>/dpad/left";
-        public static string emoteWheelControllerMove = "<Gamepad>/rightStick";
+        public static InputBind[] defaultInputList = [];
+
+        public static InputBind emoteWheelInput = new InputBind("<Keyboard>/v", "<Gamepad>/leftShoulder");
+
+        public static InputBind emoteWheelNextInput = new InputBind("<Mouse>/scroll/up", "<Gamepad>/dpad/right");
+        public static InputBind emoteWheelPreviousInput = new InputBind("<Mouse>/scroll/down", "<Gamepad>/dpad/left");
+
+        public static InputBind emoteWheelMoveInput = new InputBind("", "<Gamepad>/rightStick");
+
+        public static InputBind signSubmitInput = new InputBind("<Keyboard>/enter", "<Gamepad>/buttonWest");
+        public static InputBind signCancelInput = new InputBind("<Mouse>/rightButton", "<Gamepad>/buttonEast");
 
         public static float griddySpeed = 0.5f;
         public static float prisyadkaSpeed = 0.34f;
@@ -42,15 +44,13 @@ namespace BetterEmote.Utils
             Plugin.Debug($"trace: {trace}");
             Plugin.Debug($"stopOnOuter: {stopOnOuter}");
             Plugin.Debug($"enabledList: {String.Join(", ", enabledList)}"); 
-            Plugin.Debug($"defaultKeyList: {String.Join(", ", defaultKeyList)}");
-            Plugin.Debug($"defaultControllerList: {String.Join(", ", defaultControllerList)}");
-            Plugin.Debug($"emoteWheelKey: {emoteWheelKey}");
-            Plugin.Debug($"emoteWheelController: {emoteWheelController}");
-            Plugin.Debug($"emoteWheelNextKey: {emoteWheelNextKey}");
-            Plugin.Debug($"emoteWheelNextController: {emoteWheelNextController}");
-            Plugin.Debug($"emoteWheelPreviousKey: {emoteWheelPreviousKey}");
-            Plugin.Debug($"emoteWheelPreviousController: {emoteWheelPreviousController}");
-            Plugin.Debug($"emoteWheelControllerMove: {emoteWheelControllerMove}");
+            Plugin.Debug($"defaultInputList: {String.Join(", ", defaultInputList)}");
+            Plugin.Debug($"emoteWheelInput: {emoteWheelInput}");
+            Plugin.Debug($"emoteWheelNextInput: {emoteWheelNextInput}");
+            Plugin.Debug($"emoteWheelPreviousInput: {emoteWheelPreviousInput}");
+            Plugin.Debug($"emoteWheelMoveInput: {emoteWheelMoveInput}");
+            Plugin.Debug($"signSubmitInput: {signSubmitInput}");
+            Plugin.Debug($"signCancelInput: {signCancelInput}");
             Plugin.Debug($"griddySpeed: {griddySpeed}");
             Plugin.Debug($"prisyadkaSpeed: {prisyadkaSpeed}");
             Plugin.Debug($"emoteCooldown: {emoteCooldown}");
@@ -85,6 +85,22 @@ namespace BetterEmote.Utils
                 }
             }
             return $"{defaultPrefix}/{value}";
+        }
+    }
+
+    public struct InputBind
+    {
+        public string keyboard = "";
+        public string controller = "";
+
+        public InputBind(string keyboard, string controller) {
+            this.keyboard = keyboard;
+            this.controller = controller;
+        }
+
+        public override string ToString()
+        {
+            return $"('{keyboard}', '{controller}')";
         }
     }
 }

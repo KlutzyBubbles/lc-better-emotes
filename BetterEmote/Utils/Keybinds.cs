@@ -15,6 +15,10 @@ namespace BetterEmote.Utils
         public InputAction Salute => Asset["Salute"];
         public InputAction Prisyadka => Asset["Prisyadka"];
         public InputAction Sign => Asset["Sign"];
+
+        public InputAction SignSubmit => Asset["SignSubmit"];
+        public InputAction SignCancel => Asset["SignCancel"];
+
         public InputAction EmoteWheel => Asset["EmoteWheel"];
         public InputAction EmoteWheelNextPage => Asset["EmoteWheelNextPage"];
         public InputAction EmoteWheelPreviousPage => Asset["EmoteWheelPreviousPage"];
@@ -30,38 +34,52 @@ namespace BetterEmote.Utils
                     builder.NewActionBinding()
                         .WithActionId(name)
                         .WithActionType(InputActionType.Button)
-                        .WithKbmPath(Settings.defaultKeyList[EmoteDefs.getEmoteNumber(name)])
+                        .WithKbmPath(Settings.defaultInputList[EmoteDefs.getEmoteNumber(name)].keyboard)
                         .WithBindingName(name)
-                        .WithGamepadPath(Settings.defaultControllerList[EmoteDefs.getEmoteNumber(name)])
+                        .WithGamepadPath(Settings.defaultInputList[EmoteDefs.getEmoteNumber(name)].controller)
                         .Finish();
                 }
             }
             builder.NewActionBinding()
+                .WithActionId("SignSubmit")
+                .WithActionType(InputActionType.Button)
+                .WithKbmPath(Settings.signSubmitInput.keyboard)
+                .WithGamepadPath(Settings.signSubmitInput.controller)
+                .WithBindingName("Sign Submit")
+                .Finish();
+            builder.NewActionBinding()
+                .WithActionId("SignCancel")
+                .WithActionType(InputActionType.Button)
+                .WithKbmPath(Settings.signCancelInput.keyboard)
+                .WithGamepadPath(Settings.signCancelInput.controller)
+                .WithBindingName("Sign Cancel")
+                .Finish();
+            builder.NewActionBinding()
                 .WithActionId("EmoteWheel")
                 .WithActionType(InputActionType.Button)
-                .WithKbmPath(Settings.emoteWheelKey)
-                .WithGamepadPath(Settings.emoteWheelController)
+                .WithKbmPath(Settings.emoteWheelInput.keyboard)
+                .WithGamepadPath(Settings.emoteWheelInput.controller)
                 .WithBindingName("Emote Wheel")
                 .Finish();
             builder.NewActionBinding()
                 .WithActionId("EmoteWheelNextPage")
                 .WithActionType(InputActionType.Button)
-                .WithKbmPath(Settings.emoteWheelNextKey)
-                .WithGamepadPath(Settings.emoteWheelNextController)
+                .WithKbmPath(Settings.emoteWheelNextInput.keyboard)
+                .WithGamepadPath(Settings.emoteWheelNextInput.controller)
                 .WithBindingName("Emote Wheel Next Page")
                 .Finish();
             builder.NewActionBinding()
                 .WithActionId("EmoteWheelPreviousPage")
                 .WithActionType(InputActionType.Button)
-                .WithKbmPath(Settings.emoteWheelPreviousKey)
-                .WithGamepadPath(Settings.emoteWheelPreviousController)
+                .WithKbmPath(Settings.emoteWheelPreviousInput.keyboard)
+                .WithGamepadPath(Settings.emoteWheelPreviousInput.controller)
                 .WithBindingName("Emote Wheel Previous Page")
                 .Finish();
             builder.NewActionBinding()
                 .WithActionId("EmoteWheelController")
                 .WithActionType(InputActionType.Value)
                 .WithKbmPath("")
-                .WithGamepadPath(Settings.emoteWheelControllerMove)
+                .WithGamepadPath(Settings.emoteWheelMoveInput.controller)
                 .WithBindingName("Emote Wheel CONTROLLER ONLY")
                 .Finish();
         }

@@ -39,6 +39,8 @@ namespace BetterEmote.Patches
                 Settings.keybinds.Prisyadka.performed += onEmoteKeyPrisyadka;
                 Settings.keybinds.Sign.performed += onEmoteKeySign;
                 Settings.keybinds.Twerk.performed += onEmoteKeyTwerk;
+                Settings.keybinds.SignSubmit.performed += onSignKeySubmit;
+                Settings.keybinds.SignCancel.performed += onSignKeyCancel;
                 Settings.keybinds.EmoteWheel.started += onEmoteKeyWheelStarted;
                 Settings.keybinds.EmoteWheel.canceled += onEmoteKeyWheelCanceled;
                 Settings.keybinds.EmoteWheelNextPage.performed += onEmoteKeyWheelNext;
@@ -51,6 +53,8 @@ namespace BetterEmote.Patches
                 Settings.keybinds.Prisyadka.Enable();
                 Settings.keybinds.Sign.Enable();
                 Settings.keybinds.Twerk.Enable();
+                Settings.keybinds.SignSubmit.Enable();
+                Settings.keybinds.SignCancel.Enable();
                 Settings.keybinds.EmoteWheel.Enable();
                 Settings.keybinds.EmoteWheelNextPage.Enable();
                 Settings.keybinds.EmoteWheelPreviousPage.Enable();
@@ -72,6 +76,8 @@ namespace BetterEmote.Patches
                 Settings.keybinds.Prisyadka.performed -= onEmoteKeyPrisyadka;
                 Settings.keybinds.Sign.performed -= onEmoteKeySign;
                 Settings.keybinds.Twerk.performed -= onEmoteKeyTwerk;
+                Settings.keybinds.SignSubmit.performed -= onSignKeySubmit;
+                Settings.keybinds.SignCancel.performed -= onSignKeyCancel;
                 Settings.keybinds.EmoteWheel.started -= onEmoteKeyWheelStarted;
                 Settings.keybinds.EmoteWheel.canceled -= onEmoteKeyWheelCanceled;
                 Settings.keybinds.EmoteWheelNextPage.performed -= onEmoteKeyWheelNext;
@@ -84,12 +90,36 @@ namespace BetterEmote.Patches
                 Settings.keybinds.Prisyadka.Disable();
                 Settings.keybinds.Sign.Disable();
                 Settings.keybinds.Twerk.Disable();
+                Settings.keybinds.SignSubmit.Disable();
+                Settings.keybinds.SignCancel.Disable();
                 Settings.keybinds.EmoteWheel.Disable();
                 Settings.keybinds.EmoteWheelNextPage.Disable();
                 Settings.keybinds.EmoteWheelPreviousPage.Disable();
             }
         }
 
+        public static void onSignKeySubmit(InputAction.CallbackContext context)
+        {
+            Plugin.Debug("onSignKeySubmit()");
+            if (Keyboard.current[Key.RightShift].isPressed || Keyboard.current[Key.LeftShift].isPressed)
+            {
+                Plugin.Debug("They have one of the shifts pressed");
+                return;
+            }
+            if (!Settings.disableSelfEmote && EmotePatch.customSignInputField != null && EmotePatch.customSignInputField.IsSignUIOpen)
+            {
+                EmotePatch.customSignInputField.SubmitText();
+            }
+        }
+
+        public static void onSignKeyCancel(InputAction.CallbackContext context)
+        {
+            Plugin.Debug("onSignKeyCancel()");
+            if (!Settings.disableSelfEmote && EmotePatch.customSignInputField != null && EmotePatch.customSignInputField.IsSignUIOpen)
+            {
+                EmotePatch.customSignInputField.Close(true);
+            }
+        }
 
         public static void onEmoteKeyWheelStarted(InputAction.CallbackContext context)
         {

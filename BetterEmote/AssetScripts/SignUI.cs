@@ -62,29 +62,10 @@ namespace BetterEmote.AssetScripts
                 Plugin.Debug("SignUI Player isnt performing emote");
                 Close(true);
             }
-            if (Keyboard.current[Key.Enter].wasPressedThisFrame && !Keyboard.current[Key.LeftShift].isPressed)
-            {
-                Plugin.Debug("Enter was pressed without shift");
-                SubmitText();
-            }
-            if (Player.quickMenuManager.isMenuOpen || EmoteKeybindPatch.emoteWheelIsOpened || Mouse.current["rightButton"].IsPressed(0f))
+            if (Player.quickMenuManager.isMenuOpen || EmoteKeybindPatch.emoteWheelIsOpened)
             {
                 Plugin.Debug("Menu is open or right mouse button is clicked");
                 Close(true);
-            }
-            if (Gamepad.all.Count != 0)
-            {
-                Plugin.Trace("Has gamepad");
-                if (Gamepad.current.buttonWest.isPressed || Gamepad.current.startButton.isPressed)
-                {
-                    Plugin.Debug("Button west or start button pressed");
-                    SubmitText();
-                }
-                if (Gamepad.current.buttonEast.isPressed || Gamepad.current.selectButton.isPressed)
-                {
-                    Plugin.Debug("Button east or select button pressed");
-                    Close(true);
-                }
             }
         }
 
@@ -110,7 +91,7 @@ namespace BetterEmote.AssetScripts
             _previewText.text = text;
         }
 
-        private void SubmitText()
+        public void SubmitText()
         {
             Plugin.Debug("SignUI.SubmitText()");
             if (_inputField.text.Equals(string.Empty))
@@ -131,7 +112,7 @@ namespace BetterEmote.AssetScripts
             }
         }
 
-        private void Close(bool cancelAction)
+        public void Close(bool cancelAction)
         {
             Plugin.Debug($"SignUI.Close({cancelAction})");
             Player.isTypingChat = false;
