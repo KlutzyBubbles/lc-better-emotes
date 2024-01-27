@@ -99,7 +99,7 @@ namespace BetterEmote.Patches
                 && !GameValues.localPlayerController.inTerminalMenu
                 && !GameValues.localPlayerController.isTypingChat
                 && !GameValues.localPlayerController.quickMenuManager.isMenuOpen
-                && !EmotePatch.customSignInputField.IsSignUIOpen)
+                && (EmotePatch.customSignInputField == null || !EmotePatch.customSignInputField.IsSignUIOpen))
             {
                 emoteWheelIsOpened = true;
                 Cursor.visible = true;

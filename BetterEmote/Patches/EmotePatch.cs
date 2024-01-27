@@ -50,13 +50,16 @@ namespace BetterEmote.Patches
         {
             Plugin.Debug("AwakePost()");
             Settings.debugAllSettings();
-            GameObject gameObject = GameObject.Find("Systems").gameObject.transform.Find("UI").gameObject.transform.Find("Canvas").gameObject;
             EmoteWheel.emoteNames = new string[EmoteDefs.getEmoteCount() + 1];
             foreach (string name in Enum.GetNames(typeof(Emote)))
             {
                 EmoteWheel.emoteNames[EmoteDefs.getEmoteNumber(name) - 1] = name;
             }
-            customSignInputField = UnityEngine.Object.Instantiate(SignUIPrefab, gameObject.transform).AddComponent<SignUI>();
+            if (!Settings.disableSelfEmote)
+            {
+                GameObject gameObject = GameObject.Find("Systems").gameObject.transform.Find("UI").gameObject.transform.Find("Canvas").gameObject;
+                customSignInputField = UnityEngine.Object.Instantiate(SignUIPrefab, gameObject.transform).AddComponent<SignUI>();
+            }
             isPlayerFirstFrame = true;
         }
 
@@ -103,20 +106,27 @@ namespace BetterEmote.Patches
             }
             else
             {
-                if (Settings.disableSelfEmote)
-                {
-                    return;
-                }
                 if (__instance.playerBodyAnimator != local)
                 {
-                    if (isPlayerFirstFrame)
+                    if (isPlayerFirstFrame && !Settings.disableSelfEmote)
                     {
                         SpawnLegs(__instance);
                     }
-                    __instance.playerBodyAnimator.runtimeAnimatorController = local;
+                    if (!Settings.disableSelfEmote)
+                    {
+                        __instance.playerBodyAnimator.runtimeAnimatorController = local;
+                    }
                     if (isPlayerFirstFrame)
                     {
-                        OnFirstLocalPlayerFrameWithNewAnimator(__instance);
+                        Plugin.Debug("isPlayerFirstFrame");
+                        syncAnimator = __instance.GetComponent<SyncAnimatorToOthers>();
+                        isPlayerFirstFrame = false;
+                        if (!Settings.disableSelfEmote)
+                        {
+                            OnFirstLocalPlayerFrameWithNewAnimator(__instance);
+                        }
+                        Plugin.Debug("SpawnPlayerAnimation");
+                        __instance.SpawnPlayerAnimation();
                     }
                     if (isPlayerSpawning)
                     {
@@ -139,7 +149,10 @@ namespace BetterEmote.Patches
                         }
                     }
                 }
-                __instance.localArmsRotationTarget = isLocalArmsSeparatedFromCamera ? freeArmsTarget : lockedArmsTarget;
+                if (!Settings.disableSelfEmote)
+                {
+                    __instance.localArmsRotationTarget = isLocalArmsSeparatedFromCamera ? freeArmsTarget : lockedArmsTarget;
+                }
             }
         }
 
@@ -157,16 +170,13 @@ namespace BetterEmote.Patches
         private static void OnFirstLocalPlayerFrameWithNewAnimator(PlayerControllerB player)
         {
             Plugin.Debug("OnFirstLocalPlayerFrameWithNewAnimator()");
-            isPlayerFirstFrame = false;
             turnControllerIntoAnOverrideController(player.playerBodyAnimator.runtimeAnimatorController);
-            syncAnimator = player.GetComponent<SyncAnimatorToOthers>();
             customSignInputField.Player = player;
             freeArmsTarget = UnityEngine.Object.Instantiate(player.localArmsRotationTarget, player.localArmsRotationTarget.parent.parent);
             lockedArmsTarget = player.localArmsRotationTarget;
             Transform transform = player.transform.Find("ScavengerModel").Find("metarig").Find("spine").Find("spine.001").Find("spine.002").Find("spine.003");
             localPlayerLevelBadge = transform.Find("LevelSticker").gameObject;
             localPlayerBetaBadge = transform.Find("BetaBadge").gameObject;
-            player.SpawnPlayerAnimation();
         }
 
         private static void SpawnSign(PlayerControllerB player)
@@ -245,7 +255,14 @@ namespace BetterEmote.Patches
             }
             else
             {
-                Plugin.StaticLogger.LogError("Couldn't find the level badge");
+                if (Settings.disableSelfEmote)
+                {
+                    Plugin.Debug("Couldn't find the level badge (its fine for the settings)");
+                }
+                else
+                {
+                    Plugin.StaticLogger.LogError("Couldn't find the level badge");
+                }
             }
         }
 
@@ -274,7 +291,7 @@ namespace BetterEmote.Patches
                 Plugin.Debug($"Is player controllered or owner check failed");
                 return false;
             }
-            if (customSignInputField.IsSignUIOpen && localEmoteID != EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
+            if (customSignInputField != null && customSignInputField.IsSignUIOpen && localEmoteID != EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
             {
                 Plugin.Debug($"Sign UI is open, is this a sign?");
                 return false;
@@ -338,14 +355,14 @@ namespace BetterEmote.Patches
                         syncAnimator.UpdateEmoteIDForOthers(localEmoteID);
                         TogglePlayerBadges(false);
                     };
-                    if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
+                    if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka) && !Settings.disableSelfEmote)
                     {
                         Plugin.Debug($"Adding UpdateLegsMaterial for Prisyadka");
                         action = (Action)Delegate.Combine(action, new Action(delegate ()
                         {
                             UpdateLegsMaterial(__instance);
                         }));
-                    } else if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign))
+                    } else if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign) && !Settings.disableSelfEmote)
                     {
                         Plugin.Debug($"Adding customSignInputField setActive for Sign");
                         action = (Action)Delegate.Combine(action, new Action(delegate ()
