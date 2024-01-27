@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using System;
 
 namespace BetterEmote.Utils
 {
@@ -40,9 +41,9 @@ namespace BetterEmote.Utils
             Plugin.Debug($"debug: {debug}");
             Plugin.Debug($"trace: {trace}");
             Plugin.Debug($"stopOnOuter: {stopOnOuter}");
-            Plugin.Debug($"enabledList: {enabledList}"); 
-            Plugin.Debug($"defaultKeyList: {defaultKeyList}");
-            Plugin.Debug($"defaultControllerList: {defaultControllerList}");
+            Plugin.Debug($"enabledList: {String.Join(", ", enabledList)}"); 
+            Plugin.Debug($"defaultKeyList: {String.Join(", ", defaultKeyList)}");
+            Plugin.Debug($"defaultControllerList: {String.Join(", ", defaultControllerList)}");
             Plugin.Debug($"emoteWheelKey: {emoteWheelKey}");
             Plugin.Debug($"emoteWheelController: {emoteWheelController}");
             Plugin.Debug($"emoteWheelNextKey: {emoteWheelNextKey}");
@@ -67,7 +68,23 @@ namespace BetterEmote.Utils
 
         public static string validatePrefix(string prefix, string value)
         {
-            return value.Equals("") ? "" : (value.ToLower().StartsWith(prefix.ToLower()) ? value : $"{prefix}/{value}");
+            return validatePrefixes([prefix], prefix, value);
+        }
+
+        public static string validatePrefixes(string[] prefixes, string defaultPrefix, string value)
+        {
+            if (value.Equals(""))
+            {
+                return $"";
+            }
+            foreach (string prefix in prefixes)
+            {
+                if (value.ToLower().StartsWith(prefix.ToLower()))
+                {
+                    return value;
+                }
+            }
+            return $"{defaultPrefix}/{value}";
         }
     }
 }
