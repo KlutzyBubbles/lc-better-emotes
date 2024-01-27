@@ -29,29 +29,32 @@ namespace BetterEmote.Patches
         private static void StartPostfix(PlayerControllerB __instance)
         {
             Plugin.Debug("EmoteKeybindPatch.StartPostfix()");
-            Settings.keybinds.MiddleFinger.performed += onEmoteKeyMiddleFinger;
-            Settings.keybinds.Griddy.performed += onEmoteKeyGriddy;
-            Settings.keybinds.Shy.performed += onEmoteKeyShy;
-            Settings.keybinds.Clap.performed += onEmoteKeyClap;
-            Settings.keybinds.Salute.performed += onEmoteKeySalute;
-            Settings.keybinds.Prisyadka.performed += onEmoteKeyPrisyadka;
-            Settings.keybinds.Sign.performed += onEmoteKeySign;
-            Settings.keybinds.Twerk.performed += onEmoteKeyTwerk;
-            Settings.keybinds.EmoteWheel.started += onEmoteKeyWheelStarted;
-            Settings.keybinds.EmoteWheel.canceled += onEmoteKeyWheelCanceled;
-            Settings.keybinds.EmoteWheelNextPage.performed += onEmoteKeyWheelNext;
-            Settings.keybinds.EmoteWheelPreviousPage.performed += onEmoteKeyWheelPrevious;
-            Settings.keybinds.MiddleFinger.Enable();
-            Settings.keybinds.Griddy.Enable();
-            Settings.keybinds.Shy.Enable();
-            Settings.keybinds.Clap.Enable();
-            Settings.keybinds.Salute.Enable();
-            Settings.keybinds.Prisyadka.Enable();
-            Settings.keybinds.Sign.Enable();
-            Settings.keybinds.Twerk.Enable();
-            Settings.keybinds.EmoteWheel.Enable();
-            Settings.keybinds.EmoteWheelNextPage.Enable();
-            Settings.keybinds.EmoteWheelPreviousPage.Enable();
+            if (!Settings.disableSelfEmote)
+            {
+                Settings.keybinds.MiddleFinger.performed += onEmoteKeyMiddleFinger;
+                Settings.keybinds.Griddy.performed += onEmoteKeyGriddy;
+                Settings.keybinds.Shy.performed += onEmoteKeyShy;
+                Settings.keybinds.Clap.performed += onEmoteKeyClap;
+                Settings.keybinds.Salute.performed += onEmoteKeySalute;
+                Settings.keybinds.Prisyadka.performed += onEmoteKeyPrisyadka;
+                Settings.keybinds.Sign.performed += onEmoteKeySign;
+                Settings.keybinds.Twerk.performed += onEmoteKeyTwerk;
+                Settings.keybinds.EmoteWheel.started += onEmoteKeyWheelStarted;
+                Settings.keybinds.EmoteWheel.canceled += onEmoteKeyWheelCanceled;
+                Settings.keybinds.EmoteWheelNextPage.performed += onEmoteKeyWheelNext;
+                Settings.keybinds.EmoteWheelPreviousPage.performed += onEmoteKeyWheelPrevious;
+                Settings.keybinds.MiddleFinger.Enable();
+                Settings.keybinds.Griddy.Enable();
+                Settings.keybinds.Shy.Enable();
+                Settings.keybinds.Clap.Enable();
+                Settings.keybinds.Salute.Enable();
+                Settings.keybinds.Prisyadka.Enable();
+                Settings.keybinds.Sign.Enable();
+                Settings.keybinds.Twerk.Enable();
+                Settings.keybinds.EmoteWheel.Enable();
+                Settings.keybinds.EmoteWheelNextPage.Enable();
+                Settings.keybinds.EmoteWheelPreviousPage.Enable();
+            }
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "OnDisable")]

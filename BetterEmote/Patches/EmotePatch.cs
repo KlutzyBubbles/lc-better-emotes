@@ -49,6 +49,7 @@ namespace BetterEmote.Patches
         private static void AwakePost(RoundManager __instance)
         {
             Plugin.Debug("AwakePost()");
+            Settings.debugAllSettings();
             GameObject gameObject = GameObject.Find("Systems").gameObject.transform.Find("UI").gameObject.transform.Find("Canvas").gameObject;
             EmoteWheel.emoteNames = new string[EmoteDefs.getEmoteCount() + 1];
             foreach (string name in Enum.GetNames(typeof(Emote)))
@@ -102,6 +103,10 @@ namespace BetterEmote.Patches
             }
             else
             {
+                if (Settings.disableSelfEmote)
+                {
+                    return;
+                }
                 if (__instance.playerBodyAnimator != local)
                 {
                     if (isPlayerFirstFrame)
@@ -119,7 +124,7 @@ namespace BetterEmote.Patches
                         isPlayerSpawning = false;
                     }
                 }
-                if (!Settings.incompatibleStuff)
+                if (!Settings.disableSpeedChange)
                 {
                     __instance.movementSpeed = movSpeed;
                     if (__instance.CheckConditionsForEmote() && __instance.performingEmote)
