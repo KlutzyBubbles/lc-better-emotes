@@ -84,6 +84,28 @@ namespace BetterEmote.Utils
                 .Finish();
         }
 
+        public static InputBind getDisplayStrings(InputAction action)
+        {
+            BetterEmote.Plugin.Debug($"getDisplayStrings()");
+            return new InputBind(action.GetBindingDisplayString(0, 0) ?? "", (action.GetBindingDisplayString(1, 0) ?? "").Replace("Left Stick", "LS").Replace("Right Stick", "RS"));
+        }
+
+        public static string formatInputBind(InputBind bind)
+        {
+            BetterEmote.Plugin.Trace($"formatInputBind()");
+            if ((bind.keyboard == null || bind.keyboard == "") && (bind.controller == null || bind.controller == ""))
+            {
+                return "";
+            } else if (bind.keyboard == null || bind.keyboard == "")
+            {
+                return $"[{bind.controller}]";
+            } else if (bind.controller == null || bind.controller == "")
+            {
+                return $"[{bind.keyboard}]";
+            }
+            return $"[{bind.keyboard}/{bind.controller}]";
+        }
+
         public InputAction getByEmote(Emote emote)
         {
             PlayerInput component = GameObject.Find("PlayerSettingsObject").GetComponent<PlayerInput>();

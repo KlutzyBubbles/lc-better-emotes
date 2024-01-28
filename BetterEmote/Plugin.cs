@@ -101,6 +101,15 @@ namespace BetterEmote
                 ConfigEntry<bool> enabledConfig = Config.Bind("Enabled Emotes", $"Enable {name}", true, $"Toggle {name} emote key");
                 Settings.enabledList[EmoteDefs.getEmoteNumber(name)] = enabledConfig.Value;
             }
+            ConfigEntry<string> configSignSubmitKey = Config.Bind("Emote Keys", "Sign Submit Key", Settings.signSubmitInput.keyboard, "Default keybind for the emote wheel");
+            Settings.signSubmitInput.keyboard = Settings.validatePrefixes(["<Keyboard>", "<Mouse>"], "<Keyboard>", configSignSubmitKey.Value);
+            ConfigEntry<string> configSignSubmitController = Config.Bind("Emote Controller Bindings", "Sign Submit Button", Settings.signSubmitInput.controller, "Default controller binding for the emote wheel");
+            Settings.signSubmitInput.controller = Settings.validatePrefix("<Gamepad>", configSignSubmitController.Value);
+            ConfigEntry<string> configSignCancelKey = Config.Bind("Emote Keys", "Sign Cancel Key", Settings.signCancelInput.keyboard, "Default keybind for the emote wheel");
+            Settings.signCancelInput.keyboard = Settings.validatePrefixes(["<Keyboard>", "<Mouse>"], "<Keyboard>", configSignCancelKey.Value);
+            ConfigEntry<string> configSignCancelController = Config.Bind("Emote Controller Bindings", "Sign Cancel Button", Settings.signCancelInput.controller, "Default controller binding for the emote wheel");
+            Settings.signCancelInput.controller = Settings.validatePrefix("<Gamepad>", configSignCancelController.Value);
+
             ConfigEntry<string> configEmoteKey = Config.Bind("Emote Keys", "Emote Wheel Key", Settings.emoteWheelInput.keyboard, "Default keybind for the emote wheel");
             Settings.emoteWheelInput.keyboard = Settings.validatePrefixes(["<Keyboard>", "<Mouse>"], "<Keyboard>", configEmoteKey.Value);
             ConfigEntry<string> configEmoteController = Config.Bind("Emote Controller Bindings", "Emote Wheel Button", Settings.emoteWheelInput.controller, "Default controller binding for the emote wheel");

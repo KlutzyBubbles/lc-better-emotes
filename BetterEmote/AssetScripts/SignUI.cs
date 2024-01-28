@@ -16,6 +16,8 @@ namespace BetterEmote.AssetScripts
         private TMP_InputField _inputField;
 
         private Text _charactersLeftText;
+        private Text _submitText;
+        private Text _cancelText;
 
         private TMP_Text _previewText;
 
@@ -49,7 +51,17 @@ namespace BetterEmote.AssetScripts
             _inputField.Select();
             _inputField.text = string.Empty;
             _previewText.text = "PREVIEW";
+            updateKeybindText();
             Player.disableLookInput = true;
+        }
+
+        public void updateKeybindText()
+        {
+            Plugin.Debug("SignUI.updateKeybindText()");
+            InputBind submit = Keybinds.getDisplayStrings(Settings.keybinds.SignSubmit);
+            InputBind cancel = Keybinds.getDisplayStrings(Settings.keybinds.SignCancel);
+            _submitText.text = $"<color=orange>{Keybinds.formatInputBind(submit)}</color> Submit";
+            _cancelText.text = $"<color=orange>{Keybinds.formatInputBind(cancel)}</color> Cancel";
         }
 
         private void Update()
@@ -77,6 +89,8 @@ namespace BetterEmote.AssetScripts
             _submitButton = transform.Find("Submit").GetComponent<Button>();
             _cancelButton = transform.Find("Cancel").GetComponent<Button>();
             _previewText = transform.Find("Sign").transform.Find("Text").GetComponent<TMP_Text>();
+            _submitText = transform.Find("Submit").transform.Find("Text").GetComponent<Text>();
+            _cancelText = transform.Find("Cancel").transform.Find("Text").GetComponent<Text>();
         }
 
         private void UpdateCharactersLeftText()
