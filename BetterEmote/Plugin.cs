@@ -45,6 +45,7 @@ namespace BetterEmote
             _harmony.PatchAll(typeof(EmoteKeybindPatch));
             netcodeValidator = new NetcodeValidator(PluginInfo.PLUGIN_GUID);
             netcodeValidator.PatchAll();
+            netcodeValidator.BindToPreExistingObjectByBehaviour<SyncVRState, PlayerControllerB>();
             netcodeValidator.BindToPreExistingObjectByBehaviour<SignEmoteText, PlayerControllerB>();
             netcodeValidator.BindToPreExistingObjectByBehaviour<SyncAnimatorToOthers, PlayerControllerB>();
             StaticLogger.LogInfo("BetterEmotes loaded");
