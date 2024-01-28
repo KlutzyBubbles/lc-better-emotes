@@ -1,6 +1,7 @@
 ﻿using BetterEmote.Patches;
 using BetterEmote.Utils;
 using GameNetcodeStuff;
+using System;
 using UnityEngine;
 
 namespace BetterEmote.AssetScripts
@@ -88,14 +89,33 @@ namespace BetterEmote.AssetScripts
         private void FindSign()
         {
             Plugin.Debug("FindSign()");
-            _sign = _player.transform.Find("ScavengerModel").Find("metarig").Find("Sign").GetComponent<MeshRenderer>();
-            _signText = _sign.transform.Find("Text").gameObject;
+            if (_sign == null && _player != null)
+            {
+                Plugin.Debug("Sign is null and player exists");
+                _sign = _player.transform.Find("ScavengerModel").Find("metarig").Find("Sign").GetComponent<MeshRenderer>();
+            }
+            if (_signText == null && _sign != null)
+            {
+                Plugin.Debug("Sign text is null and sign exists");
+                _signText = _sign.transform.Find("Text").gameObject;
+            }
         }
 
         private void FindLegs()
         {
             Plugin.Debug("FindLegs()");
-            _legs = _player.transform.Find("ScavengerModel").Find("LEGS").GetComponent<SkinnedMeshRenderer>();
+            if (_legs == null && _player != null)
+            {
+                Plugin.Debug("Legs are null and player exists");
+                try
+                {
+                    _legs = _player.transform.Find("ScavengerModel").Find("LEGS").GetComponent<SkinnedMeshRenderer>();
+                }
+                catch (Exception e)
+                {
+                    Plugin.StaticLogger.LogWarning("Unable to find custom legs, this should be corrected soon.");
+                }
+            }
         }
     }
 }
