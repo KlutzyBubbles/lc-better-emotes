@@ -3,6 +3,7 @@ using BetterEmote.Utils;
 using GameNetcodeStuff;
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
@@ -44,6 +45,8 @@ namespace BetterEmote.Patches
         private static Transform freeArmsTarget;
         private static Transform lockedArmsTarget;
         private static Transform legsMesh;
+
+        public static Dictionary<ulong, bool> vrPlayers = new Dictionary<ulong, bool>();
 
         [HarmonyPatch(typeof(RoundManager), "Awake")]
         [HarmonyPostfix]
@@ -117,7 +120,7 @@ namespace BetterEmote.Patches
             {
                 if (syncVR != null)
                 {
-                    if (syncVR.vrPlayers.ContainsKey(__instance.playerClientId) && !syncVR.vrPlayers[__instance.playerClientId])
+                    if (vrPlayers.ContainsKey(__instance.playerClientId) && !vrPlayers[__instance.playerClientId])
                     {
                         __instance.playerBodyAnimator.runtimeAnimatorController = others;
                         turnControllerIntoAnOverrideController(__instance.playerBodyAnimator.runtimeAnimatorController);

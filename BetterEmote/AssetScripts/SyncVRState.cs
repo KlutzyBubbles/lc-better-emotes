@@ -1,4 +1,5 @@
-﻿using BetterEmote.Utils;
+﻿using BetterEmote.Patches;
+using BetterEmote.Utils;
 using GameNetcodeStuff;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -8,7 +9,6 @@ namespace BetterEmote.AssetScripts
     public class SyncVRState : NetworkBehaviour
     {
         private PlayerControllerB _player;
-        public Dictionary<ulong, bool> vrPlayers = new Dictionary<ulong, bool>();
 
         private void Start()
         {
@@ -61,7 +61,7 @@ namespace BetterEmote.AssetScripts
         private void UpdateVRStateClientRpc(bool isVRChange, ulong clientId)
         {
             Plugin.Debug($"UpdateVRStateClientRpc({isVRChange}, {clientId})");
-            vrPlayers[clientId] = isVRChange;
+            EmotePatch.vrPlayers[clientId] = isVRChange;
         }
     }
 }
