@@ -3,6 +3,7 @@ using BetterEmote.Utils;
 using GameNetcodeStuff;
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
@@ -34,7 +35,7 @@ namespace BetterEmote.Patches
         public static SignUI customSignInputField;
 
         private static SyncAnimatorToOthers syncAnimator;
-        private static SyncVRState syncVR;
+        public static SyncVRState syncVR;
 
         private static bool isPlayerFirstFrame;
         private static bool isPlayerSpawning;
@@ -44,6 +45,8 @@ namespace BetterEmote.Patches
         private static Transform freeArmsTarget;
         private static Transform lockedArmsTarget;
         private static Transform legsMesh;
+
+        public static Dictionary<ulong, bool> vrPlayers = new Dictionary<ulong, bool>();
 
         [HarmonyPatch(typeof(RoundManager), "Awake")]
         [HarmonyPostfix]
@@ -115,11 +118,13 @@ namespace BetterEmote.Patches
             Plugin.Trace("PlayerControllerB.UpdatePostfix()");
             if (!__instance.isPlayerControlled || !__instance.IsOwner)
             {
-                if (syncVR == null || !syncVR.vrPlayers.Contains(__instance.playerClientId))
+                if (syncVR != null)
                 {
-                    Plugin.Trace("SyncVRState doesnt contian");
-                    __instance.playerBodyAnimator.runtimeAnimatorController = others;
-                    turnControllerIntoAnOverrideController(__instance.playerBodyAnimator.runtimeAnimatorController);
+                    if (vrPlayers.ContainsKey(__instance.playerClientId) && !vrPlayers[__instance.playerClientId])
+                    {
+                        __instance.playerBodyAnimator.runtimeAnimatorController = others;
+                        turnControllerIntoAnOverrideController(__instance.playerBodyAnimator.runtimeAnimatorController);
+                    }
                 }
             }
             else

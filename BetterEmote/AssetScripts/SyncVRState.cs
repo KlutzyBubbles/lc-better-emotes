@@ -1,4 +1,5 @@
-﻿using BetterEmote.Utils;
+﻿using BetterEmote.Patches;
+using BetterEmote.Utils;
 using GameNetcodeStuff;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -8,27 +9,24 @@ namespace BetterEmote.AssetScripts
     public class SyncVRState : NetworkBehaviour
     {
         private PlayerControllerB _player;
-        //public bool isVR;
-        public List<ulong> vrPlayers = new List<ulong>();
 
         private void Start()
         {
             _player = GetComponent<PlayerControllerB>();
-            //isVR = false;
         }
 
         public void UpdateVRStateForOthers(bool isVR)
         {
-            Plugin.Debug($"UpdateVRStatusForOthers({isVR})");
+            Plugin.Debug($"UpdateVRStatusForOthers({isVR}, {_player.playerClientId}, {_player.IsOwner}, {_player.isPlayerControlled})");
             if (_player.IsOwner && _player.isPlayerControlled)
             {
-                UpdateVRStateServerRpc(isVR);
+                UpdateVRStateServerRpc(isVR, _player.playerClientId);
             }
         }
 
         public void RequestVRStateFromOthers()
         {
-            Plugin.Debug($"RequestVRStateFromOthers()");
+            Plugin.Debug($"RequestVRStateFromOthers({_player.IsOwner}, {_player.isPlayerControlled})");
             if (_player.IsOwner && _player.isPlayerControlled)
             {
                 RequestedVRStateServerRpc();
@@ -39,47 +37,31 @@ namespace BetterEmote.AssetScripts
         private void RequestedVRStateServerRpc()
         {
             Plugin.Debug($"RequestedVRState()");
-            if (!_player.IsOwner)
-            {
-                RequestedVRStateClientRpc();
-            }
+            RequestedVRStateClientRpc();
         }
 
         [ClientRpc]
         private void RequestedVRStateClientRpc()
         {
-            Plugin.Debug($"RequestedVRStateClientRpc()");
-            UpdateVRStateServerRpc(Settings.disableSelfEmote);
+            Plugin.Debug($"RequestedVRStateClientRpc({Settings.disableSelfEmote}, {GameValues.localPlayerController.playerClientId})");
+            if (!_player.IsOwner)
+            {
+                UpdateVRStateServerRpc(Settings.disableSelfEmote, GameValues.localPlayerController.playerClientId); // Big man Smoku Broku <3
+            }
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void UpdateVRStateServerRpc(bool isVR)
+        private void UpdateVRStateServerRpc(bool isVR, ulong clientId)
         {
-            Plugin.Debug($"UpdateVRStateServerRpc({isVR})");
-            UpdateVRStateClientRpc(isVR);
+            Plugin.Debug($"UpdateVRStateServerRpc({isVR}, {clientId})");
+            UpdateVRStateClientRpc(isVR, clientId);
         }
 
         [ClientRpc]
-        private void UpdateVRStateClientRpc(bool isVRChange)
+        private void UpdateVRStateClientRpc(bool isVRChange, ulong clientId)
         {
-            Plugin.Debug($"UpdateVRStateClientRpc({isVRChange})");
-            if (!_player.IsOwner)
-            {
-                if (isVRChange)
-                {
-                    if (!vrPlayers.Contains(_player.playerClientId))
-                    {
-                        vrPlayers.Add(_player.playerClientId);
-                    }
-                } else
-                {
-                    if (vrPlayers.Contains(_player.playerClientId))
-                    {
-                        vrPlayers.Remove(_player.playerClientId);
-                    }
-                }
-                //isVR = isVRChange;
-            }
+            Plugin.Debug($"UpdateVRStateClientRpc({isVRChange}, {clientId})");
+            EmotePatch.vrPlayers[clientId] = isVRChange;
         }
     }
 }
