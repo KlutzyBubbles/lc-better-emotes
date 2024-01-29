@@ -3,6 +3,7 @@ using BetterEmote.Utils;
 using GameNetcodeStuff;
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
@@ -34,6 +35,7 @@ namespace BetterEmote.Patches
         public static SignUI customSignInputField;
 
         private static SyncAnimatorToOthers syncAnimator;
+        public static SyncVRState syncVR;
 
         private static bool isPlayerFirstFrame;
         private static bool isPlayerSpawning;
@@ -44,18 +46,24 @@ namespace BetterEmote.Patches
         private static Transform lockedArmsTarget;
         private static Transform legsMesh;
 
+        public static Dictionary<ulong, bool> vrPlayers = new Dictionary<ulong, bool>();
+
         [HarmonyPatch(typeof(RoundManager), "Awake")]
         [HarmonyPostfix]
         private static void AwakePost(RoundManager __instance)
         {
             Plugin.Debug("AwakePost()");
-            GameObject gameObject = GameObject.Find("Systems").gameObject.transform.Find("UI").gameObject.transform.Find("Canvas").gameObject;
+            Settings.debugAllSettings();
             EmoteWheel.emoteNames = new string[EmoteDefs.getEmoteCount() + 1];
             foreach (string name in Enum.GetNames(typeof(Emote)))
             {
                 EmoteWheel.emoteNames[EmoteDefs.getEmoteNumber(name) - 1] = name;
             }
-            customSignInputField = UnityEngine.Object.Instantiate(SignUIPrefab, gameObject.transform).AddComponent<SignUI>();
+            if (!Settings.disableSelfEmote)
+            {
+                GameObject gameObject = GameObject.Find("Systems").gameObject.transform.Find("UI").gameObject.transform.Find("Canvas").gameObject;
+                customSignInputField = UnityEngine.Object.Instantiate(SignUIPrefab, gameObject.transform).AddComponent<SignUI>();
+            }
             isPlayerFirstFrame = true;
         }
 
@@ -71,6 +79,19 @@ namespace BetterEmote.Patches
             __instance.gameObject.AddComponent<CustomAnimationObjects>();
             SpawnSign(__instance);
         }
+
+        [HarmonyPatch(typeof(PlayerControllerB), "ConnectClientToPlayerObject")]
+        [HarmonyPostfix]
+        private static void ConnectClientToPlayerObjectPostfix(PlayerControllerB __instance)
+        {
+            Plugin.Debug("EmotePatch.ConnectClientToPlayerObjectPostfix()");
+            if (syncVR != null)
+            {
+                syncVR.RequestVRStateFromOthers();
+                syncVR.UpdateVRStateForOthers(Settings.disableSelfEmote);
+            }
+        }
+
 
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
         [HarmonyPrefix]
@@ -97,21 +118,44 @@ namespace BetterEmote.Patches
             Plugin.Trace("PlayerControllerB.UpdatePostfix()");
             if (!__instance.isPlayerControlled || !__instance.IsOwner)
             {
-                __instance.playerBodyAnimator.runtimeAnimatorController = others;
-                turnControllerIntoAnOverrideController(__instance.playerBodyAnimator.runtimeAnimatorController);
+                if (syncVR != null)
+                {
+                    if (vrPlayers.ContainsKey(__instance.playerClientId) && !vrPlayers[__instance.playerClientId])
+                    {
+                        __instance.playerBodyAnimator.runtimeAnimatorController = others;
+                        turnControllerIntoAnOverrideController(__instance.playerBodyAnimator.runtimeAnimatorController);
+                    }
+                }
             }
             else
             {
                 if (__instance.playerBodyAnimator != local)
                 {
-                    if (isPlayerFirstFrame)
+                    if (isPlayerFirstFrame && !Settings.disableSelfEmote)
                     {
                         SpawnLegs(__instance);
                     }
-                    __instance.playerBodyAnimator.runtimeAnimatorController = local;
+                    if (!Settings.disableSelfEmote)
+                    {
+                        __instance.playerBodyAnimator.runtimeAnimatorController = local;
+                    }
                     if (isPlayerFirstFrame)
                     {
-                        OnFirstLocalPlayerFrameWithNewAnimator(__instance);
+                        Plugin.Debug("isPlayerFirstFrame");
+                        syncVR = __instance.GetComponent<SyncVRState>();
+                        syncAnimator = __instance.GetComponent<SyncAnimatorToOthers>();
+                        isPlayerFirstFrame = false;
+                        if (!Settings.disableSelfEmote)
+                        {
+                            OnFirstLocalPlayerFrameWithNewAnimator(__instance);
+                        }
+                        if (syncVR != null)
+                        {
+                            syncVR.RequestVRStateFromOthers();
+                            syncVR.UpdateVRStateForOthers(Settings.disableSelfEmote);
+                        }
+                        Plugin.Debug("SpawnPlayerAnimation");
+                        __instance.SpawnPlayerAnimation();
                     }
                     if (isPlayerSpawning)
                     {
@@ -119,7 +163,7 @@ namespace BetterEmote.Patches
                         isPlayerSpawning = false;
                     }
                 }
-                if (!Settings.incompatibleStuff)
+                if (!Settings.disableSpeedChange)
                 {
                     __instance.movementSpeed = movSpeed;
                     if (__instance.CheckConditionsForEmote() && __instance.performingEmote)
@@ -134,7 +178,10 @@ namespace BetterEmote.Patches
                         }
                     }
                 }
-                __instance.localArmsRotationTarget = isLocalArmsSeparatedFromCamera ? freeArmsTarget : lockedArmsTarget;
+                if (!Settings.disableSelfEmote)
+                {
+                    __instance.localArmsRotationTarget = isLocalArmsSeparatedFromCamera ? freeArmsTarget : lockedArmsTarget;
+                }
             }
         }
 
@@ -152,16 +199,13 @@ namespace BetterEmote.Patches
         private static void OnFirstLocalPlayerFrameWithNewAnimator(PlayerControllerB player)
         {
             Plugin.Debug("OnFirstLocalPlayerFrameWithNewAnimator()");
-            isPlayerFirstFrame = false;
             turnControllerIntoAnOverrideController(player.playerBodyAnimator.runtimeAnimatorController);
-            syncAnimator = player.GetComponent<SyncAnimatorToOthers>();
             customSignInputField.Player = player;
             freeArmsTarget = UnityEngine.Object.Instantiate(player.localArmsRotationTarget, player.localArmsRotationTarget.parent.parent);
             lockedArmsTarget = player.localArmsRotationTarget;
             Transform transform = player.transform.Find("ScavengerModel").Find("metarig").Find("spine").Find("spine.001").Find("spine.002").Find("spine.003");
             localPlayerLevelBadge = transform.Find("LevelSticker").gameObject;
             localPlayerBetaBadge = transform.Find("BetaBadge").gameObject;
-            player.SpawnPlayerAnimation();
         }
 
         private static void SpawnSign(PlayerControllerB player)
@@ -240,7 +284,14 @@ namespace BetterEmote.Patches
             }
             else
             {
-                Plugin.StaticLogger.LogError("Couldn't find the level badge");
+                if (Settings.disableSelfEmote)
+                {
+                    Plugin.Debug("Couldn't find the level badge (its fine for the settings)");
+                }
+                else
+                {
+                    Plugin.StaticLogger.LogError("Couldn't find the level badge");
+                }
             }
         }
 
@@ -269,7 +320,13 @@ namespace BetterEmote.Patches
                 Plugin.Debug($"Is player controllered or owner check failed");
                 return false;
             }
-            if (customSignInputField.IsSignUIOpen && localEmoteID != EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
+            if (syncVR != null)
+            {
+                Plugin.Debug($"syncVR not null, updating");
+                syncVR.RequestVRStateFromOthers();
+                syncVR.UpdateVRStateForOthers(Settings.disableSelfEmote);
+            }
+            if (customSignInputField != null && customSignInputField.IsSignUIOpen && localEmoteID != EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
             {
                 Plugin.Debug($"Sign UI is open, is this a sign?");
                 return false;
@@ -333,14 +390,14 @@ namespace BetterEmote.Patches
                         syncAnimator.UpdateEmoteIDForOthers(localEmoteID);
                         TogglePlayerBadges(false);
                     };
-                    if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
+                    if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka) && !Settings.disableSelfEmote)
                     {
                         Plugin.Debug($"Adding UpdateLegsMaterial for Prisyadka");
                         action = (Action)Delegate.Combine(action, new Action(delegate ()
                         {
                             UpdateLegsMaterial(__instance);
                         }));
-                    } else if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign))
+                    } else if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign) && !Settings.disableSelfEmote)
                     {
                         Plugin.Debug($"Adding customSignInputField setActive for Sign");
                         action = (Action)Delegate.Combine(action, new Action(delegate ()

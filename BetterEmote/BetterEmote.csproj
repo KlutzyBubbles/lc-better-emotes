@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>BetterEmotes</AssemblyName>
         <Description>Alters the integration method of more emotes</Description>
-        <Version>1.4.0</Version>
+        <Version>1.4.1</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -19,6 +19,12 @@
 		<PackageReference Include="NicholaScott.BepInEx.RuntimeNetcodeRPCValidator" Version="0.2.5" />
 		<PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" />
     </ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="LCVR" Label="LCVR v1.1.4">
+			<HintPath>Libs/LCVR.dll</HintPath>
+		</Reference>
+	</ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />

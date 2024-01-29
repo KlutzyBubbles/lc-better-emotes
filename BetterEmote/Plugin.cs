@@ -12,12 +12,16 @@ using BetterEmote.Patches;
 using BetterEmote.AssetScripts;
 using BetterEmote.Utils;
 using System.Collections.Generic;
+using BetterEmote.Compatibility;
 
 namespace BetterEmote
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInDependency("com.rune580.LethalCompanyInputUtils", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("NicholaScott.BepInEx.RuntimeNetcodeRPCValidator", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("Stoneman.LethalProgression", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("com.malco.lethalcompany.moreshipupgrades", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("io.daxcess.lcvr", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static ManualLogSource StaticLogger;
@@ -35,12 +39,13 @@ namespace BetterEmote
             ConfigFile();
             Settings.keybinds = new Keybinds();
             _harmony = new Harmony("BetterEmotes");
-            _harmony.PatchAll(typeof(InitGamePatch));
+            Patcher.patchCompat(_harmony);
             _harmony.PatchAll(typeof(EmotePatch));
             _harmony.PatchAll(typeof(SignChatPatch));
             _harmony.PatchAll(typeof(EmoteKeybindPatch));
             netcodeValidator = new NetcodeValidator(PluginInfo.PLUGIN_GUID);
             netcodeValidator.PatchAll();
+            netcodeValidator.BindToPreExistingObjectByBehaviour<SyncVRState, PlayerControllerB>();
             netcodeValidator.BindToPreExistingObjectByBehaviour<SignEmoteText, PlayerControllerB>();
             netcodeValidator.BindToPreExistingObjectByBehaviour<SyncAnimatorToOthers, PlayerControllerB>();
             StaticLogger.LogInfo("BetterEmotes loaded");
@@ -135,8 +140,10 @@ namespace BetterEmote
             Settings.debug = configDebug.Value;
             ConfigEntry<bool> configTrace = Config.Bind("Debug Settings", "Trace", false, "Whether or not to enable trace log messages, bepinex also needs to be configured to show debug logs");
             Settings.trace = configTrace.Value;
-            ConfigEntry<bool> configIncompat = Config.Bind("Debug Settings", "Incompatible Things", false, "Whether or not to tell the mod there are incompatible mods, this disables things like speed changes");
-            Settings.incompatibleStuff = configIncompat.Value;
+            ConfigEntry<bool> configSpeedChange = Config.Bind("Debug Settings", "Disable Speed Changed", false, "Whether or not to disable speed changes that might affect other mods");
+            Settings.disableSpeedChange = configSpeedChange.Value;
+            ConfigEntry<bool> configSelfEmote = Config.Bind("Debug Settings", "Disable Self Emote", false, "Whether or not to disable self emoting that might affect other mods");
+            Settings.disableSelfEmote = configSelfEmote.Value;
         }
 
         public static Dictionary<string, long> lastLog = new Dictionary<string, long>();
