@@ -1,6 +1,10 @@
 # BetterEmotes
 
+NOTE: As of v1.4.1 MoreEmotes compatbility is dropped in favor of VR support, this means you will NOT see players emotes who use MoreEmotes.
+
 ## Issues (incompatiblities)
+
+LCVR compatibility is done by enabling disableSelfEmote for anyone who has VR which stops overriding the animation controller, this also means if you have disableSelfEmote enabled no one else will see you emote.
 
 There are config options to disable the speed changing and self emoting, these automatically get turned on when there is a known mod that isn't compatible present. But they can be turned on in the config if needed.
 
@@ -20,6 +24,7 @@ v1.4.x Adds a lot of config options, but the old file should still be compatible
 
 Modification of https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/
 
+- Adds VR support. Players without VR can continue flipping off their friends for having VR.
 - Adds controller support. With rebinding :)
 - Moves keybindings into the settings page, still has config values for defaults for modpacks
 - Makes center of emote wheel not change emote
