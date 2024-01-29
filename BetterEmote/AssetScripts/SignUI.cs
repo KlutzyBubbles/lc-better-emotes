@@ -128,7 +128,7 @@ namespace BetterEmote.AssetScripts
 
         public void Close(bool cancelAction)
         {
-            Plugin.Debug($"SignUI.Close({cancelAction})");
+            Plugin.Debug($"SignUI.Close({cancelAction}, {Player.playerClientId}, {Player.IsHost}, {Player.IsClient}, {Player.actualClientId})");
             Player.isTypingChat = false;
             IsSignUIOpen = false;
             if (cancelAction)
