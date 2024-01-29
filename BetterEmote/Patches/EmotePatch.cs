@@ -34,6 +34,7 @@ namespace BetterEmote.Patches
         public static SignUI customSignInputField;
 
         private static SyncAnimatorToOthers syncAnimator;
+        private static SyncVRState syncVR;
 
         private static bool isPlayerFirstFrame;
         private static bool isPlayerSpawning;
@@ -76,6 +77,19 @@ namespace BetterEmote.Patches
             SpawnSign(__instance);
         }
 
+        [HarmonyPatch(typeof(PlayerControllerB), "ConnectClientToPlayerObject")]
+        [HarmonyPostfix]
+        private static void ConnectClientToPlayerObjectPostfix(PlayerControllerB __instance)
+        {
+            Plugin.Debug("EmotePatch.ConnectClientToPlayerObjectPostfix()");
+            if (syncVR != null)
+            {
+                syncVR.RequestVRStateFromOthers();
+                syncVR.UpdateVRStateForOthers(Settings.disableSelfEmote);
+            }
+        }
+
+
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
         [HarmonyPrefix]
         private static void UpdatePrefix(PlayerControllerB __instance)
@@ -101,8 +115,12 @@ namespace BetterEmote.Patches
             Plugin.Trace("PlayerControllerB.UpdatePostfix()");
             if (!__instance.isPlayerControlled || !__instance.IsOwner)
             {
-                __instance.playerBodyAnimator.runtimeAnimatorController = others;
-                turnControllerIntoAnOverrideController(__instance.playerBodyAnimator.runtimeAnimatorController);
+                if (syncVR == null || !syncVR.vrPlayers.Contains(__instance.playerClientId))
+                {
+                    Plugin.Trace("SyncVRState doesnt contian");
+                    __instance.playerBodyAnimator.runtimeAnimatorController = others;
+                    turnControllerIntoAnOverrideController(__instance.playerBodyAnimator.runtimeAnimatorController);
+                }
             }
             else
             {
@@ -119,11 +137,17 @@ namespace BetterEmote.Patches
                     if (isPlayerFirstFrame)
                     {
                         Plugin.Debug("isPlayerFirstFrame");
+                        syncVR = __instance.GetComponent<SyncVRState>();
                         syncAnimator = __instance.GetComponent<SyncAnimatorToOthers>();
                         isPlayerFirstFrame = false;
                         if (!Settings.disableSelfEmote)
                         {
                             OnFirstLocalPlayerFrameWithNewAnimator(__instance);
+                        }
+                        if (syncVR != null)
+                        {
+                            syncVR.RequestVRStateFromOthers();
+                            syncVR.UpdateVRStateForOthers(Settings.disableSelfEmote);
                         }
                         Plugin.Debug("SpawnPlayerAnimation");
                         __instance.SpawnPlayerAnimation();
@@ -290,6 +314,12 @@ namespace BetterEmote.Patches
             {
                 Plugin.Debug($"Is player controllered or owner check failed");
                 return false;
+            }
+            if (syncVR != null)
+            {
+                Plugin.Debug($"syncVR not null, updating");
+                syncVR.RequestVRStateFromOthers();
+                syncVR.UpdateVRStateForOthers(Settings.disableSelfEmote);
             }
             if (customSignInputField != null && customSignInputField.IsSignUIOpen && localEmoteID != EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
             {
