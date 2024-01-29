@@ -34,7 +34,7 @@ namespace BetterEmote.Patches
         public static SignUI customSignInputField;
 
         private static SyncAnimatorToOthers syncAnimator;
-        private static SyncVRState syncVR;
+        public static SyncVRState syncVR;
 
         private static bool isPlayerFirstFrame;
         private static bool isPlayerSpawning;
