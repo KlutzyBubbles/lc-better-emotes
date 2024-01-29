@@ -19,16 +19,16 @@ namespace BetterEmote.AssetScripts
 
         public void UpdateVRStateForOthers(bool isVR)
         {
-            Plugin.Debug($"UpdateVRStatusForOthers({isVR})");
+            Plugin.Debug($"UpdateVRStatusForOthers({isVR}, {_player.name}, {_player.playerSteamId}, {_player.playerUsername}, {_player.playerClientId}, {_player.actualClientId}, {_player.IsHost}, {_player.IsOwner})");
             if (_player.IsOwner && _player.isPlayerControlled)
             {
-                UpdateVRStateServerRpc(isVR);
+                UpdateVRStateServerRpc(isVR, _player.playerClientId);
             }
         }
 
         public void RequestVRStateFromOthers()
         {
-            Plugin.Debug($"RequestVRStateFromOthers()");
+            Plugin.Debug($"RequestVRStateFromOthers({_player.name}, {_player.playerSteamId}, {_player.playerUsername}, {_player.playerClientId}, {_player.actualClientId}, {_player.IsHost}, {_player.IsOwner})");
             if (_player.IsOwner && _player.isPlayerControlled)
             {
                 RequestedVRStateServerRpc();
@@ -38,7 +38,7 @@ namespace BetterEmote.AssetScripts
         [ServerRpc(RequireOwnership = false)]
         private void RequestedVRStateServerRpc()
         {
-            Plugin.Debug($"RequestedVRState()");
+            Plugin.Debug($"RequestedVRState({_player.name}, {_player.playerSteamId}, {_player.playerUsername}, {_player.playerClientId}, {_player.actualClientId}, {_player.IsHost}, {_player.IsOwner})");
             if (!_player.IsOwner)
             {
                 RequestedVRStateClientRpc();
@@ -48,38 +48,41 @@ namespace BetterEmote.AssetScripts
         [ClientRpc]
         private void RequestedVRStateClientRpc()
         {
-            Plugin.Debug($"RequestedVRStateClientRpc()");
-            UpdateVRStateServerRpc(Settings.disableSelfEmote);
+            Plugin.Debug($"RequestedVRStateClientRpc({_player.name}, {_player.playerSteamId}, {_player.playerUsername}, {_player.playerClientId}, {_player.actualClientId}, {_player.IsHost}, {_player.IsOwner})");
+            UpdateVRStateServerRpc(Settings.disableSelfEmote, _player.playerClientId);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void UpdateVRStateServerRpc(bool isVR)
+        private void UpdateVRStateServerRpc(bool isVR, ulong clientId)
         {
-            Plugin.Debug($"UpdateVRStateServerRpc({isVR})");
-            UpdateVRStateClientRpc(isVR);
+            Plugin.Debug($"UpdateVRStateServerRpc({isVR}, {_player.name}, {_player.playerSteamId}, {_player.playerUsername}, {_player.playerClientId}, {_player.actualClientId}, {_player.IsHost}, {_player.IsOwner})");
+            UpdateVRStateClientRpc(isVR, clientId);
         }
 
         [ClientRpc]
-        private void UpdateVRStateClientRpc(bool isVRChange)
+        private void UpdateVRStateClientRpc(bool isVRChange, ulong clientId)
         {
-            Plugin.Debug($"UpdateVRStateClientRpc({isVRChange})");
-            if (!_player.IsOwner)
-            {
+            Plugin.Debug($"UpdateVRStateClientRpc({isVRChange}, {_player.name}, {_player.playerSteamId}, {_player.playerUsername}, {_player.playerClientId}, {_player.actualClientId}, {_player.IsHost}, {_player.IsOwner}, {_player.isPlayerControlled})");
+            //if (!_player.IsOwner)
+            //{
+                //Plugin.Debug($"Player not owner or controlled");
                 if (isVRChange)
                 {
-                    if (!vrPlayers.Contains(_player.playerClientId))
+                    if (!vrPlayers.Contains(clientId))
                     {
-                        vrPlayers.Add(_player.playerClientId);
+                        Plugin.Debug($"vr players not contained");
+                        vrPlayers.Add(clientId);
                     }
                 } else
                 {
                     if (vrPlayers.Contains(_player.playerClientId))
                     {
+                        Plugin.Debug($"vr players contained");
                         vrPlayers.Remove(_player.playerClientId);
                     }
                 }
                 //isVR = isVRChange;
-            }
+            //}
         }
     }
 }
