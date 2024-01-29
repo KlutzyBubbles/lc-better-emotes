@@ -115,11 +115,13 @@ namespace BetterEmote.Patches
             Plugin.Trace("PlayerControllerB.UpdatePostfix()");
             if (!__instance.isPlayerControlled || !__instance.IsOwner)
             {
-                if (syncVR == null || !syncVR.vrPlayers.Contains(__instance.playerClientId))
+                if (syncVR != null)
                 {
-                    Plugin.Trace("SyncVRState doesnt contian");
-                    __instance.playerBodyAnimator.runtimeAnimatorController = others;
-                    turnControllerIntoAnOverrideController(__instance.playerBodyAnimator.runtimeAnimatorController);
+                    if (syncVR.vrPlayers.ContainsKey(__instance.playerClientId) && !syncVR.vrPlayers[__instance.playerClientId])
+                    {
+                        __instance.playerBodyAnimator.runtimeAnimatorController = others;
+                        turnControllerIntoAnOverrideController(__instance.playerBodyAnimator.runtimeAnimatorController);
+                    }
                 }
             }
             else
