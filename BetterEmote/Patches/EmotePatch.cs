@@ -447,14 +447,14 @@ namespace BetterEmote.Patches
         [HarmonyPostfix]
         private static void StopPerformingEmoteServerPrefix(PlayerControllerB __instance)
         {
-            Plugin.Debug("prefixCheckConditions()");
+            Plugin.Debug("StopPerformingEmoteServerPrefix()");
             if (__instance.IsOwner && __instance.isPlayerControlled)
             {
                 __instance.playerBodyAnimator.SetInteger("emoteNumber", 0);
+                syncAnimator.UpdateEmoteIDForOthers(0);
+                currentEmoteID = 0;
             }
             TogglePlayerBadges(true);
-            syncAnimator.UpdateEmoteIDForOthers(0);
-            currentEmoteID = 0;
         }
     }
 }

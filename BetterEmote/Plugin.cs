@@ -82,8 +82,7 @@ namespace BetterEmote
         private void ConfigFile()
         {
             Settings.enabledList = new bool[EmoteDefs.getEmoteCount() + 1];
-            Settings.defaultKeyList = new string[EmoteDefs.getEmoteCount() + 1];
-            Settings.defaultControllerList = new string[EmoteDefs.getEmoteCount() + 1];
+            Settings.defaultInputList = new InputBind[EmoteDefs.getEmoteCount() + 1];
             foreach (string name in Enum.GetNames(typeof(Emote)))
             {
                 if (EmoteDefs.getEmoteNumber(name) > 2)
@@ -95,28 +94,40 @@ namespace BetterEmote
                         defaultEmoteKey = $"<Keyboard>/{emoteNumber % 10}";
                     }
                     ConfigEntry<string> keyConfig = Config.Bind("Emote Keys", $"{name} Key", defaultEmoteKey, $"Default keybind for {name} emote");
-                    Settings.defaultKeyList[emoteNumber] = Settings.validatePrefix("<Keyboard>", keyConfig.Value);
                     ConfigEntry<string> controllerConfig = Config.Bind("Emote Controller Bindings", $"{name} Button", "", $"Default controller binding for {name} emote");
-                    Settings.defaultControllerList[emoteNumber] = Settings.validatePrefix("<Gamepad>", controllerConfig.Value);
+                    Settings.defaultInputList[emoteNumber] = new InputBind(
+                        Settings.validatePrefixes(["<Keyboard>", "<Mouse>"], "<Keyboard>", keyConfig.Value),
+                        Settings.validatePrefix("<Gamepad>", controllerConfig.Value));
                 }
                 ConfigEntry<bool> enabledConfig = Config.Bind("Enabled Emotes", $"Enable {name}", true, $"Toggle {name} emote key");
                 Settings.enabledList[EmoteDefs.getEmoteNumber(name)] = enabledConfig.Value;
             }
-            ConfigEntry<string> configEmoteKey = Config.Bind("Emote Keys", "Emote Wheel Key", Settings.emoteWheelKey, "Default keybind for the emote wheel");
-            Settings.emoteWheelKey = Settings.validatePrefix("<Keyboard>", configEmoteKey.Value);
-            ConfigEntry<string> configEmoteController = Config.Bind("Emote Controller Bindings", "Emote Wheel Button", Settings.emoteWheelController, "Default controller binding for the emote wheel");
-            Settings.emoteWheelController = Settings.validatePrefix("<Gamepad>", configEmoteController.Value);
-            ConfigEntry<string> configEmoteNextKey = Config.Bind("Emote Keys", "Emote Wheel Next Page Key", Settings.emoteWheelNextKey, "Default keybind for the emote wheel next page");
-            Settings.emoteWheelNextKey = Settings.validatePrefix("<Mouse>", configEmoteNextKey.Value);
-            ConfigEntry<string> configEmoteNextController = Config.Bind("Emote Controller Bindings", "Emote Wheel Next Page Button", Settings.emoteWheelNextController, "Default controller binding for the emote wheel next page");
-            Settings.emoteWheelNextController = Settings.validatePrefix("<Gamepad>", configEmoteNextController.Value);
-            ConfigEntry<string> configEmotePreviousKey = Config.Bind("Emote Keys", "Emote Wheel Previous Page Key", Settings.emoteWheelPreviousKey, "Default keybind for the emote wheel previous page");
-            Settings.emoteWheelPreviousKey = Settings.validatePrefix("<Mouse>", configEmotePreviousKey.Value);
-            ConfigEntry<string> configEmotePreviousController = Config.Bind("Emote Controller Bindings", "Emote Wheel Previous Page Button", Settings.emoteWheelPreviousController, "Default controller binding for the emote wheel previous page");
-            Settings.emoteWheelPreviousController = Settings.validatePrefix("<Gamepad>", configEmotePreviousController.Value);
+            ConfigEntry<string> configSignSubmitKey = Config.Bind("Emote Keys", "Sign Submit Key", Settings.signSubmitInput.keyboard, "Default keybind for the emote wheel");
+            Settings.signSubmitInput.keyboard = Settings.validatePrefixes(["<Keyboard>", "<Mouse>"], "<Keyboard>", configSignSubmitKey.Value);
+            ConfigEntry<string> configSignSubmitController = Config.Bind("Emote Controller Bindings", "Sign Submit Button", Settings.signSubmitInput.controller, "Default controller binding for the emote wheel");
+            Settings.signSubmitInput.controller = Settings.validatePrefix("<Gamepad>", configSignSubmitController.Value);
+            ConfigEntry<string> configSignCancelKey = Config.Bind("Emote Keys", "Sign Cancel Key", Settings.signCancelInput.keyboard, "Default keybind for the emote wheel");
+            Settings.signCancelInput.keyboard = Settings.validatePrefixes(["<Keyboard>", "<Mouse>"], "<Keyboard>", configSignCancelKey.Value);
+            ConfigEntry<string> configSignCancelController = Config.Bind("Emote Controller Bindings", "Sign Cancel Button", Settings.signCancelInput.controller, "Default controller binding for the emote wheel");
+            Settings.signCancelInput.controller = Settings.validatePrefix("<Gamepad>", configSignCancelController.Value);
 
-        ConfigEntry<string> configEmoteControllerMove = Config.Bind("Emote Controller Bindings", "Emote Wheel Move", "<Gamepad>/rightStick", "Default controller binding for the emote wheel movement");
-            Settings.emoteWheelControllerMove = Settings.validatePrefix("<Gamepad>", configEmoteControllerMove.Value);
+            ConfigEntry<string> configEmoteKey = Config.Bind("Emote Keys", "Emote Wheel Key", Settings.emoteWheelInput.keyboard, "Default keybind for the emote wheel");
+            Settings.emoteWheelInput.keyboard = Settings.validatePrefixes(["<Keyboard>", "<Mouse>"], "<Keyboard>", configEmoteKey.Value);
+            ConfigEntry<string> configEmoteController = Config.Bind("Emote Controller Bindings", "Emote Wheel Button", Settings.emoteWheelInput.controller, "Default controller binding for the emote wheel");
+            Settings.emoteWheelInput.controller = Settings.validatePrefix("<Gamepad>", configEmoteController.Value);
+
+            ConfigEntry<string> configEmoteNextKey = Config.Bind("Emote Keys", "Emote Wheel Next Page Key", Settings.emoteWheelNextInput.keyboard, "Default keybind for the emote wheel next page");
+            Settings.emoteWheelNextInput.keyboard = Settings.validatePrefixes(["<Keyboard>", "<Mouse>"], "<Mouse>", configEmoteNextKey.Value);
+            ConfigEntry<string> configEmoteNextController = Config.Bind("Emote Controller Bindings", "Emote Wheel Next Page Button", Settings.emoteWheelNextInput.controller, "Default controller binding for the emote wheel next page");
+            Settings.emoteWheelNextInput.controller = Settings.validatePrefix("<Gamepad>", configEmoteNextController.Value);
+            
+            ConfigEntry<string> configEmotePreviousKey = Config.Bind("Emote Keys", "Emote Wheel Previous Page Key", Settings.emoteWheelPreviousInput.keyboard, "Default keybind for the emote wheel previous page");
+            Settings.emoteWheelPreviousInput.keyboard = Settings.validatePrefixes(["<Keyboard>", "<Mouse>"], "<Mouse>", configEmotePreviousKey.Value);
+            ConfigEntry<string> configEmotePreviousController = Config.Bind("Emote Controller Bindings", "Emote Wheel Previous Page Button", Settings.emoteWheelPreviousInput.controller, "Default controller binding for the emote wheel previous page");
+            Settings.emoteWheelPreviousInput.controller = Settings.validatePrefix("<Gamepad>", configEmotePreviousController.Value);
+
+            ConfigEntry<string> configEmoteControllerMove = Config.Bind("Emote Controller Bindings", "Emote Wheel Move", "<Gamepad>/rightStick", "Default controller binding for the emote wheel movement");
+            Settings.emoteWheelMoveInput.controller = Settings.validatePrefix("<Gamepad>", configEmoteControllerMove.Value);
             ConfigEntry<float> configEmoteControllerDeadzone = Config.Bind("Emote Controller Bindings", "Emote Wheel Deadzone", 0.25f, "Default controller deadzone for emote selection");
             Settings.controllerDeadzone = Settings.validateGreaterThanEqualToZero(configEmoteControllerDeadzone.Value);
 

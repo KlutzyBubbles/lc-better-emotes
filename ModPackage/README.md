@@ -14,9 +14,7 @@ Any other issues feel free to [submit an issue](https://github.com/KlutzyBubbles
 
 ## MoreEmotesCompatiblity
 
-While this mod is a direct modification of MoreEmotes, i try to make them compatible with each other. Below is the version that has been modified from and is the most likely one to work well with this mod, this version gets updated whenever a new version has been integrated
-
-Version compatibility (MoreEmotes): v1.3.3
+Unfortunately as of 1.4.1 MoreEmotes compatibilit has been lost, nothing will break. However there will be console errors.
 
 ## Information
 

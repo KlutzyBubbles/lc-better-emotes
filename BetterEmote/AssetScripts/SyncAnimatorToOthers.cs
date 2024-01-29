@@ -14,7 +14,7 @@ namespace BetterEmote.AssetScripts
 
         public void UpdateEmoteIDForOthers(int newID)
         {
-            Plugin.Debug($"UpdateEmoteIDForOthers({newID})");
+            Plugin.Debug($"UpdateEmoteIDForOthers({newID}, {_player.IsOwner}, {_player.isPlayerControlled})");
             if (_player.IsOwner && _player.isPlayerControlled)
             {
                 UpdateCurrentEmoteIDServerRpc(newID);
@@ -31,8 +31,8 @@ namespace BetterEmote.AssetScripts
         [ClientRpc]
         private void UpdateCurrentEmoteIDClientRpc(int newID)
         {
-            Plugin.Debug($"UpdateCurrentEmoteIDClientRpc({newID})");
-            if (!_player.IsOwner)
+            Plugin.Debug($"UpdateCurrentEmoteIDClientRpc({newID}, {_player.IsOwner}, {_player.isPlayerControlled})");
+            if (!_player.IsOwner || !_player.isPlayerControlled)
             {
                 _player.playerBodyAnimator.SetInteger("emoteNumber", newID);
             }

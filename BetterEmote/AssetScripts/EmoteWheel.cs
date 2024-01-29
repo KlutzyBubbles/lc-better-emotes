@@ -38,7 +38,7 @@ namespace BetterEmote.AssetScripts
         public Vector2 controllerValue = Vector2.zero;
 
         public static string[] emoteNames;
-        public static string[] emoteKeybinds;
+        public static InputBind[] emoteKeybinds;
 
         private Vector2 centerScreen;
 
@@ -60,10 +60,10 @@ namespace BetterEmote.AssetScripts
         private void OnEnable()
         {
             Plugin.Debug("EmoteWheel.OnEnable()");
-            emoteKeybinds = new string[EmoteDefs.getEmoteCount() + 1];
+            emoteKeybinds = new InputBind[EmoteDefs.getEmoteCount() + 1];
             foreach (string name in Enum.GetNames(typeof(Emote)))
             {
-                emoteKeybinds[EmoteDefs.getEmoteNumber(name) - 1] = Settings.keybinds.getByEmote(EmoteDefs.getEmote(name)).GetBindingDisplayString(0, 0);
+                emoteKeybinds[EmoteDefs.getEmoteNumber(name) - 1] = Keybinds.getDisplayStrings(Settings.keybinds.getByEmote(EmoteDefs.getEmote(name)));
             }
             centerScreen = new Vector2(Screen.width / 2, Screen.height / 2);
             Cursor.visible = true;
@@ -254,7 +254,7 @@ namespace BetterEmote.AssetScripts
         private void displayEmoteInfo()
         {
             Plugin.Trace($"EmoteWheel.displayEmoteInfo({selectedEmoteID})");
-            string text = selectedEmoteID > emoteKeybinds.Length ? "" : emoteKeybinds[selectedEmoteID - 1];
+            InputBind bind = selectedEmoteID > emoteKeybinds.Length ? new InputBind("", "") : emoteKeybinds[selectedEmoteID - 1];
             string text2;
             if (selectedEmoteID <= Enum.GetValues(typeof(Emote)).Length)
             {
@@ -267,7 +267,7 @@ namespace BetterEmote.AssetScripts
                 Plugin.Trace("selectedEmoteID out of range of emotes");
                 text2 = "EMPTY";
             }
-            emoteInformation.text = $"{text2 ?? ""}\n[{(text ?? "").ToUpper()}]";
+            emoteInformation.text = $"{text2 ?? ""}\n{Keybinds.formatInputBind(bind)}";
         }
         private void updateSelectionArrow()
         {

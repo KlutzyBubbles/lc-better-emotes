@@ -1,6 +1,6 @@
 {
     "name": "BetterEmotes",
-    "version_number": "1.4.1",
+    "version_number": "1.4.2",
     "website_url": "https://github.com/KlutzyBubbles/lc-better-emotes",
     "description": "[v49/v45] VR SUPPORT. Added the new emotes. Alters the integration method of more emotes and adds some config options",
     "dependencies": [
