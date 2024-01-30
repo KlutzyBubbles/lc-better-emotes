@@ -38,6 +38,9 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
+**Logs**
+It is very helpful to turn on Debug logging in BepinEx and set debug to true in BetterEmotes. This provides useful insight into when the issues occur and will reduce the time to fix the issue
+
 **Screenshots / Videos**
 If applicable, add screenshots to help explain your problem.
 
