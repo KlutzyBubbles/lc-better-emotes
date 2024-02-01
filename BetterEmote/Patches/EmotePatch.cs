@@ -59,7 +59,7 @@ namespace BetterEmote.Patches
             {
                 EmoteWheel.emoteNames[EmoteDefs.getEmoteNumber(name) - 1] = name;
             }
-            if (!Settings.disableSelfEmote)
+            if (!Settings.disableModelOverride)
             {
                 GameObject gameObject = GameObject.Find("Systems").gameObject.transform.Find("UI").gameObject.transform.Find("Canvas").gameObject;
                 customSignInputField = UnityEngine.Object.Instantiate(SignUIPrefab, gameObject.transform).AddComponent<SignUI>();
@@ -88,7 +88,7 @@ namespace BetterEmote.Patches
             if (syncVR != null)
             {
                 syncVR.RequestVRStateFromOthers();
-                syncVR.UpdateVRStateForOthers(Settings.disableSelfEmote);
+                syncVR.UpdateVRStateForOthers(Settings.disableModelOverride);
             }
         }
 
@@ -131,11 +131,11 @@ namespace BetterEmote.Patches
             {
                 if (__instance.playerBodyAnimator != local)
                 {
-                    if (isPlayerFirstFrame && !Settings.disableSelfEmote)
+                    if (isPlayerFirstFrame && !Settings.disableModelOverride)
                     {
                         SpawnLegs(__instance);
                     }
-                    if (!Settings.disableSelfEmote)
+                    if (!Settings.disableModelOverride)
                     {
                         __instance.playerBodyAnimator.runtimeAnimatorController = local;
                     }
@@ -145,14 +145,14 @@ namespace BetterEmote.Patches
                         syncVR = __instance.GetComponent<SyncVRState>();
                         syncAnimator = __instance.GetComponent<SyncAnimatorToOthers>();
                         isPlayerFirstFrame = false;
-                        if (!Settings.disableSelfEmote)
+                        if (!Settings.disableModelOverride)
                         {
                             OnFirstLocalPlayerFrameWithNewAnimator(__instance);
                         }
                         if (syncVR != null)
                         {
                             syncVR.RequestVRStateFromOthers();
-                            syncVR.UpdateVRStateForOthers(Settings.disableSelfEmote);
+                            syncVR.UpdateVRStateForOthers(Settings.disableModelOverride);
                         }
                         Plugin.Debug("SpawnPlayerAnimation");
                         __instance.SpawnPlayerAnimation();
@@ -178,7 +178,7 @@ namespace BetterEmote.Patches
                         }
                     }
                 }
-                if (!Settings.disableSelfEmote)
+                if (!Settings.disableModelOverride)
                 {
                     __instance.localArmsRotationTarget = isLocalArmsSeparatedFromCamera ? freeArmsTarget : lockedArmsTarget;
                 }
@@ -284,7 +284,7 @@ namespace BetterEmote.Patches
             }
             else
             {
-                if (Settings.disableSelfEmote)
+                if (Settings.disableModelOverride)
                 {
                     Plugin.Debug("Couldn't find the level badge (its fine for the settings)");
                 }
@@ -324,7 +324,7 @@ namespace BetterEmote.Patches
             {
                 Plugin.Debug($"syncVR not null, updating");
                 syncVR.RequestVRStateFromOthers();
-                syncVR.UpdateVRStateForOthers(Settings.disableSelfEmote);
+                syncVR.UpdateVRStateForOthers(Settings.disableModelOverride);
             }
             if (customSignInputField != null && customSignInputField.IsSignUIOpen && localEmoteID != EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
             {
@@ -390,14 +390,14 @@ namespace BetterEmote.Patches
                         syncAnimator.UpdateEmoteIDForOthers(localEmoteID);
                         TogglePlayerBadges(false);
                     };
-                    if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka) && !Settings.disableSelfEmote)
+                    if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka) && !Settings.disableModelOverride)
                     {
                         Plugin.Debug($"Adding UpdateLegsMaterial for Prisyadka");
                         action = (Action)Delegate.Combine(action, new Action(delegate ()
                         {
                             UpdateLegsMaterial(__instance);
                         }));
-                    } else if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign) && !Settings.disableSelfEmote)
+                    } else if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign) && !Settings.disableModelOverride)
                     {
                         Plugin.Debug($"Adding customSignInputField setActive for Sign");
                         action = (Action)Delegate.Combine(action, new Action(delegate ()

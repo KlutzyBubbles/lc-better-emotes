@@ -16,7 +16,7 @@ namespace BetterEmote.Compatibility
             if (LCVR.Plugin.Flags.HasFlag(LCVR.Flags.VR))
             {
                 Plugin.Debug($"Found VR mode on LCVR, disabiling self emotes");
-                Settings.disableSelfEmote = true;
+                Settings.disableModelOverride = true;
             }
         }
     }

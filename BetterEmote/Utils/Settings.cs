@@ -32,7 +32,7 @@ namespace BetterEmote.Utils
         public static float signTextCooldown = 0.1f;
 
         public static bool disableSpeedChange = false;
-        public static bool disableSelfEmote = false;
+        public static bool disableModelOverride = false;
 
         public static float controllerDeadzone = 0.25f;
 
@@ -56,7 +56,7 @@ namespace BetterEmote.Utils
             Plugin.Debug($"emoteCooldown: {emoteCooldown}");
             Plugin.Debug($"signTextCooldown: {signTextCooldown}");
             Plugin.Debug($"disableSpeedChange: {disableSpeedChange}");
-            Plugin.Debug($"disableSelfEmote: {disableSelfEmote}");
+            Plugin.Debug($"disableModelOverride: {disableModelOverride}");
             Plugin.Debug($"controllerDeadzone: {controllerDeadzone}");
             Plugin.Debug($"logDelay: {logDelay}");
         }

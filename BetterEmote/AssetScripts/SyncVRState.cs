@@ -42,10 +42,10 @@ namespace BetterEmote.AssetScripts
         [ClientRpc]
         private void RequestedVRStateClientRpc()
         {
-            Plugin.Debug($"RequestedVRStateClientRpc({Settings.disableSelfEmote}, {GameValues.localPlayerController.playerClientId})");
+            Plugin.Debug($"RequestedVRStateClientRpc({Settings.disableModelOverride}, {GameValues.localPlayerController.playerClientId})");
             if (!_player.IsOwner)
             {
-                UpdateVRStateServerRpc(Settings.disableSelfEmote, GameValues.localPlayerController.playerClientId); // Big man Smoku Broku <3
+                UpdateVRStateServerRpc(Settings.disableModelOverride, GameValues.localPlayerController.playerClientId); // Big man Smoku Broku <3
             }
         }
 

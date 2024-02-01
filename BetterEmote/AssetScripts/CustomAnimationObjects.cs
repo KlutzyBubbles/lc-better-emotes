@@ -29,7 +29,7 @@ namespace BetterEmote.AssetScripts
             else
             {
                 _sign.transform.localPosition = _sign.transform.parent.Find("spine").localPosition;
-                if (_legs == null && _player.IsOwner && _player.isPlayerControlled && !Settings.disableSelfEmote)
+                if (_legs == null && _player.IsOwner && _player.isPlayerControlled && !Settings.disableModelOverride)
                 {
                     FindLegs();
                 }
@@ -45,7 +45,7 @@ namespace BetterEmote.AssetScripts
                             {
                                 _legs.enabled = true;
                             }
-                            if (_player.IsOwner && !Settings.disableSelfEmote)
+                            if (_player.IsOwner && !Settings.disableModelOverride)
                             {
                                 EmotePatch.isLocalArmsSeparatedFromCamera = true;
                             }
@@ -58,7 +58,7 @@ namespace BetterEmote.AssetScripts
                                 Plugin.Trace("Sign isnt active self");
                                 _signText.SetActive(true);
                             }
-                            if (_player.IsOwner && !Settings.disableSelfEmote)
+                            if (_player.IsOwner && !Settings.disableModelOverride)
                             {
                                 EmotePatch.isLocalArmsSeparatedFromCamera = true;
                             }
@@ -80,7 +80,7 @@ namespace BetterEmote.AssetScripts
             {
                 _signText.SetActive(false);
             }
-            if (_player.IsOwner && _player.isPlayerControlled && !Settings.disableSelfEmote)
+            if (_player.IsOwner && _player.isPlayerControlled && !Settings.disableModelOverride)
             {
                 EmotePatch.isLocalArmsSeparatedFromCamera = false;
             }

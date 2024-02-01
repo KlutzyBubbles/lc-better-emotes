@@ -154,8 +154,8 @@ namespace BetterEmote
             Settings.trace = configTrace.Value;
             ConfigEntry<bool> configSpeedChange = Config.Bind("Debug Settings", "Disable Speed Changed", false, "Whether or not to disable speed changes that might affect other mods");
             Settings.disableSpeedChange = configSpeedChange.Value;
-            ConfigEntry<bool> configSelfEmote = Config.Bind("Debug Settings", "Disable Self Emote", false, "Whether or not to disable self emoting that might affect other mods");
-            Settings.disableSelfEmote = configSelfEmote.Value;
+            ConfigEntry<bool> configSelfEmote = Config.Bind("Debug Settings", "Disable Self Emote", false, "Whether or not to disable overriding the player model, can help with conflicting mods");
+            Settings.disableModelOverride = configSelfEmote.Value;
         }
 
         public static Dictionary<string, long> lastLog = new Dictionary<string, long>();

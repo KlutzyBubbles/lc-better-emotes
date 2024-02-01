@@ -29,7 +29,7 @@ namespace BetterEmote.Patches
         private static void StartPostfix(PlayerControllerB __instance)
         {
             Plugin.Debug("EmoteKeybindPatch.StartPostfix()");
-            if (!Settings.disableSelfEmote)
+            if (!Settings.disableModelOverride)
             {
                 Settings.keybinds.MiddleFinger.performed += onEmoteKeyMiddleFinger;
                 Settings.keybinds.Griddy.performed += onEmoteKeyGriddy;
@@ -106,7 +106,7 @@ namespace BetterEmote.Patches
                 Plugin.Debug("They have one of the shifts pressed");
                 return;
             }
-            if (!Settings.disableSelfEmote && EmotePatch.customSignInputField != null && EmotePatch.customSignInputField.IsSignUIOpen)
+            if (!Settings.disableModelOverride && EmotePatch.customSignInputField != null && EmotePatch.customSignInputField.IsSignUIOpen)
             {
                 EmotePatch.customSignInputField.SubmitText();
             }
@@ -115,7 +115,7 @@ namespace BetterEmote.Patches
         public static void onSignKeyCancel(InputAction.CallbackContext context)
         {
             Plugin.Debug("onSignKeyCancel()");
-            if (!Settings.disableSelfEmote && EmotePatch.customSignInputField != null && EmotePatch.customSignInputField.IsSignUIOpen)
+            if (!Settings.disableModelOverride && EmotePatch.customSignInputField != null && EmotePatch.customSignInputField.IsSignUIOpen)
             {
                 EmotePatch.customSignInputField.Close(true);
             }
