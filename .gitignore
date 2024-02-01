@@ -401,3 +401,6 @@ FodyWeavers.xsd
 *.xcf
 
 launchSettings.json
+
+# VSCode Extensions
+.VSCodeCounter
