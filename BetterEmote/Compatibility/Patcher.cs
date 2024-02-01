@@ -26,7 +26,7 @@ namespace BetterEmote.Compatibility
                 }
                 catch (Exception e)
                 {
-                    Plugin.StaticLogger.LogError($"Failed to apply patches from {type}: {e.Message}");
+                    Plugin.Logger.LogError($"Failed to apply patches from {type}: {e.Message}");
                 }
             });
         }

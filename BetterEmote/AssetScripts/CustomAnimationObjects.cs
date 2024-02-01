@@ -113,7 +113,7 @@ namespace BetterEmote.AssetScripts
                 }
                 catch (Exception e)
                 {
-                    Plugin.StaticLogger.LogWarning("Unable to find custom legs, this should be corrected soon.");
+                    Plugin.Logger.LogWarning("Unable to find custom legs, this should be corrected soon.");
                 }
             }
         }

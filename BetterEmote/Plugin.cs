@@ -6,13 +6,14 @@ using HarmonyLib;
 using UnityEngine;
 using BepInEx.Logging;
 using System;
-using GameNetcodeStuff;
-using RuntimeNetcodeRPCValidator;
 using BetterEmote.Patches;
 using BetterEmote.AssetScripts;
 using BetterEmote.Utils;
 using System.Collections.Generic;
 using BetterEmote.Compatibility;
+using System.Linq;
+using RuntimeNetcodeRPCValidator;
+using GameNetcodeStuff;
 
 namespace BetterEmote
 {
@@ -24,7 +25,7 @@ namespace BetterEmote
     [BepInDependency("io.daxcess.lcvr", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
-        public static ManualLogSource StaticLogger;
+        public static new ManualLogSource Logger;
 
         private Harmony _harmony;
 
@@ -32,8 +33,8 @@ namespace BetterEmote
 
         private void Awake()
         {
-            StaticLogger = Logger;
-            StaticLogger.LogInfo("BetterEmotes loading...");
+            Logger = base.Logger;
+            Logger.LogInfo("BetterEmotes loading...");
             LoadAssetBundles();
             LoadAssets();
             ConfigFile();
@@ -48,7 +49,7 @@ namespace BetterEmote
             netcodeValidator.BindToPreExistingObjectByBehaviour<SyncVRState, PlayerControllerB>();
             netcodeValidator.BindToPreExistingObjectByBehaviour<SignEmoteText, PlayerControllerB>();
             netcodeValidator.BindToPreExistingObjectByBehaviour<SyncAnimatorToOthers, PlayerControllerB>();
-            StaticLogger.LogInfo("BetterEmotes loaded");
+            Logger.LogInfo("BetterEmotes loaded");
         }
 
         private void LoadAssetBundles()
@@ -163,7 +164,7 @@ namespace BetterEmote
         {
             if (Settings.debug)
             {
-                StaticLogger.LogDebug($"[DEBUG] {message}");
+                Logger.LogDebug($"[DEBUG] {message}");
             }
         }
         public static void Trace(string message)
@@ -176,12 +177,12 @@ namespace BetterEmote
                     long lastTime = lastLog[message];
                     if (currentTime - lastTime > Settings.logDelay * 1000)
                     {
-                        StaticLogger.LogDebug($"[TRACE] {message}");
+                        Logger.LogDebug($"[TRACE] {message}");
                         lastLog[message] = currentTime;
                     }
                 } else
                 {
-                    StaticLogger.LogDebug($"[TRACE] {message}");
+                    Logger.LogDebug($"[TRACE] {message}");
                     lastLog.Add(message, currentTime);
                 }
             }

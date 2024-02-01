@@ -1,7 +1,6 @@
 ﻿using BetterEmote.Patches;
 using BetterEmote.Utils;
 using GameNetcodeStuff;
-using System.Collections.Generic;
 using Unity.Netcode;
 
 namespace BetterEmote.AssetScripts

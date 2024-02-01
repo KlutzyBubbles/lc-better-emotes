@@ -290,7 +290,7 @@ namespace BetterEmote.Patches
                 }
                 else
                 {
-                    Plugin.StaticLogger.LogError("Couldn't find the level badge");
+                    Plugin.Logger.LogError("Couldn't find the level badge");
                 }
             }
         }

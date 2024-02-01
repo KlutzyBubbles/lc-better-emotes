@@ -78,7 +78,7 @@ namespace BetterEmote.Utils
             builder.NewActionBinding()
                 .WithActionId("EmoteWheelController")
                 .WithActionType(InputActionType.Value)
-                .WithKbmPath("")
+                .WithKbmPath("") // TODO Remove when InputUtils is undated
                 .WithGamepadPath(Settings.emoteWheelMoveInput.controller)
                 .WithBindingName("Emote Wheel CONTROLLER ONLY")
                 .Finish();
