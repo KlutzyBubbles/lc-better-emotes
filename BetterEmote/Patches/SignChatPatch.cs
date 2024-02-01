@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BetterEmote.AssetScripts;
+using HarmonyLib;
 
 namespace BetterEmote.Patches
 {
@@ -8,14 +9,14 @@ namespace BetterEmote.Patches
         [HarmonyPrefix]
         private static bool OpenChatPrefix()
         {
-            return EmotePatch.customSignInputField == null || !EmotePatch.customSignInputField.IsSignUIOpen;
+            return LocalPlayer.CustomSignInputField == null || !LocalPlayer.CustomSignInputField.IsSignUIOpen;
         }
 
         [HarmonyPatch(typeof(HUDManager), "SubmitChat_performed")]
         [HarmonyPrefix]
         private static bool SubmitChatPrefix()
         {
-            return EmotePatch.customSignInputField == null || !EmotePatch.customSignInputField.IsSignUIOpen;
+            return LocalPlayer.CustomSignInputField == null || !LocalPlayer.CustomSignInputField.IsSignUIOpen;
         }
     }
 }

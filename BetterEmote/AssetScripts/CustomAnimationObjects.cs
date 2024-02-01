@@ -1,5 +1,4 @@
-﻿using BetterEmote.Patches;
-using BetterEmote.Utils;
+﻿using BetterEmote.Utils;
 using GameNetcodeStuff;
 using System;
 using UnityEngine;
@@ -33,7 +32,7 @@ namespace BetterEmote.AssetScripts
                     sign.transform.localPosition = sign.transform.parent.Find("spine").localPosition;
                     if (playerInstance == null)
                         return;
-                    if (legs == null && playerInstance.IsOwner && playerInstance.isPlayerControlled && !Settings.disableModelOverride)
+                    if (legs == null && playerInstance.IsOwner && playerInstance.isPlayerControlled && !Settings.DisableModelOverride)
                     {
                         FindLegs();
                     }
@@ -49,9 +48,9 @@ namespace BetterEmote.AssetScripts
                                 {
                                     legs.enabled = true;
                                 }
-                                if (playerInstance.IsOwner && !Settings.disableModelOverride)
+                                if (playerInstance.IsOwner && !Settings.DisableModelOverride)
                                 {
-                                    EmotePatch.isLocalArmsSeparatedFromCamera = true;
+                                    LocalPlayer.IsArmsSeparatedFromCamera = true;
                                 }
                             }
                             else if (sign != null && (emoteNumber == EmoteDefs.getEmoteNumber(Emote.Sign) || emoteNumber == EmoteDefs.getEmoteNumber(AltEmote.Sign_Text)))
@@ -62,9 +61,9 @@ namespace BetterEmote.AssetScripts
                                     Plugin.Trace("Sign isnt active self");
                                     signText.SetActive(true);
                                 }
-                                if (playerInstance.IsOwner && !Settings.disableModelOverride)
+                                if (playerInstance.IsOwner && !Settings.DisableModelOverride)
                                 {
-                                    EmotePatch.isLocalArmsSeparatedFromCamera = true;
+                                    LocalPlayer.IsArmsSeparatedFromCamera = true;
                                 }
                             }
                         }
@@ -89,9 +88,9 @@ namespace BetterEmote.AssetScripts
             {
                 signText.SetActive(false);
             }
-            if (playerInstance != null && playerInstance.IsOwner && playerInstance.isPlayerControlled && !Settings.disableModelOverride)
+            if (playerInstance != null && playerInstance.IsOwner && playerInstance.isPlayerControlled && !Settings.DisableModelOverride)
             {
-                EmotePatch.isLocalArmsSeparatedFromCamera = false;
+                LocalPlayer.IsArmsSeparatedFromCamera = false;
             }
         }
 

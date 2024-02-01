@@ -9,9 +9,9 @@ namespace BetterEmote.Patches
 {
     internal class EmoteKeybindPatch
     {
-        public static bool emoteWheelIsOpened;
+        public static bool EmoteWheelIsOpened = false;
 
-        private static EmoteWheel selectionWheel;
+        private static EmoteWheel SelectionWheel;
 
         public static GameObject WheelPrefab;
 
@@ -21,7 +21,10 @@ namespace BetterEmote.Patches
         {
             Plugin.Debug("EmoteKeybindPatch.AwakePost()");
             GameObject gameObject = GameObject.Find("Systems").gameObject.transform.Find("UI").gameObject.transform.Find("Canvas").gameObject;
-            selectionWheel = UnityEngine.Object.Instantiate(WheelPrefab, gameObject.transform).AddComponent<EmoteWheel>();
+            if (WheelPrefab != null)
+            {
+                SelectionWheel = UnityEngine.Object.Instantiate(WheelPrefab, gameObject.transform).AddComponent<EmoteWheel>();
+            }
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "Start")]
@@ -29,35 +32,35 @@ namespace BetterEmote.Patches
         private static void StartPostfix(PlayerControllerB __instance)
         {
             Plugin.Debug("EmoteKeybindPatch.StartPostfix()");
-            if (!Settings.disableModelOverride)
+            if (Settings.Keybinds != null && !Settings.DisableModelOverride)
             {
-                Settings.keybinds.MiddleFinger.performed += onEmoteKeyMiddleFinger;
-                Settings.keybinds.Griddy.performed += onEmoteKeyGriddy;
-                Settings.keybinds.Shy.performed += onEmoteKeyShy;
-                Settings.keybinds.Clap.performed += onEmoteKeyClap;
-                Settings.keybinds.Salute.performed += onEmoteKeySalute;
-                Settings.keybinds.Prisyadka.performed += onEmoteKeyPrisyadka;
-                Settings.keybinds.Sign.performed += onEmoteKeySign;
-                Settings.keybinds.Twerk.performed += onEmoteKeyTwerk;
-                Settings.keybinds.SignSubmit.performed += onSignKeySubmit;
-                Settings.keybinds.SignCancel.performed += onSignKeyCancel;
-                Settings.keybinds.EmoteWheel.started += onEmoteKeyWheelStarted;
-                Settings.keybinds.EmoteWheel.canceled += onEmoteKeyWheelCanceled;
-                Settings.keybinds.EmoteWheelNextPage.performed += onEmoteKeyWheelNext;
-                Settings.keybinds.EmoteWheelPreviousPage.performed += onEmoteKeyWheelPrevious;
-                Settings.keybinds.MiddleFinger.Enable();
-                Settings.keybinds.Griddy.Enable();
-                Settings.keybinds.Shy.Enable();
-                Settings.keybinds.Clap.Enable();
-                Settings.keybinds.Salute.Enable();
-                Settings.keybinds.Prisyadka.Enable();
-                Settings.keybinds.Sign.Enable();
-                Settings.keybinds.Twerk.Enable();
-                Settings.keybinds.SignSubmit.Enable();
-                Settings.keybinds.SignCancel.Enable();
-                Settings.keybinds.EmoteWheel.Enable();
-                Settings.keybinds.EmoteWheelNextPage.Enable();
-                Settings.keybinds.EmoteWheelPreviousPage.Enable();
+                Settings.Keybinds.MiddleFinger.performed += onEmoteKeyMiddleFinger;
+                Settings.Keybinds.Griddy.performed += onEmoteKeyGriddy;
+                Settings.Keybinds.Shy.performed += onEmoteKeyShy;
+                Settings.Keybinds.Clap.performed += onEmoteKeyClap;
+                Settings.Keybinds.Salute.performed += onEmoteKeySalute;
+                Settings.Keybinds.Prisyadka.performed += onEmoteKeyPrisyadka;
+                Settings.Keybinds.Sign.performed += onEmoteKeySign;
+                Settings.Keybinds.Twerk.performed += onEmoteKeyTwerk;
+                Settings.Keybinds.SignSubmit.performed += onSignKeySubmit;
+                Settings.Keybinds.SignCancel.performed += onSignKeyCancel;
+                Settings.Keybinds.EmoteWheel.started += onEmoteKeyWheelStarted;
+                Settings.Keybinds.EmoteWheel.canceled += onEmoteKeyWheelCanceled;
+                Settings.Keybinds.EmoteWheelNextPage.performed += onEmoteKeyWheelNext;
+                Settings.Keybinds.EmoteWheelPreviousPage.performed += onEmoteKeyWheelPrevious;
+                Settings.Keybinds.MiddleFinger.Enable();
+                Settings.Keybinds.Griddy.Enable();
+                Settings.Keybinds.Shy.Enable();
+                Settings.Keybinds.Clap.Enable();
+                Settings.Keybinds.Salute.Enable();
+                Settings.Keybinds.Prisyadka.Enable();
+                Settings.Keybinds.Sign.Enable();
+                Settings.Keybinds.Twerk.Enable();
+                Settings.Keybinds.SignSubmit.Enable();
+                Settings.Keybinds.SignCancel.Enable();
+                Settings.Keybinds.EmoteWheel.Enable();
+                Settings.Keybinds.EmoteWheelNextPage.Enable();
+                Settings.Keybinds.EmoteWheelPreviousPage.Enable();
             }
         }
 
@@ -66,35 +69,35 @@ namespace BetterEmote.Patches
         public static void OnDisablePostfix(PlayerControllerB __instance)
         {
             Plugin.Debug("EmoteKeybindPatch.OnDisablePostfix()");
-            if (__instance == GameValues.localPlayerController)
+            if (Settings.Keybinds != null && __instance == GameValues.localPlayerController)
             {
-                Settings.keybinds.MiddleFinger.performed -= onEmoteKeyMiddleFinger;
-                Settings.keybinds.Griddy.performed -= onEmoteKeyGriddy;
-                Settings.keybinds.Shy.performed -= onEmoteKeyShy;
-                Settings.keybinds.Clap.performed -= onEmoteKeyClap;
-                Settings.keybinds.Salute.performed -= onEmoteKeySalute;
-                Settings.keybinds.Prisyadka.performed -= onEmoteKeyPrisyadka;
-                Settings.keybinds.Sign.performed -= onEmoteKeySign;
-                Settings.keybinds.Twerk.performed -= onEmoteKeyTwerk;
-                Settings.keybinds.SignSubmit.performed -= onSignKeySubmit;
-                Settings.keybinds.SignCancel.performed -= onSignKeyCancel;
-                Settings.keybinds.EmoteWheel.started -= onEmoteKeyWheelStarted;
-                Settings.keybinds.EmoteWheel.canceled -= onEmoteKeyWheelCanceled;
-                Settings.keybinds.EmoteWheelNextPage.performed -= onEmoteKeyWheelNext;
-                Settings.keybinds.EmoteWheelPreviousPage.performed -= onEmoteKeyWheelPrevious;
-                Settings.keybinds.MiddleFinger.Disable();
-                Settings.keybinds.Griddy.Disable();
-                Settings.keybinds.Shy.Disable();
-                Settings.keybinds.Clap.Disable();
-                Settings.keybinds.Salute.Disable();
-                Settings.keybinds.Prisyadka.Disable();
-                Settings.keybinds.Sign.Disable();
-                Settings.keybinds.Twerk.Disable();
-                Settings.keybinds.SignSubmit.Disable();
-                Settings.keybinds.SignCancel.Disable();
-                Settings.keybinds.EmoteWheel.Disable();
-                Settings.keybinds.EmoteWheelNextPage.Disable();
-                Settings.keybinds.EmoteWheelPreviousPage.Disable();
+                Settings.Keybinds.MiddleFinger.performed -= onEmoteKeyMiddleFinger;
+                Settings.Keybinds.Griddy.performed -= onEmoteKeyGriddy;
+                Settings.Keybinds.Shy.performed -= onEmoteKeyShy;
+                Settings.Keybinds.Clap.performed -= onEmoteKeyClap;
+                Settings.Keybinds.Salute.performed -= onEmoteKeySalute;
+                Settings.Keybinds.Prisyadka.performed -= onEmoteKeyPrisyadka;
+                Settings.Keybinds.Sign.performed -= onEmoteKeySign;
+                Settings.Keybinds.Twerk.performed -= onEmoteKeyTwerk;
+                Settings.Keybinds.SignSubmit.performed -= onSignKeySubmit;
+                Settings.Keybinds.SignCancel.performed -= onSignKeyCancel;
+                Settings.Keybinds.EmoteWheel.started -= onEmoteKeyWheelStarted;
+                Settings.Keybinds.EmoteWheel.canceled -= onEmoteKeyWheelCanceled;
+                Settings.Keybinds.EmoteWheelNextPage.performed -= onEmoteKeyWheelNext;
+                Settings.Keybinds.EmoteWheelPreviousPage.performed -= onEmoteKeyWheelPrevious;
+                Settings.Keybinds.MiddleFinger.Disable();
+                Settings.Keybinds.Griddy.Disable();
+                Settings.Keybinds.Shy.Disable();
+                Settings.Keybinds.Clap.Disable();
+                Settings.Keybinds.Salute.Disable();
+                Settings.Keybinds.Prisyadka.Disable();
+                Settings.Keybinds.Sign.Disable();
+                Settings.Keybinds.Twerk.Disable();
+                Settings.Keybinds.SignSubmit.Disable();
+                Settings.Keybinds.SignCancel.Disable();
+                Settings.Keybinds.EmoteWheel.Disable();
+                Settings.Keybinds.EmoteWheelNextPage.Disable();
+                Settings.Keybinds.EmoteWheelPreviousPage.Disable();
             }
         }
 
@@ -106,35 +109,36 @@ namespace BetterEmote.Patches
                 Plugin.Debug("They have one of the shifts pressed");
                 return;
             }
-            if (!Settings.disableModelOverride && EmotePatch.customSignInputField != null && EmotePatch.customSignInputField.IsSignUIOpen)
+            if (!Settings.DisableModelOverride && LocalPlayer.CustomSignInputField != null && LocalPlayer.CustomSignInputField.IsSignUIOpen)
             {
-                EmotePatch.customSignInputField.SubmitText();
+                LocalPlayer.CustomSignInputField.SubmitText();
             }
         }
 
         public static void onSignKeyCancel(InputAction.CallbackContext context)
         {
             Plugin.Debug("onSignKeyCancel()");
-            if (!Settings.disableModelOverride && EmotePatch.customSignInputField != null && EmotePatch.customSignInputField.IsSignUIOpen)
+            if (!Settings.DisableModelOverride && LocalPlayer.CustomSignInputField != null && LocalPlayer.CustomSignInputField.IsSignUIOpen)
             {
-                EmotePatch.customSignInputField.Close(true);
+                LocalPlayer.CustomSignInputField.Close(true);
             }
         }
 
         public static void onEmoteKeyWheelStarted(InputAction.CallbackContext context)
         {
             Plugin.Debug("onEmoteKeyWheelStarted()");
-            if (!emoteWheelIsOpened
+            if (!EmoteWheelIsOpened
+                && GameValues.localPlayerController != null
                 && !GameValues.localPlayerController.isPlayerDead
                 && !GameValues.localPlayerController.inTerminalMenu
                 && !GameValues.localPlayerController.isTypingChat
                 && !GameValues.localPlayerController.quickMenuManager.isMenuOpen
-                && (EmotePatch.customSignInputField == null || !EmotePatch.customSignInputField.IsSignUIOpen))
+                && (LocalPlayer.CustomSignInputField == null || !LocalPlayer.CustomSignInputField.IsSignUIOpen))
             {
-                emoteWheelIsOpened = true;
+                EmoteWheelIsOpened = true;
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.Confined;
-                selectionWheel.gameObject.SetActive(emoteWheelIsOpened);
+                SelectionWheel?.gameObject?.SetActive(EmoteWheelIsOpened);
                 GameValues.localPlayerController.quickMenuManager.isMenuOpen = true;
                 GameValues.localPlayerController.disableLookInput = true;
             }
@@ -143,13 +147,13 @@ namespace BetterEmote.Patches
         public static void onEmoteKeyWheelCanceled(InputAction.CallbackContext context)
         {
             Plugin.Debug("onEmoteKeyWheelCanceled()");
-            if (emoteWheelIsOpened)
+            if (EmoteWheelIsOpened && GameValues.localPlayerController != null && SelectionWheel != null)
             {
                 GameValues.localPlayerController.quickMenuManager.isMenuOpen = false;
                 GameValues.localPlayerController.disableLookInput = false;
-                if (selectionWheel.selectedEmoteID >= Settings.enabledList.Length)
+                if (SelectionWheel.selectedEmoteID >= Settings.EnabledList.Length)
                 {
-                    if (selectionWheel.stopEmote)
+                    if (SelectionWheel.stopEmote)
                     {
                         GameValues.localPlayerController.performingEmote = false;
                         GameValues.localPlayerController.StopPerformingEmoteServerRpc();
@@ -158,30 +162,30 @@ namespace BetterEmote.Patches
                 }
                 else
                 {
-                    CheckEmoteInput(context, Settings.enabledList[selectionWheel.selectedEmoteID], selectionWheel.selectedEmoteID, GameValues.localPlayerController);
+                    CheckEmoteInput(context, Settings.EnabledList[SelectionWheel.selectedEmoteID], SelectionWheel.selectedEmoteID, GameValues.localPlayerController);
                 }
                 Cursor.visible = false;
                 Cursor.lockState = CursorLockMode.Locked;
-                emoteWheelIsOpened = false;
-                selectionWheel.gameObject.SetActive(emoteWheelIsOpened);
+                EmoteWheelIsOpened = false;
+                SelectionWheel.gameObject.SetActive(EmoteWheelIsOpened);
             }
         }
 
         public static void onEmoteKeyWheelNext(InputAction.CallbackContext context)
         {
             Plugin.Debug("onEmoteKeyWheelNext()");
-            if (emoteWheelIsOpened)
+            if (EmoteWheelIsOpened)
             {
-                selectionWheel.alterPage(1);
+                SelectionWheel?.alterPage(1);
             }
         }
 
         public static void onEmoteKeyWheelPrevious(InputAction.CallbackContext context)
         {
             Plugin.Debug("onEmoteKeyWheelPrevious()");
-            if (emoteWheelIsOpened)
+            if (EmoteWheelIsOpened)
             {
-                selectionWheel.alterPage(-1);
+                SelectionWheel?.alterPage(-1);
             }
         }
 
@@ -235,13 +239,13 @@ namespace BetterEmote.Patches
 
         public static void onEmoteKeyPerformed(InputAction.CallbackContext context, Emote emote)
         {
-            CheckEmoteInput(context, Settings.enabledList[(int)emote], (int)emote, GameValues.localPlayerController);
+            CheckEmoteInput(context, Settings.EnabledList[(int)emote], (int)emote, GameValues.localPlayerController);
         }
 
         private static void CheckEmoteInput(InputAction.CallbackContext context, bool enabled, int emoteID, PlayerControllerB player)
         {
             Plugin.Debug($"CheckEmoteInput({enabled}, {emoteID})");
-            if (enabled)
+            if (enabled && player != null)
             {
                 player.PerformEmote(context, emoteID);
             }

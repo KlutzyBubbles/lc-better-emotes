@@ -13,7 +13,7 @@ namespace BetterEmote.Compatibility
         private static void StartPostfix()
         {
             Plugin.Debug("MoreShipUpgrades.StartPostfix()");
-            Settings.disableSpeedChange = true;
+            Settings.DisableSpeedChange = true;
         }
     }
 }

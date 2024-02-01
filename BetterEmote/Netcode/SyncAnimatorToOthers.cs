@@ -1,7 +1,7 @@
 ﻿using GameNetcodeStuff;
 using Unity.Netcode;
 
-namespace BetterEmote.AssetScripts
+namespace BetterEmote.Netcode
 {
     public class SyncAnimatorToOthers : NetworkBehaviour
     {

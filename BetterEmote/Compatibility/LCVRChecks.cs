@@ -1,5 +1,6 @@
 ﻿using BetterEmote.Utils;
 using HarmonyLib;
+using System;
 using static BetterEmote.Compatibility.Patcher;
 
 namespace BetterEmote.Compatibility
@@ -13,10 +14,17 @@ namespace BetterEmote.Compatibility
         private static void StartPostfix()
         {
             Plugin.Debug("LCVRChecks.StartPostfix()");
-            if (LCVR.Plugin.Flags.HasFlag(LCVR.Flags.VR))
+            try
             {
-                Plugin.Debug($"Found VR mode on LCVR, disabiling self emotes");
-                Settings.disableModelOverride = true;
+                if (LCVR.Plugin.Flags.HasFlag(LCVR.Flags.VR))
+                {
+                    Plugin.Debug($"Found VR mode on LCVR, disabiling self emotes");
+                    Settings.DisableModelOverride = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Logger.LogWarning($"Unable to hook into LCVR to see if the player is VR {e.Message}");
             }
         }
     }

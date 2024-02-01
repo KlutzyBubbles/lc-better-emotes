@@ -2,7 +2,6 @@
 using System;
 using UnityEngine;
 using BetterEmote.Utils;
-using BetterEmote.Patches;
 
 namespace BetterEmote.AssetScripts
 {
@@ -19,12 +18,21 @@ namespace BetterEmote.AssetScripts
         public static Transform lockedArmsTarget;
         private static Transform legsMesh;
 
+        public static int CurrentEmoteID;
+
+        public static bool IsPlayerFirstFrame;
+        public static bool IsArmsSeparatedFromCamera;
+
+        public static float BaseSpeed;
+
+        public static SignUI CustomSignInputField;
+
         public static void OnFirstLocalPlayerFrameWithNewAnimator(PlayerControllerB player)
         {
             Plugin.Debug("OnFirstLocalPlayerFrameWithNewAnimator()");
-            if (EmotePatch.customSignInputField != null)
+            if (CustomSignInputField != null)
             {
-                EmotePatch.customSignInputField.Player = player;
+                CustomSignInputField.Player = player;
             }
             try
             {
@@ -48,6 +56,7 @@ namespace BetterEmote.AssetScripts
                 GameObject signObject = UnityEngine.Object.Instantiate(SignPrefab, player.transform.Find("ScavengerModel").transform.Find("metarig").transform);
                 if (signObject != null)
                 {
+                    Plugin.Debug("Sign object not null");
                     signObject.name = "Sign";
                     signObject.transform.SetSiblingIndex(6);
                     signObject.transform.localPosition = new Vector3(0.029f, -0.45f, 1.3217f);
@@ -142,7 +151,7 @@ namespace BetterEmote.AssetScripts
             }
             else
             {
-                if (Settings.disableModelOverride)
+                if (Settings.DisableModelOverride)
                 {
                     Plugin.Debug("Couldn't find the level badge (its fine for the settings)");
                 }

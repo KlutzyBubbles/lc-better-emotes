@@ -59,7 +59,7 @@ namespace BetterEmote.AssetScripts
                 Mouse.current.WarpCursorPosition(centerScreen);
             }
             string effectivePath = "";
-            foreach (InputBinding binding in Settings.keybinds.EmoteWheelController.bindings)
+            foreach (InputBinding binding in Settings.Keybinds.EmoteWheelController.bindings)
             {
                 if (binding.effectivePath != null && binding.effectivePath.Length > 0)
                 {
@@ -173,7 +173,7 @@ namespace BetterEmote.AssetScripts
             bool isOuter;
             if (GameValues.localPlayerUsingController)
             {
-                isCenter = distance <= Math.Pow(Settings.controllerDeadzone, 2);
+                isCenter = distance <= Math.Pow(Settings.ControllerDeadzone, 2);
                 isOuter = false;
             }
             else
@@ -207,7 +207,7 @@ namespace BetterEmote.AssetScripts
                 }
                 if (isOuter)
                 {
-                    if (Settings.stopOnOuter)
+                    if (Settings.StopOnOuter)
                     {
                         selectionBlock?.gameObject?.SetActive(false);
                         stopEmote = true;
@@ -248,7 +248,7 @@ namespace BetterEmote.AssetScripts
         private void displayEmoteInfo()
         {
             Plugin.Trace($"EmoteWheel.displayEmoteInfo({selectedEmoteID})");
-            InputBind bind = selectedEmoteID > EmoteDefs.getEmoteCount() ? new InputBind("", "") : Keybinds.getDisplayStrings(Settings.keybinds.getByEmote((Emote)selectedEmoteID));
+            InputBind bind = selectedEmoteID > EmoteDefs.getEmoteCount() ? new InputBind("", "") : Keybinds.getDisplayStrings(Settings.Keybinds.getByEmote((Emote)selectedEmoteID));
             string emoteName = "Empty";
             if (selectedEmoteID <= EmoteDefs.getEmoteCount())
             {

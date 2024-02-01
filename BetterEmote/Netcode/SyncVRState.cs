@@ -1,13 +1,15 @@
-﻿using BetterEmote.Patches;
-using BetterEmote.Utils;
+﻿using BetterEmote.Utils;
 using GameNetcodeStuff;
+using System.Collections.Generic;
 using Unity.Netcode;
 
-namespace BetterEmote.AssetScripts
+namespace BetterEmote.Netcode
 {
     public class SyncVRState : NetworkBehaviour
     {
         private PlayerControllerB playerInstance;
+
+        public static Dictionary<ulong, bool> vrPlayers = new Dictionary<ulong, bool>();
 
         private void Start()
         {
@@ -42,10 +44,10 @@ namespace BetterEmote.AssetScripts
         [ClientRpc]
         private void RequestedVRStateClientRpc()
         {
-            Plugin.Debug($"RequestedVRStateClientRpc({Settings.disableModelOverride}, {GameValues.localPlayerController.playerClientId})");
+            Plugin.Debug($"RequestedVRStateClientRpc({Settings.DisableModelOverride}, {GameValues.localPlayerController.playerClientId})");
             if (playerInstance != null && !playerInstance.IsOwner)
             {
-                UpdateVRStateServerRpc(Settings.disableModelOverride, GameValues.localPlayerController.playerClientId); // Big man Smoku Broku <3
+                UpdateVRStateServerRpc(Settings.DisableModelOverride, GameValues.localPlayerController.playerClientId); // Big man Smoku Broku <3
             }
         }
 
@@ -60,7 +62,7 @@ namespace BetterEmote.AssetScripts
         private void UpdateVRStateClientRpc(bool isVRChange, ulong clientId)
         {
             Plugin.Debug($"UpdateVRStateClientRpc({isVRChange}, {clientId})");
-            EmotePatch.vrPlayers[clientId] = isVRChange;
+            vrPlayers[clientId] = isVRChange;
         }
     }
 }

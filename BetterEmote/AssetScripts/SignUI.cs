@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using BetterEmote.Utils;
 using System;
+using BetterEmote.Netcode;
 
 namespace BetterEmote.AssetScripts
 {
@@ -64,8 +65,8 @@ namespace BetterEmote.AssetScripts
         public void updateKeybindText()
         {
             Plugin.Debug("SignUI.updateKeybindText()");
-            InputBind submit = Keybinds.getDisplayStrings(Settings.keybinds.SignSubmit);
-            InputBind cancel = Keybinds.getDisplayStrings(Settings.keybinds.SignCancel);
+            InputBind submit = Keybinds.getDisplayStrings(Settings.Keybinds.SignSubmit);
+            InputBind cancel = Keybinds.getDisplayStrings(Settings.Keybinds.SignCancel);
             if (submitText != null)
             {
                 submitText.text = $"<color=orange>{Keybinds.formatInputBind(submit)}</color> Submit";
@@ -86,7 +87,7 @@ namespace BetterEmote.AssetScripts
                 Plugin.Debug("SignUI Player isnt performing emote");
                 Close(true);
             }
-            if (Player.quickMenuManager.isMenuOpen || EmoteKeybindPatch.emoteWheelIsOpened)
+            if (Player.quickMenuManager.isMenuOpen || EmoteKeybindPatch.EmoteWheelIsOpened)
             {
                 Plugin.Debug("Menu is open or right mouse button is clicked");
                 Close(true);
@@ -144,7 +145,7 @@ namespace BetterEmote.AssetScripts
                     Plugin.Debug($"Submitted {inputField.text} to server");
                     Player.GetComponent<SignEmoteText>().UpdateSignText(inputField.text);
                 }
-                if (Player.timeSinceStartingEmote > Settings.signTextCooldown)
+                if (Player.timeSinceStartingEmote > Settings.SignTextCooldown)
                 {
                     Plugin.Debug($"Time elapsed, time to perform");
                     InputAction.CallbackContext context = default(InputAction.CallbackContext);

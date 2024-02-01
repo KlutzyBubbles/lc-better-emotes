@@ -2,7 +2,7 @@
 using TMPro;
 using Unity.Netcode;
 
-namespace BetterEmote.AssetScripts
+namespace BetterEmote.Netcode
 {
     public class SignEmoteText : NetworkBehaviour
     {
