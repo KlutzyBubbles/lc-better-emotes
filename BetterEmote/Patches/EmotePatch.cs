@@ -4,6 +4,7 @@ using GameNetcodeStuff;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
@@ -26,12 +27,6 @@ namespace BetterEmote.Patches
 
         public static bool[] playersPerformingEmotes = new bool[40];
 
-        public static GameObject LegsPrefab;
-        public static GameObject SignPrefab;
-        public static GameObject SignUIPrefab;
-        private static GameObject localPlayerLevelBadge;
-        private static GameObject localPlayerBetaBadge;
-
         public static SignUI customSignInputField;
 
         private static SyncAnimatorToOthers syncAnimator;
@@ -42,15 +37,11 @@ namespace BetterEmote.Patches
 
         public static bool isLocalArmsSeparatedFromCamera;
 
-        private static Transform freeArmsTarget;
-        private static Transform lockedArmsTarget;
-        private static Transform legsMesh;
-
         public static Dictionary<ulong, bool> vrPlayers = new Dictionary<ulong, bool>();
 
         [HarmonyPatch(typeof(RoundManager), "Awake")]
         [HarmonyPostfix]
-        private static void AwakePost(RoundManager __instance)
+        private static void AwakePost()
         {
             Plugin.Debug("AwakePost()");
             Settings.debugAllSettings();
@@ -62,7 +53,7 @@ namespace BetterEmote.Patches
             if (!Settings.disableModelOverride)
             {
                 GameObject gameObject = GameObject.Find("Systems").gameObject.transform.Find("UI").gameObject.transform.Find("Canvas").gameObject;
-                customSignInputField = UnityEngine.Object.Instantiate(SignUIPrefab, gameObject.transform).AddComponent<SignUI>();
+                customSignInputField = UnityEngine.Object.Instantiate(LocalPlayer.SignUIPrefab, gameObject.transform).AddComponent<SignUI>();
             }
             isPlayerFirstFrame = true;
         }
@@ -71,19 +62,23 @@ namespace BetterEmote.Patches
         [HarmonyPostfix]
         private static void StartPostfix(PlayerControllerB __instance)
         {
+            if (__instance == null)
+                return;
             Plugin.Debug("EmotePatch.StartPostfix()");
             GameObject gameObject = __instance.gameObject.transform.Find("ScavengerModel").transform.Find("metarig").gameObject;
             CustomAudioAnimationEvent customAudioAnimationEvent = gameObject.AddComponent<CustomAudioAnimationEvent>();
             customAudioAnimationEvent.player = __instance;
             movSpeed = __instance.movementSpeed;
             __instance.gameObject.AddComponent<CustomAnimationObjects>();
-            SpawnSign(__instance);
+            LocalPlayer.SpawnSign(__instance);
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "ConnectClientToPlayerObject")]
         [HarmonyPostfix]
         private static void ConnectClientToPlayerObjectPostfix(PlayerControllerB __instance)
         {
+            if (__instance == null)
+                return;
             Plugin.Debug("EmotePatch.ConnectClientToPlayerObjectPostfix()");
             if (syncVR != null)
             {
@@ -95,15 +90,19 @@ namespace BetterEmote.Patches
 
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
         [HarmonyPrefix]
+        [HarmonyPriority(Priority.Low)]
         private static void UpdatePrefix(PlayerControllerB __instance)
         {
+            if (__instance == null)
+                return;
             Plugin.Trace("PlayerControllerB.UpdatePrefix()");
             checked
             {
                 if (__instance.performingEmote)
                 {
                     playersPerformingEmotes[__instance.playerClientId] = true;
-                } else if (playersPerformingEmotes[__instance.playerClientId])
+                }
+                else if (playersPerformingEmotes[__instance.playerClientId])
                 {
                     playersPerformingEmotes[__instance.playerClientId] = false;
                     ResetIKWeights(__instance);
@@ -115,6 +114,8 @@ namespace BetterEmote.Patches
         [HarmonyPostfix]
         private static void UpdatePostfix(PlayerControllerB __instance)
         {
+            if (__instance == null)
+                return;
             Plugin.Trace("PlayerControllerB.UpdatePostfix()");
             if (!__instance.isPlayerControlled || !__instance.IsOwner)
             {
@@ -123,7 +124,6 @@ namespace BetterEmote.Patches
                     if (vrPlayers.ContainsKey(__instance.playerClientId) && !vrPlayers[__instance.playerClientId])
                     {
                         __instance.playerBodyAnimator.runtimeAnimatorController = others;
-                        turnControllerIntoAnOverrideController(__instance.playerBodyAnimator.runtimeAnimatorController);
                     }
                 }
             }
@@ -133,7 +133,7 @@ namespace BetterEmote.Patches
                 {
                     if (isPlayerFirstFrame && !Settings.disableModelOverride)
                     {
-                        SpawnLegs(__instance);
+                        LocalPlayer.SpawnLegs(__instance);
                     }
                     if (!Settings.disableModelOverride)
                     {
@@ -147,7 +147,7 @@ namespace BetterEmote.Patches
                         isPlayerFirstFrame = false;
                         if (!Settings.disableModelOverride)
                         {
-                            OnFirstLocalPlayerFrameWithNewAnimator(__instance);
+                            LocalPlayer.OnFirstLocalPlayerFrameWithNewAnimator(__instance);
                         }
                         if (syncVR != null)
                         {
@@ -180,7 +180,7 @@ namespace BetterEmote.Patches
                 }
                 if (!Settings.disableModelOverride)
                 {
-                    __instance.localArmsRotationTarget = isLocalArmsSeparatedFromCamera ? freeArmsTarget : lockedArmsTarget;
+                    __instance.localArmsRotationTarget = isLocalArmsSeparatedFromCamera ? LocalPlayer.freeArmsTarget : LocalPlayer.lockedArmsTarget;
                 }
             }
         }
@@ -189,6 +189,8 @@ namespace BetterEmote.Patches
         [HarmonyPrefix]
         private static void OnLocalPlayerSpawn(PlayerControllerB __instance)
         {
+            if (__instance == null)
+                return;
             Plugin.Debug("PlayerControllerB.OnLocalPlayerSpawn()");
             if (__instance.IsOwner && __instance.isPlayerControlled)
             {
@@ -196,111 +198,29 @@ namespace BetterEmote.Patches
             }
         }
 
-        private static void OnFirstLocalPlayerFrameWithNewAnimator(PlayerControllerB player)
-        {
-            Plugin.Debug("OnFirstLocalPlayerFrameWithNewAnimator()");
-            turnControllerIntoAnOverrideController(player.playerBodyAnimator.runtimeAnimatorController);
-            customSignInputField.Player = player;
-            freeArmsTarget = UnityEngine.Object.Instantiate(player.localArmsRotationTarget, player.localArmsRotationTarget.parent.parent);
-            lockedArmsTarget = player.localArmsRotationTarget;
-            Transform transform = player.transform.Find("ScavengerModel").Find("metarig").Find("spine").Find("spine.001").Find("spine.002").Find("spine.003");
-            localPlayerLevelBadge = transform.Find("LevelSticker").gameObject;
-            localPlayerBetaBadge = transform.Find("BetaBadge").gameObject;
-        }
-
-        private static void SpawnSign(PlayerControllerB player)
-        {
-            Plugin.Debug("SpawnSign()");
-            GameObject gameObject = UnityEngine.Object.Instantiate(SignPrefab, player.transform.Find("ScavengerModel").transform.Find("metarig").transform);
-            gameObject.transform.SetSiblingIndex(6);
-            gameObject.name = "Sign";
-            gameObject.transform.localPosition = new Vector3(0.029f, -0.45f, 1.3217f);
-            gameObject.transform.localRotation = Quaternion.Euler(65.556f, 180f, 180f);
-        }
-
-        private static void SpawnLegs(PlayerControllerB player)
-        {
-            Plugin.Debug("SpawnLegs()");
-            GameObject gameObject = UnityEngine.Object.Instantiate(LegsPrefab, player.playerBodyAnimator.transform.parent.transform);
-            legsMesh = gameObject.transform.Find("Mesh");
-            legsMesh.transform.parent = player.playerBodyAnimator.transform.parent;
-            legsMesh.name = "LEGS";
-            GameObject gameObject2 = gameObject.transform.Find("Armature").gameObject;
-            gameObject2.transform.parent = player.playerBodyAnimator.transform;
-            gameObject2.name = "FistPersonLegs";
-            gameObject2.transform.position = new Vector3(0f, 0.197f, 0f);
-            gameObject2.transform.localScale = new Vector3(13.99568f, 13.99568f, 13.99568f);
-            UnityEngine.Object.Destroy(gameObject);
-        }
-
         private static void ResetIKWeights(PlayerControllerB player)
         {
             Plugin.Debug("ResetIKWeights()");
-            Transform transform = player.playerBodyAnimator.transform.Find("Rig 1");
-            ChainIKConstraint component = transform.Find("RightArm").GetComponent<ChainIKConstraint>();
-            ChainIKConstraint component2 = transform.Find("LeftArm").GetComponent<ChainIKConstraint>();
-            TwoBoneIKConstraint component3 = transform.Find("RightLeg").GetComponent<TwoBoneIKConstraint>();
-            TwoBoneIKConstraint component4 = transform.Find("LeftLeg").GetComponent<TwoBoneIKConstraint>();
-            Transform transform2 = player.playerBodyAnimator.transform.Find("ScavengerModelArmsOnly").Find("metarig").Find("spine.003").Find("RigArms");
-            ChainIKConstraint component5 = transform2.Find("RightArm").GetComponent<ChainIKConstraint>();
-            ChainIKConstraint component6 = transform2.Find("LeftArm").GetComponent<ChainIKConstraint>();
-            component.weight = 1f;
-            component2.weight = 1f;
-            component3.weight = 1f;
-            component4.weight = 1f;
-            component5.weight = 1f;
-            component6.weight = 1f;
-        }
-
-        private static bool CheckIfTooManyEmotesIsPlaying(PlayerControllerB player)
-        {
-            Plugin.Debug("CheckIfTooManyEmotesIsPlaying()");
-            Animator playerBodyAnimator = player.playerBodyAnimator;
-            return playerBodyAnimator.GetCurrentAnimatorStateInfo(1).IsName("Dance1") && player.performingEmote && GetAnimatorEmoteClipName(playerBodyAnimator) != "Dance1";
-        }
-
-        private static string GetAnimatorEmoteClipName(Animator animator)
-        {
-            Plugin.Debug("GetAnimatorEmoteClipName()");
-            return animator.GetCurrentAnimatorClipInfo(1)[0].clip.name;
-        }
-
-        private static void UpdateLegsMaterial(PlayerControllerB player)
-        {
-            Plugin.Debug("UpdateLegsMaterial()");
-            legsMesh.GetComponent<SkinnedMeshRenderer>().material = player.playerBodyAnimator.transform.parent.transform.Find("LOD1").gameObject.GetComponent<SkinnedMeshRenderer>().material;
-        }
-
-        private static void TogglePlayerBadges(bool enabled)
-        {
-            Plugin.Debug($"TogglePlayerBadges({enabled})");
-            if (localPlayerBetaBadge != null)
+            Transform transform = player?.playerBodyAnimator?.transform?.Find("Rig 1");
+            if (transform != null)
             {
-                localPlayerBetaBadge.GetComponent<MeshRenderer>().enabled = enabled;
-            }
-            if (localPlayerLevelBadge != null)
-            {
-                localPlayerLevelBadge.GetComponent<MeshRenderer>().enabled = enabled;
+                try
+                {
+                    string[] armNames = ["RightArm", "LeftArm"];
+                    string[] legNames = ["RightLeg", "LeftLeg"];
+                    armNames.ToList().ForEach(name => transform.Find(name).GetComponent<ChainIKConstraint>().weight = 1f);
+                    legNames.ToList().ForEach(name => transform.Find(name).GetComponent<TwoBoneIKConstraint>().weight = 1f);
+                    Transform transform2 = player.playerBodyAnimator.transform.Find("ScavengerModelArmsOnly").Find("metarig").Find("spine.003").Find("RigArms");
+                    armNames.ToList().ForEach(name => transform2.Find(name).GetComponent<ChainIKConstraint>().weight = 1f);
+                }
+                catch (NullReferenceException)
+                {
+                    Plugin.Logger.LogWarning("Unable to reset IK weights, if this is spammed please report it");
+                }
             }
             else
             {
-                if (Settings.disableModelOverride)
-                {
-                    Plugin.Debug("Couldn't find the level badge (its fine for the settings)");
-                }
-                else
-                {
-                    Plugin.Logger.LogError("Couldn't find the level badge");
-                }
-            }
-        }
-
-        private static void turnControllerIntoAnOverrideController(RuntimeAnimatorController controller)
-        {
-            Plugin.Trace("turnControllerIntoAnOverrideController()");
-            if (controller is not AnimatorOverrideController)
-            {
-                controller = new AnimatorOverrideController(controller);
+                Plugin.Debug("ResetIKWeights transform is null");
             }
         }
 
@@ -308,9 +228,11 @@ namespace BetterEmote.Patches
         [HarmonyPrefix]
         private static bool PerformEmotePrefix(ref InputAction.CallbackContext context, int emoteID, PlayerControllerB __instance)
         {
+            if (__instance == null)
+                return true;
             Plugin.Debug($"PerformEmotePrefix({emoteID})");
             int localEmoteID = emoteID;
-            if (CheckIfTooManyEmotesIsPlaying(__instance) && localEmoteID > EmoteDefs.getEmoteNumber(Emote.Point))
+            if (LocalPlayer.CheckIfTooManyEmotesIsPlaying(__instance) && localEmoteID > EmoteDefs.getEmoteNumber(Emote.Point))
             {
                 Plugin.Debug($"Is custom emote with too many emotes currently playing");
                 return false;
@@ -388,14 +310,14 @@ namespace BetterEmote.Patches
                         __instance.performingEmote = true;
                         __instance.StartPerformingEmoteServerRpc();
                         syncAnimator.UpdateEmoteIDForOthers(localEmoteID);
-                        TogglePlayerBadges(false);
+                        LocalPlayer.TogglePlayerBadges(false);
                     };
                     if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka) && !Settings.disableModelOverride)
                     {
                         Plugin.Debug($"Adding UpdateLegsMaterial for Prisyadka");
                         action = (Action)Delegate.Combine(action, new Action(delegate ()
                         {
-                            UpdateLegsMaterial(__instance);
+                            LocalPlayer.UpdateLegsMaterial(__instance);
                         }));
                     } else if (localEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign) && !Settings.disableModelOverride)
                     {
@@ -428,8 +350,9 @@ namespace BetterEmote.Patches
         [HarmonyPostfix]
         private static void postfixCheckConditions(ref bool __result, PlayerControllerB __instance)
         {
+            if (__instance == null)
+                return;
             Plugin.Trace($"prefixCheckConditions({currentEmoteID})");
-
             if (currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Griddy) || currentEmoteID == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
             {
                 __result = !__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && __instance.moveInputVector.x == 0f && !__instance.isSprinting && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu && !__instance.isTypingChat;
@@ -447,6 +370,8 @@ namespace BetterEmote.Patches
         [HarmonyPostfix]
         private static void StopPerformingEmoteServerPrefix(PlayerControllerB __instance)
         {
+            if (__instance == null)
+                return;
             Plugin.Debug("StopPerformingEmoteServerPrefix()");
             if (__instance.IsOwner && __instance.isPlayerControlled)
             {
@@ -454,7 +379,7 @@ namespace BetterEmote.Patches
                 syncAnimator.UpdateEmoteIDForOthers(0);
                 currentEmoteID = 0;
             }
-            TogglePlayerBadges(true);
+            LocalPlayer.TogglePlayerBadges(true);
         }
     }
 }

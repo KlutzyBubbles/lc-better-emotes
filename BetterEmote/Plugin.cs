@@ -70,13 +70,13 @@ namespace BetterEmote
         private void LoadAssets()
         {
             string path = "Assets/MoreEmotes";
-            EmotePatch.local = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>(Path.Combine(path, "NEWmetarig.controller"));
-            EmotePatch.others = EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>(Path.Combine(path, "NEWmetarigOtherPlayers.controller"));
+            EmotePatch.local = new AnimatorOverrideController(EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>(Path.Combine(path, "NEWmetarig.controller")));
+            EmotePatch.others = new AnimatorOverrideController(EmotePatch.animatorBundle.LoadAsset<RuntimeAnimatorController>(Path.Combine(path, "NEWmetarigOtherPlayers.controller")));
             CustomAudioAnimationEvent.claps[0] = EmotePatch.animationsBundle.LoadAsset<AudioClip>(Path.Combine(path, "SingleClapEmote1.wav"));
             CustomAudioAnimationEvent.claps[1] = EmotePatch.animationsBundle.LoadAsset<AudioClip>(Path.Combine(path, "SingleClapEmote2.wav"));
-            EmotePatch.LegsPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/plegs.prefab"));
-            EmotePatch.SignPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/Sign.prefab"));
-            EmotePatch.SignUIPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/SignTextUI.prefab"));
+            LocalPlayer.LegsPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/plegs.prefab"));
+            LocalPlayer.SignPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/Sign.prefab"));
+            LocalPlayer.SignUIPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>(Path.Combine(path, "Resources/SignTextUI.prefab"));
             EmoteKeybindPatch.WheelPrefab = EmotePatch.animationsBundle.LoadAsset<GameObject>("Assets/MoreEmotes/Resources/MoreEmotesMenu.prefab");
         }
 
