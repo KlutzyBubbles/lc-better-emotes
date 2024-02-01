@@ -1,8 +1,5 @@
 ﻿using GameNetcodeStuff;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine.Animations.Rigging;
 using UnityEngine;
 using BetterEmote.Utils;
 using BetterEmote.Patches;
@@ -25,55 +22,111 @@ namespace BetterEmote.AssetScripts
         public static void OnFirstLocalPlayerFrameWithNewAnimator(PlayerControllerB player)
         {
             Plugin.Debug("OnFirstLocalPlayerFrameWithNewAnimator()");
-            EmotePatch.customSignInputField.Player = player;
-            freeArmsTarget = UnityEngine.Object.Instantiate(player.localArmsRotationTarget, player.localArmsRotationTarget.parent.parent);
-            lockedArmsTarget = player.localArmsRotationTarget;
-            Transform transform = player.transform.Find("ScavengerModel").Find("metarig").Find("spine").Find("spine.001").Find("spine.002").Find("spine.003");
-            LevelBadge = transform.Find("LevelSticker").gameObject;
-            BetaBadge = transform.Find("BetaBadge").gameObject;
+            if (EmotePatch.customSignInputField != null)
+            {
+                EmotePatch.customSignInputField.Player = player;
+            }
+            try
+            {
+                freeArmsTarget = UnityEngine.Object.Instantiate(player.localArmsRotationTarget, player.localArmsRotationTarget.parent.parent);
+                lockedArmsTarget = player.localArmsRotationTarget;
+                Transform transform = player.transform.Find("ScavengerModel").Find("metarig").Find("spine").Find("spine.001").Find("spine.002").Find("spine.003");
+                LevelBadge = transform.Find("LevelSticker").gameObject;
+                BetaBadge = transform.Find("BetaBadge").gameObject;
+            }
+            catch (Exception e)
+            {
+                Plugin.Debug($"Unable to init first frame objects: {e.Message}");
+            }
         }
 
         public static void SpawnSign(PlayerControllerB player)
         {
             Plugin.Debug("SpawnSign()");
-            GameObject gameObject = UnityEngine.Object.Instantiate(SignPrefab, player.transform.Find("ScavengerModel").transform.Find("metarig").transform);
-            gameObject.transform.SetSiblingIndex(6);
-            gameObject.name = "Sign";
-            gameObject.transform.localPosition = new Vector3(0.029f, -0.45f, 1.3217f);
-            gameObject.transform.localRotation = Quaternion.Euler(65.556f, 180f, 180f);
+            try
+            {
+                GameObject signObject = UnityEngine.Object.Instantiate(SignPrefab, player.transform.Find("ScavengerModel").transform.Find("metarig").transform);
+                if (signObject != null)
+                {
+                    signObject.name = "Sign";
+                    signObject.transform.SetSiblingIndex(6);
+                    signObject.transform.localPosition = new Vector3(0.029f, -0.45f, 1.3217f);
+                    signObject.transform.localRotation = Quaternion.Euler(65.556f, 180f, 180f);
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Debug($"Unable to spawn sign: {e.Message}");
+            }
         }
 
         public static void SpawnLegs(PlayerControllerB player)
         {
             Plugin.Debug("SpawnLegs()");
-            GameObject gameObject = UnityEngine.Object.Instantiate(LegsPrefab, player.playerBodyAnimator.transform.parent.transform);
-            legsMesh = gameObject.transform.Find("Mesh");
-            legsMesh.transform.parent = player.playerBodyAnimator.transform.parent;
-            legsMesh.name = "LEGS";
-            GameObject gameObject2 = gameObject.transform.Find("Armature").gameObject;
-            gameObject2.transform.parent = player.playerBodyAnimator.transform;
-            gameObject2.name = "FistPersonLegs";
-            gameObject2.transform.position = new Vector3(0f, 0.197f, 0f);
-            gameObject2.transform.localScale = new Vector3(13.99568f, 13.99568f, 13.99568f);
-            UnityEngine.Object.Destroy(gameObject);
+            try
+            {
+                GameObject legsObject = UnityEngine.Object.Instantiate(LegsPrefab, player.playerBodyAnimator.transform.parent.transform);
+                legsMesh = legsObject.transform.Find("Mesh");
+                legsMesh.name = "LEGS";
+                legsMesh.transform.parent = player.playerBodyAnimator?.transform?.parent;
+                GameObject legsArmature = legsObject.transform?.Find("Armature")?.gameObject;
+                if (legsArmature != null)
+                {
+                    legsArmature.name = "FistPersonLegs";
+                    legsArmature.transform.parent = player.playerBodyAnimator?.transform;
+                    legsArmature.transform.position = new Vector3(0f, 0.197f, 0f);
+                    legsArmature.transform.localScale = new Vector3(13.99568f, 13.99568f, 13.99568f);
+                }
+                UnityEngine.Object.Destroy(legsObject);
+            }
+            catch (Exception e)
+            {
+                Plugin.Debug($"Unable to spawn legs: {e.Message}");
+            }
         }
         public static void UpdateLegsMaterial(PlayerControllerB player)
         {
             Plugin.Debug("UpdateLegsMaterial()");
-            legsMesh.GetComponent<SkinnedMeshRenderer>().material = player.playerBodyAnimator.transform.parent.transform.Find("LOD1").gameObject.GetComponent<SkinnedMeshRenderer>().material;
+            if (legsMesh == null)
+                return;
+            SkinnedMeshRenderer renderer = legsMesh.GetComponent<SkinnedMeshRenderer>();
+            if (renderer == null)
+                return;
+            Material newMaterial = player.playerBodyAnimator?.transform?.parent?.transform?.Find("LOD1")?.gameObject?.GetComponent<SkinnedMeshRenderer>()?.material;
+            if (newMaterial == null)
+                return;
+            renderer.material = newMaterial;
         }
 
         public static bool CheckIfTooManyEmotesIsPlaying(PlayerControllerB player)
         {
             Plugin.Debug("CheckIfTooManyEmotesIsPlaying()");
             Animator playerBodyAnimator = player.playerBodyAnimator;
-            return playerBodyAnimator.GetCurrentAnimatorStateInfo(1).IsName("Dance1") && player.performingEmote && GetAnimatorEmoteClipName(playerBodyAnimator) != "Dance1";
+            if (playerBodyAnimator != null)
+            {
+                try
+                {
+                    return playerBodyAnimator.GetCurrentAnimatorStateInfo(1).IsName("Dance1") && player.performingEmote && GetAnimatorEmoteClipName(playerBodyAnimator) != "Dance1";
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            return false;
         }
 
         private static string GetAnimatorEmoteClipName(Animator animator)
         {
             Plugin.Debug("GetAnimatorEmoteClipName()");
-            return animator.GetCurrentAnimatorClipInfo(1)[0].clip.name;
+            try
+            {
+                return animator.GetCurrentAnimatorClipInfo(1)[0].clip.name;
+            }
+            catch (Exception)
+            {
+                return "";
+            }
         }
 
         public static void TogglePlayerBadges(bool enabled)

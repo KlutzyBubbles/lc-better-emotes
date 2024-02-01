@@ -7,26 +7,26 @@ namespace BetterEmote.AssetScripts
 {
     public class SyncVRState : NetworkBehaviour
     {
-        private PlayerControllerB _player;
+        private PlayerControllerB playerInstance;
 
         private void Start()
         {
-            _player = GetComponent<PlayerControllerB>();
+            playerInstance = GetComponent<PlayerControllerB>();
         }
 
         public void UpdateVRStateForOthers(bool isVR)
         {
-            Plugin.Debug($"UpdateVRStatusForOthers({isVR}, {_player.playerClientId}, {_player.IsOwner}, {_player.isPlayerControlled})");
-            if (_player.IsOwner && _player.isPlayerControlled)
+            Plugin.Debug($"UpdateVRStatusForOthers({isVR}, {playerInstance.playerClientId}, {playerInstance.IsOwner}, {playerInstance.isPlayerControlled})");
+            if (playerInstance != null && playerInstance.IsOwner && playerInstance.isPlayerControlled)
             {
-                UpdateVRStateServerRpc(isVR, _player.playerClientId);
+                UpdateVRStateServerRpc(isVR, playerInstance.playerClientId);
             }
         }
 
         public void RequestVRStateFromOthers()
         {
-            Plugin.Debug($"RequestVRStateFromOthers({_player.IsOwner}, {_player.isPlayerControlled})");
-            if (_player.IsOwner && _player.isPlayerControlled)
+            Plugin.Debug($"RequestVRStateFromOthers({playerInstance.IsOwner}, {playerInstance.isPlayerControlled})");
+            if (playerInstance != null && playerInstance.IsOwner && playerInstance.isPlayerControlled)
             {
                 RequestedVRStateServerRpc();
             }
@@ -43,7 +43,7 @@ namespace BetterEmote.AssetScripts
         private void RequestedVRStateClientRpc()
         {
             Plugin.Debug($"RequestedVRStateClientRpc({Settings.disableModelOverride}, {GameValues.localPlayerController.playerClientId})");
-            if (!_player.IsOwner)
+            if (playerInstance != null && !playerInstance.IsOwner)
             {
                 UpdateVRStateServerRpc(Settings.disableModelOverride, GameValues.localPlayerController.playerClientId); // Big man Smoku Broku <3
             }

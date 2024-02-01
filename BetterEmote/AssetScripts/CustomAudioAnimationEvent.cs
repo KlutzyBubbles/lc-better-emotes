@@ -22,7 +22,7 @@ namespace BetterEmote.AssetScripts
 
         public void PlayClapSound()
         {
-            if (player.performingEmote)
+            if (player != null && player.performingEmote)
             {
                 if (player.IsOwner && player.isPlayerControlled)
                 {
@@ -31,16 +31,19 @@ namespace BetterEmote.AssetScripts
                         return;
                     }
                 }
-                bool noiseIsInsideClosedShip = player.isInHangarShipRoom && player.playersManager.hangarDoorsClosed;
+                bool noiseIsInsideClosedShip = player.isInHangarShipRoom && (player.playersManager?.hangarDoorsClosed ?? false);
                 RoundManager.Instance.PlayAudibleNoise(player.transform.position, 22f, 0.6f, 0, noiseIsInsideClosedShip, 6);
                 SoundsSource.pitch = Random.Range(0.59f, 0.79f);
-                SoundsSource.PlayOneShot(claps[Random.Range(0, claps.Length)]);
+                if (claps != null && claps.Length > 0)
+                {
+                    SoundsSource.PlayOneShot(claps[Random.Range(0, claps.Length)]);
+                }
             }
         }
 
         public void PlayFootstepSound()
         {
-            if (player.performingEmote)
+            if (player != null && player.performingEmote)
             {
                 if (player.IsOwner && player.isPlayerControlled)
                 {
@@ -56,7 +59,7 @@ namespace BetterEmote.AssetScripts
 
         private int getCurrentEmoteID()
         {
-            return EmoteDefs.normalizeEmoteNumber(animator.GetInteger("emoteNumber"));
+            return EmoteDefs.normalizeEmoteNumber(animator?.GetInteger("emoteNumber") ?? 0);
         }
     }
 }

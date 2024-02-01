@@ -5,17 +5,17 @@ namespace BetterEmote.AssetScripts
 {
     public class SyncAnimatorToOthers : NetworkBehaviour
     {
-        private PlayerControllerB _player;
+        private PlayerControllerB playerInstance;
 
         private void Start()
         {
-            _player = GetComponent<PlayerControllerB>();
+            playerInstance = GetComponent<PlayerControllerB>();
         }
 
         public void UpdateEmoteIDForOthers(int newID)
         {
-            Plugin.Debug($"UpdateEmoteIDForOthers({newID}, {_player.IsOwner}, {_player.isPlayerControlled})");
-            if (_player.IsOwner && _player.isPlayerControlled)
+            Plugin.Debug($"UpdateEmoteIDForOthers({newID}, {playerInstance.IsOwner}, {playerInstance.isPlayerControlled})");
+            if (playerInstance.IsOwner && playerInstance.isPlayerControlled)
             {
                 UpdateCurrentEmoteIDServerRpc(newID);
             }
@@ -31,10 +31,10 @@ namespace BetterEmote.AssetScripts
         [ClientRpc]
         private void UpdateCurrentEmoteIDClientRpc(int newID)
         {
-            Plugin.Debug($"UpdateCurrentEmoteIDClientRpc({newID}, {_player.IsOwner}, {_player.isPlayerControlled})");
-            if (!_player.IsOwner || !_player.isPlayerControlled)
+            Plugin.Debug($"UpdateCurrentEmoteIDClientRpc({newID}, {playerInstance.IsOwner}, {playerInstance.isPlayerControlled})");
+            if (!playerInstance.IsOwner || !playerInstance.isPlayerControlled)
             {
-                _player.playerBodyAnimator.SetInteger("emoteNumber", newID);
+                playerInstance.playerBodyAnimator.SetInteger("emoteNumber", newID);
             }
         }
     }

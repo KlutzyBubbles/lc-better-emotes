@@ -45,11 +45,6 @@ namespace BetterEmote.Patches
         {
             Plugin.Debug("AwakePost()");
             Settings.debugAllSettings();
-            EmoteWheel.emoteNames = new string[EmoteDefs.getEmoteCount() + 1];
-            foreach (string name in Enum.GetNames(typeof(Emote)))
-            {
-                EmoteWheel.emoteNames[EmoteDefs.getEmoteNumber(name) - 1] = name;
-            }
             if (!Settings.disableModelOverride)
             {
                 GameObject gameObject = GameObject.Find("Systems").gameObject.transform.Find("UI").gameObject.transform.Find("Canvas").gameObject;
