@@ -21,19 +21,19 @@ v1.4.x Adds a lot of config options, but the old file should still be compatible
 
 Modification of https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/
 
+- Some small behind the scenes changes to how things are implemented to make mod compatibility better (maybe probably, in certain scenarios, but it isnt magic)
 - Adds VR support. Players without VR can continue flipping off their friends for having VR.
 - Adds controller support. With rebinding :)
 - Moves keybindings into the settings page, still has config values for defaults for modpacks
 - Makes center of emote wheel not change emote (and option to make the outside of the wheel stop the emote)
 - Adds config values to alter change emote cooldown and griddy/prisyadka move speed
 - Remove the carrying scrap check to make emoting with one hand possible again (its fun)
-- Some small behind the scenes changes to how things are implemented to make mod compatibility slightly better (maybe probably, in certain scenarios, but it isnt magic)
 
 - Any change suggestions or bugs you can submit an issue or contact directly :)
 
 ## NOTE ON CONTROLLERS!!! IMPORTANT (Probably)
 
-There is a binding in game called 'Emote Wheel CONTROLLER ONLY', this should only ever be bound to right or left stick. Binding it to anything else will just default to right stick. ALSO binding this to a keyboard key will also default it to right stick, if you accidentally bound the key, you will have to delete the keybind in game or edit your keybind file in the config folder and re launch.
+There is a binding in game called 'Emote Wheel CONTROLLER ONLY', this should only ever be bound to right or left stick. Binding it to anything else will just default to right stick.
 
 ## Emote Wheel 
 #### Default Key ```V```
