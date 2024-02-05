@@ -2,33 +2,25 @@
 using TMPro;
 using Unity.Netcode;
 
-namespace BetterEmote.AssetScripts
+namespace BetterEmote.Netcode
 {
     public class SignEmoteText : NetworkBehaviour
     {
-        private PlayerControllerB _playerInstance;
+        private PlayerControllerB playerInstance;
 
-        private TextMeshPro _signModelText;
-
-        public string Text
-        {
-            get
-            {
-                return _signModelText.text;
-            }
-        }
+        private TextMeshPro signModelText;
 
         private void Start()
         {
             Plugin.Debug("Start()");
-            _playerInstance = GetComponent<PlayerControllerB>();
-            _signModelText = _playerInstance.transform.Find("ScavengerModel").Find("metarig").Find("Sign").Find("Text").GetComponent<TextMeshPro>();
+            playerInstance = GetComponent<PlayerControllerB>();
+            signModelText = playerInstance?.transform?.Find("ScavengerModel")?.Find("metarig")?.Find("Sign")?.Find("Text")?.GetComponent<TextMeshPro>();
         }
 
         public void UpdateSignText(string newText)
         {
             Plugin.Debug($"UpdateSignText({newText})");
-            if (_playerInstance.IsOwner && _playerInstance.isPlayerControlled)
+            if (playerInstance != null && playerInstance.IsOwner && playerInstance.isPlayerControlled)
             {
                 UpdateSignTextServerRpc(newText);
             }
@@ -45,7 +37,10 @@ namespace BetterEmote.AssetScripts
         private void UpdateSignTextClientRpc(string newText)
         {
             Plugin.Debug($"UpdateSignTextClientRpc({newText})");
-            _signModelText.text = newText;
+            if (signModelText != null)
+            {
+                signModelText.text = newText;
+            }
         }
     }
 }

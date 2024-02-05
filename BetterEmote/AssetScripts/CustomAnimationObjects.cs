@@ -1,5 +1,4 @@
-﻿using BetterEmote.Patches;
-using BetterEmote.Utils;
+﻿using BetterEmote.Utils;
 using GameNetcodeStuff;
 using System;
 using UnityEngine;
@@ -8,62 +7,71 @@ namespace BetterEmote.AssetScripts
 {
     public class CustomAnimationObjects : MonoBehaviour
     {
-        private PlayerControllerB _player;
-        private MeshRenderer _sign;
-        private GameObject _signText;
-        private SkinnedMeshRenderer _legs;
+        private PlayerControllerB playerInstance;
+        private MeshRenderer sign;
+        private GameObject signText;
+        private SkinnedMeshRenderer legs;
 
         private void Start()
         {
             Plugin.Debug("CustomAnimationObjects.Start()");
-            _player = GetComponent<PlayerControllerB>();
+            playerInstance = GetComponent<PlayerControllerB>();
         }
 
         private void Update()
         {
             Plugin.Trace("CustomAnimationObjects.Update()");
-            if (_sign == null || _signText == null)
+            if (sign == null || signText == null)
             {
                 FindSign();
             }
             else
             {
-                _sign.transform.localPosition = _sign.transform.parent.Find("spine").localPosition;
-                if (_legs == null && _player.IsOwner && _player.isPlayerControlled && !Settings.disableSelfEmote)
+                try
                 {
-                    FindLegs();
-                }
-                else
-                {
-                    DisableEverything();
-                    if (_player.performingEmote)
+                    sign.transform.localPosition = sign.transform.parent.Find("spine").localPosition;
+                    if (playerInstance == null)
+                        return;
+                    if (legs == null && playerInstance.IsOwner && playerInstance.isPlayerControlled && !Settings.DisableModelOverride)
                     {
-                        int emoteNumber = _player.playerBodyAnimator.GetInteger("emoteNumber");
-                        if (emoteNumber == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
+                        FindLegs();
+                    }
+                    else
+                    {
+                        DisableEverything();
+                        if (playerInstance.performingEmote)
                         {
-                            if (_legs != null)
+                            int emoteNumber = playerInstance.playerBodyAnimator?.GetInteger("emoteNumber") ?? 0;
+                            if (emoteNumber == EmoteDefs.getEmoteNumber(Emote.Prisyadka))
                             {
-                                _legs.enabled = true;
+                                if (legs != null)
+                                {
+                                    legs.enabled = true;
+                                }
+                                if (playerInstance.IsOwner && !Settings.DisableModelOverride)
+                                {
+                                    LocalPlayer.IsArmsSeparatedFromCamera = true;
+                                }
                             }
-                            if (_player.IsOwner && !Settings.disableSelfEmote)
+                            else if (sign != null && (emoteNumber == EmoteDefs.getEmoteNumber(Emote.Sign) || emoteNumber == EmoteDefs.getEmoteNumber(AltEmote.Sign_Text)))
                             {
-                                EmotePatch.isLocalArmsSeparatedFromCamera = true;
-                            }
-                        }
-                        else if (emoteNumber == EmoteDefs.getEmoteNumber(Emote.Sign) || emoteNumber == EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
-                        {
-                            _sign.enabled = true;
-                            if (!_signText.activeSelf)
-                            {
-                                Plugin.Trace("Sign isnt active self");
-                                _signText.SetActive(true);
-                            }
-                            if (_player.IsOwner && !Settings.disableSelfEmote)
-                            {
-                                EmotePatch.isLocalArmsSeparatedFromCamera = true;
+                                sign.enabled = true;
+                                if (signText != null && !signText.activeSelf)
+                                {
+                                    Plugin.Trace("Sign isnt active self");
+                                    signText.SetActive(true);
+                                }
+                                if (playerInstance.IsOwner && !Settings.DisableModelOverride)
+                                {
+                                    LocalPlayer.IsArmsSeparatedFromCamera = true;
+                                }
                             }
                         }
                     }
+                }
+                catch (Exception e)
+                {
+                    Plugin.Debug($"Custom animation update failed {e.Message}");
                 }
             }
         }
@@ -71,49 +79,49 @@ namespace BetterEmote.AssetScripts
         private void DisableEverything()
         {
             Plugin.Trace("DisableEverything()");
-            if (_legs != null)
+            if (legs != null)
             {
-                _legs.enabled = false;
+                legs.enabled = false;
             }
-            _sign.enabled = false;
-            if (_signText.activeSelf)
+            sign.enabled = false;
+            if (signText.activeSelf)
             {
-                _signText.SetActive(false);
+                signText.SetActive(false);
             }
-            if (_player.IsOwner && _player.isPlayerControlled && !Settings.disableSelfEmote)
+            if (playerInstance != null && playerInstance.IsOwner && playerInstance.isPlayerControlled && !Settings.DisableModelOverride)
             {
-                EmotePatch.isLocalArmsSeparatedFromCamera = false;
+                LocalPlayer.IsArmsSeparatedFromCamera = false;
             }
         }
 
         private void FindSign()
         {
             Plugin.Debug("FindSign()");
-            if (_sign == null && _player != null)
+            if (sign == null && playerInstance != null)
             {
                 Plugin.Debug("Sign is null and player exists");
-                _sign = _player.transform.Find("ScavengerModel").Find("metarig").Find("Sign").GetComponent<MeshRenderer>();
+                sign = playerInstance.transform.Find("ScavengerModel").Find("metarig").Find("Sign").GetComponent<MeshRenderer>();
             }
-            if (_signText == null && _sign != null)
+            if (signText == null && sign != null)
             {
                 Plugin.Debug("Sign text is null and sign exists");
-                _signText = _sign.transform.Find("Text").gameObject;
+                signText = sign.transform.Find("Text").gameObject;
             }
         }
 
         private void FindLegs()
         {
             Plugin.Debug("FindLegs()");
-            if (_legs == null && _player != null)
+            if (legs == null && playerInstance != null)
             {
                 Plugin.Debug("Legs are null and player exists");
                 try
                 {
-                    _legs = _player.transform.Find("ScavengerModel").Find("LEGS").GetComponent<SkinnedMeshRenderer>();
+                    legs = playerInstance.transform.Find("ScavengerModel").Find("LEGS").GetComponent<SkinnedMeshRenderer>();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Plugin.StaticLogger.LogWarning("Unable to find custom legs, this should be corrected soon.");
+                    Plugin.Logger.LogWarning("Unable to find custom legs, this should be corrected soon.");
                 }
             }
         }

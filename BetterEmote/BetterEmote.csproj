@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>BetterEmotes</AssemblyName>
         <Description>Alters the integration method of more emotes</Description>
-        <Version>1.4.2</Version>
+        <Version>1.4.3</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
@@ -14,10 +14,10 @@
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
         <PackageReference Include="BepInEx.Core" Version="5.*" />
 		<PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-		<PackageReference Include="Rune580.LethalCompany_InputUtils" Version="0.6.0" />
+		<PackageReference Include="Rune580.LethalCompany_InputUtils" Version="0.6.2" />
 		<PackageReference Include="LethalCompany.GameLibs.Steam" Version="49.0.0-alpha.1" />
 		<PackageReference Include="NicholaScott.BepInEx.RuntimeNetcodeRPCValidator" Version="0.2.5" />
-		<PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" />
+		<PackageReference Include="UnityEngine.Modules" Version="2022.3.9" />
     </ItemGroup>
 
 	<ItemGroup>
@@ -26,11 +26,7 @@
 		</Reference>
 	</ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
-        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
-    </ItemGroup>
-
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="echo F|xcopy &quot;$(ProjectDir)\bin\Release\netstandard2.1\BetterEmotes.dll&quot; &quot;$(ProjectDir)\..\ModPackage\BetterEmotes.dll&quot; /Y&#xD;&#xA;del &quot;$(ProjectDir)..\ModPackage\ModPackage.zip&quot;&#xD;&#xA;powershell Compress-Archive -Path &quot;$(ProjectDir)\..\ModPackage\*&quot; -DestinationPath &quot;$(ProjectDir)\..\ModPackage\ModPackage.zip&quot; -Force" />
-    </Target>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="echo F|xcopy &quot;$(ProjectDir)\bin\Release\netstandard2.1\BetterEmotes.dll&quot; &quot;$(ProjectDir)\..\ModPackage\BetterEmotes.dll&quot; /Y&#xD;&#xA;del &quot;$(ProjectDir)..\ModPackage\ModPackage.zip&quot;&#xD;&#xA;powershell Compress-Archive -Path &quot;$(ProjectDir)\..\ModPackage\*&quot; -DestinationPath &quot;$(ProjectDir)\..\ModPackage\ModPackage.zip&quot; -Force" />
+	</Target>
 </Project>

@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 using UnityEngine;
 using UnityEngine.UI;
 using BetterEmote.Utils;
+using System;
+using BetterEmote.Netcode;
 
 namespace BetterEmote.AssetScripts
 {
@@ -13,17 +15,16 @@ namespace BetterEmote.AssetScripts
     {
         public PlayerControllerB Player;
 
-        private TMP_InputField _inputField;
+        private TMP_InputField inputField;
 
-        private Text _charactersLeftText;
-        private Text _submitText;
-        private Text _cancelText;
+        private TMP_Text previewText;
 
-        private TMP_Text _previewText;
+        private Text charactersLeftText;
+        private Text submitText;
+        private Text cancelText;
 
-        private Button _submitButton;
-
-        private Button _cancelButton;
+        private Button submitButton;
+        private Button cancelButton;
 
         public bool IsSignUIOpen;
 
@@ -31,12 +32,12 @@ namespace BetterEmote.AssetScripts
         {
             Plugin.Debug("SignUI.Awake()");
             FindComponents();
-            _submitButton.onClick.AddListener(new UnityAction(this.SubmitText));
-            _cancelButton.onClick.AddListener(delegate ()
+            submitButton?.onClick?.AddListener(new UnityAction(this.SubmitText));
+            cancelButton?.onClick?.AddListener(delegate ()
             {
                 Close(true);
             });
-            _inputField.onValueChanged.AddListener(delegate (string fieldText)
+            inputField?.onValueChanged?.AddListener(delegate (string fieldText)
             {
                 UpdatePreviewText(fieldText);
                 UpdateCharactersLeftText();
@@ -48,9 +49,15 @@ namespace BetterEmote.AssetScripts
             Plugin.Debug("SignUI.OnEnable()");
             Player.isTypingChat = true;
             IsSignUIOpen = true;
-            _inputField.Select();
-            _inputField.text = string.Empty;
-            _previewText.text = "PREVIEW";
+            if (inputField != null)
+            {
+                inputField.Select();
+                inputField.text = string.Empty;
+            }
+            if (previewText != null)
+            {
+                previewText.text = "PREVIEW";
+            }
             updateKeybindText();
             Player.disableLookInput = true;
         }
@@ -58,10 +65,16 @@ namespace BetterEmote.AssetScripts
         public void updateKeybindText()
         {
             Plugin.Debug("SignUI.updateKeybindText()");
-            InputBind submit = Keybinds.getDisplayStrings(Settings.keybinds.SignSubmit);
-            InputBind cancel = Keybinds.getDisplayStrings(Settings.keybinds.SignCancel);
-            _submitText.text = $"<color=orange>{Keybinds.formatInputBind(submit)}</color> Submit";
-            _cancelText.text = $"<color=orange>{Keybinds.formatInputBind(cancel)}</color> Cancel";
+            InputBind submit = Keybinds.getDisplayStrings(Settings.Keybinds.SignSubmit);
+            InputBind cancel = Keybinds.getDisplayStrings(Settings.Keybinds.SignCancel);
+            if (submitText != null)
+            {
+                submitText.text = $"<color=orange>{Keybinds.formatInputBind(submit)}</color> Submit";
+            }
+            if (cancelText != null)
+            {
+                cancelText.text = $"<color=orange>{Keybinds.formatInputBind(cancel)}</color> Cancel";
+            }
         }
 
         private void Update()
@@ -74,7 +87,7 @@ namespace BetterEmote.AssetScripts
                 Plugin.Debug("SignUI Player isnt performing emote");
                 Close(true);
             }
-            if (Player.quickMenuManager.isMenuOpen || EmoteKeybindPatch.emoteWheelIsOpened)
+            if (Player.quickMenuManager.isMenuOpen || EmoteKeybindPatch.EmoteWheelIsOpened)
             {
                 Plugin.Debug("Menu is open or right mouse button is clicked");
                 Close(true);
@@ -84,39 +97,55 @@ namespace BetterEmote.AssetScripts
         private void FindComponents()
         {
             Plugin.Debug("SignUI.FindComponents()");
-            _inputField = transform.Find("InputField").GetComponent<TMP_InputField>();
-            _charactersLeftText = transform.Find("CharsLeft").GetComponent<Text>();
-            _submitButton = transform.Find("Submit").GetComponent<Button>();
-            _cancelButton = transform.Find("Cancel").GetComponent<Button>();
-            _previewText = transform.Find("Sign").transform.Find("Text").GetComponent<TMP_Text>();
-            _submitText = transform.Find("Submit").transform.Find("Text").GetComponent<Text>();
-            _cancelText = transform.Find("Cancel").transform.Find("Text").GetComponent<Text>();
+            try
+            {
+                inputField = transform.Find("InputField")?.GetComponent<TMP_InputField>();
+                charactersLeftText = transform.Find("CharsLeft")?.GetComponent<Text>();
+                submitButton = transform.Find("Submit")?.GetComponent<Button>();
+                cancelButton = transform.Find("Cancel")?.GetComponent<Button>();
+                previewText = transform.Find("Sign")?.transform?.Find("Text")?.GetComponent<TMP_Text>();
+                submitText = transform.Find("Submit")?.transform?.Find("Text")?.GetComponent<Text>();
+                cancelText = transform.Find("Cancel")?.transform?.Find("Text")?.GetComponent<Text>();
+            }
+            catch (Exception e)
+            {
+                Plugin.Debug($"Unable to find components for sign UI {e}");
+            }
         }
 
         private void UpdateCharactersLeftText()
         {
             Plugin.Debug("SignUI.UpdateCharactersLeftText()");
-            _charactersLeftText.text = $"CHARACTERS LEFT: <color=yellow>{this._inputField.characterLimit - this._inputField.text.Length}</color>";
+            if (charactersLeftText != null)
+            {
+                charactersLeftText.text = $"CHARACTERS LEFT: <color=yellow>{(inputField?.characterLimit ?? 0) - (inputField?.text?.Length ?? 0)}</color>";
+            }
         }
 
         private void UpdatePreviewText(string text)
         {
             Plugin.Debug($"SignUI.UpdatePreviewText({text})");
-            _previewText.text = text;
+            if (previewText != null)
+            {
+                previewText.text = text;
+            }
         }
 
         public void SubmitText()
         {
             Plugin.Debug("SignUI.SubmitText()");
-            if (_inputField.text.Equals(string.Empty))
+            if (inputField?.text?.Equals(string.Empty) ?? true)
             {
                 Close(true);
             }
             else
             {
-                Plugin.Debug($"Submitted {this._inputField.text} to server");
-                Player.GetComponent<SignEmoteText>().UpdateSignText(_inputField.text);
-                if (Player.timeSinceStartingEmote > Settings.signTextCooldown)
+                if (inputField != null)
+                {
+                    Plugin.Debug($"Submitted {inputField.text} to server");
+                    Player.GetComponent<SignEmoteText>().UpdateSignText(inputField.text);
+                }
+                if (Player.timeSinceStartingEmote > Settings.SignTextCooldown)
                 {
                     Plugin.Debug($"Time elapsed, time to perform");
                     InputAction.CallbackContext context = default(InputAction.CallbackContext);

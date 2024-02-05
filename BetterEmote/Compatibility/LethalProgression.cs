@@ -13,7 +13,7 @@ namespace BetterEmote.Compatibility
         private static void StartPostfix()
         {
             Plugin.Debug("LethalProgression.StartPostfix()");
-            Settings.disableSpeedChange = true;
+            Settings.DisableSpeedChange = true;
         }
     }
 }
