@@ -5,7 +5,7 @@
     "description": "[v49/v45] Alters the integration method of more emotes and adds some config options. See github for more info.",
     "dependencies": [
         "BepInEx-BepInExPack-5.4.2100",
-        "Rune580-LethalCompany_InputUtils-0.6.0",
+        "Rune580-LethalCompany_InputUtils-0.6.3",
         "Ozone-Runtime_Netcode_Patcher-0.2.5"
     ]
 }
