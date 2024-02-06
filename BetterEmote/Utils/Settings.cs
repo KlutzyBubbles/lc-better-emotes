@@ -1,7 +1,7 @@
 ﻿using BepInEx.Configuration;
-using LCVR;
 using System;
-using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BetterEmote.Utils
 {
@@ -19,10 +19,14 @@ namespace BetterEmote.Utils
         public static Keybinds Keybinds;
 
         public static bool StopOnOuter = false;
+        public static bool InventoryCheck = false;
+        public static bool DisableOthersEmotes = true;
 
-        public static bool[] EnabledList = [];
+        //public static bool[] EnabledList = [];
 
-        public static InputBind[] DefaultInputList = [];
+        //public static InputBind[] DefaultInputList = [];
+
+        public static Dictionary<Emote, EmoteSettings> Emotes = new Dictionary<Emote, EmoteSettings>();
 
         public static InputBind EmoteWheelInput = new InputBind("<Keyboard>/v", "<Gamepad>/leftShoulder");
 
@@ -46,13 +50,22 @@ namespace BetterEmote.Utils
 
         public static float LogDelay = 1f;
 
+        public static Emote[] InventoryCheckEmotes = {
+            Emote.Clap,
+            Emote.Shy,
+            Emote.Twerk,
+            Emote.Salute,
+            Emote.Prisyadka,
+            Emote.Sign
+        };
+
         public static void DebugAllSettings()
         {
             Plugin.Debug($"Debug: {Debug}");
             Plugin.Debug($"Trace: {Trace}");
             Plugin.Debug($"StopOnOuter: {StopOnOuter}");
-            Plugin.Debug($"EnabledList: {String.Join(", ", EnabledList)}"); 
-            Plugin.Debug($"DefaultInputList: {String.Join(", ", DefaultInputList)}");
+            //Plugin.Debug($"EnabledList: {String.Join(", ", EnabledList)}"); 
+            //Plugin.Debug($"DefaultInputList: {String.Join(", ", DefaultInputList)}");
             Plugin.Debug($"EmoteWheelInput: {EmoteWheelInput}");
             Plugin.Debug($"EmoteWheelNextInput: {EmoteWheelNextInput}");
             Plugin.Debug($"EmoteWheelPreviousInput: {EmoteWheelPreviousInput}");
@@ -97,11 +110,13 @@ namespace BetterEmote.Utils
 
         public static void LoadFromConfig(ConfigFile config)
         {
-            EnabledList = new bool[EmoteDefs.getEmoteCount() + 1];
-            DefaultInputList = new InputBind[EmoteDefs.getEmoteCount() + 1];
-            foreach (string name in Enum.GetNames(typeof(Emote)))
+            //EnabledList = new bool[EmoteDefs.getEmoteCount() + 1];
+            //DefaultInputList = new InputBind[EmoteDefs.getEmoteCount() + 1];
+            foreach (Emote emote in Enum.GetValues(typeof(Emote)))
             {
-                if (EmoteDefs.getEmoteNumber(name) > 2)
+                string name = Enum.GetName(typeof(Emote), emote);
+                InputBind keybind = new InputBind("", "");
+                if (EmoteDefs.getEmoteNumber(emote) > EmoteDefs.getEmoteNumber(Emote.Point))
                 {
                     string defaultEmoteKey = "";
                     int emoteNumber = EmoteDefs.getEmoteNumber(name);
@@ -109,9 +124,29 @@ namespace BetterEmote.Utils
                     {
                         defaultEmoteKey = $"<Keyboard>/{emoteNumber % 10}";
                     }
-                    DefaultInputList[emoteNumber] = GetFromConfig(config, new InputBind(defaultEmoteKey, ""), name, $"{name} emote");
+                    keybind = GetFromConfig(config, new InputBind(defaultEmoteKey, ""), name, $"{name} emote");
+                    // DefaultInputList[emoteNumber] = GetFromConfig(config, new InputBind(defaultEmoteKey, ""), name, $"{name} emote");
                 }
-                EnabledList[EmoteDefs.getEmoteNumber(name)] = config.Bind(EnabledLabel, $"Enable {name}", true, $"Toggle {name} emote key").Value;
+                if (!Emotes.ContainsKey(emote))
+                {
+                    Emotes.Add(emote, new EmoteSettings(keybind));
+                }
+                EmoteSettings settings = Emotes[emote];
+                settings.enabled = config.Bind(EnabledLabel, $"Enable {name}", true, $"Toggle {name} emote key").Value;
+                settings.inventoryCheck = InventoryCheckEmotes.Contains(emote);
+                if (emote == Emote.Middle_Finger)
+                {
+                    settings.hasDouble = true;
+                    settings.doubleEnabled = true;
+                    settings.doubleID = DoubleEmote.Double_Middle_Finger;
+                }
+                if (emote == Emote.Clap)
+                {
+                    settings.hasDouble = true;
+                    settings.doubleEnabled = true;
+                    settings.doubleID = DoubleEmote.Double_Clap;
+                }
+                // EnabledList[EmoteDefs.getEmoteNumber(name)] = config.Bind(EnabledLabel, $"Enable {name}", true, $"Toggle {name} emote key").Value;
             }
             SignSubmitInput = GetFromConfig(config, SignSubmitInput, "Sign Submit", "sign submit");
             SignCancelInput = GetFromConfig(config, SignCancelInput, "Sign Cancel", "sign cancel");
@@ -130,6 +165,7 @@ namespace BetterEmote.Utils
             SignTextCooldown = ValidateGreaterThanEqualToZero(config.Bind(EmoteSettingsLabel, "Sign Text Cooldown", SignTextCooldown, "Time (in seconds) to wait before being able to finish typing (was hard coded into MoreEmotes)").Value);
 
             StopOnOuter = config.Bind(EmoteSettingsLabel, "Stop on outer", StopOnOuter, "Whether or not to stop emoting when mousing to outside the emote wheel").Value;
+            InventoryCheck = config.Bind(EmoteSettingsLabel, "Inventory check", InventoryCheck, "Whether or not to prevent emoting when holding 2 handed items").Value;
 
             LogDelay = ValidateGreaterThanEqualToZero(config.Bind(DebugSettingsLabel, "Trace Delay", LogDelay, "Time (in seconds) to wait before writing the same trace line, trace messages are very spammy").Value);
             Debug = config.Bind(DebugSettingsLabel, "Debug", Debug, "Whether or not to enable debug log messages, bepinex also needs to be configured to show debug logs").Value;

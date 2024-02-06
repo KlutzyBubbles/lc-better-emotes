@@ -27,20 +27,18 @@ namespace BetterEmote.Utils
         public override void CreateInputActions(in InputActionMapBuilder builder)
         {
             base.CreateInputActions(builder);
-            if (Settings.DefaultInputList.Length > 0)
+            foreach (Emote emote in Settings.Emotes.Keys)
             {
-                foreach (string name in Enum.GetNames(typeof(Emote)))
+                string name = Enum.GetName(typeof(Emote), emote);
+                if (EmoteDefs.getEmoteNumber(emote) > EmoteDefs.getEmoteNumber(Emote.Point))
                 {
-                    if (EmoteDefs.getEmoteNumber(name) > 2)
-                    {
-                        builder.NewActionBinding()
-                            .WithActionId(name)
-                            .WithActionType(InputActionType.Button)
-                            .WithKbmPath(Settings.DefaultInputList[EmoteDefs.getEmoteNumber(name)].keyboard)
-                            .WithBindingName(name)
-                            .WithGamepadPath(Settings.DefaultInputList[EmoteDefs.getEmoteNumber(name)].controller)
-                            .Finish();
-                    }
+                    builder.NewActionBinding()
+                        .WithActionId(name)
+                        .WithActionType(InputActionType.Button)
+                        .WithKbmPath(Settings.Emotes[emote].keybinds.keyboard)
+                        .WithBindingName(name)
+                        .WithGamepadPath(Settings.Emotes[emote].keybinds.controller)
+                        .Finish();
                 }
             }
             builder.NewActionBinding()

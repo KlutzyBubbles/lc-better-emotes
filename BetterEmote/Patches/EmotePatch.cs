@@ -205,12 +205,35 @@ namespace BetterEmote.Patches
                 Plugin.Debug($"Normal emote with no emote wheel or context performed");
                 return false;
             }
+            int standardisedID = localEmoteID;
+            if (standardisedID > 1000)
+            {
+                standardisedID -= 1000;
+            }
+            if (!Enum.IsDefined(typeof(Emote), standardisedID))
+            {
+                Plugin.Debug("requested emote id isn't in range of known values");
+                return false;
+            }
+            Emote selectedEmote = (Emote)standardisedID;
+            EmoteSettings emoteSettings = Settings.Emotes[selectedEmote];
+            if (emoteSettings == null)
+            {
+                Plugin.Debug($"Emote settings for {standardisedID} cannot be found");
+                return false;
+            }
+            if (emoteSettings.hasDouble && emoteSettings.doubleEnabled)
+            {
+                if (LocalPlayer.CurrentEmoteID == localEmoteID && __instance.performingEmote)
+                {
+                    if (__instance.isHoldingObject __instance.twoHanded)
+                }
+            }
             foreach (string name in Enum.GetNames(typeof(DoubleEmote)))
             {
                 Plugin.Debug($"Checking double emote {name}");
                 int num = EmoteDefs.getEmoteNumber(EmoteDefs.getEmote(name));
-                bool invCheck = false;
-                if (LocalPlayer.CurrentEmoteID == localEmoteID && localEmoteID >= EmoteDefs.getEmoteNumber(Emote.Point) && __instance.performingEmote && (!__instance.isHoldingObject || !invCheck))
+                if (LocalPlayer.CurrentEmoteID == localEmoteID && localEmoteID >= EmoteDefs.getEmoteNumber(Emote.Point) && __instance.performingEmote && (!__instance.isHoldingObject || !Settings.InventoryCheck))
                 {
                     Plugin.Debug($"Damn, emote ids match with all other checks");
                     if (localEmoteID == num)

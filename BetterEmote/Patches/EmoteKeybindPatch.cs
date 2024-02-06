@@ -2,6 +2,7 @@
 using BetterEmote.Utils;
 using GameNetcodeStuff;
 using HarmonyLib;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -151,7 +152,7 @@ namespace BetterEmote.Patches
             {
                 GameValues.localPlayerController.quickMenuManager.isMenuOpen = false;
                 GameValues.localPlayerController.disableLookInput = false;
-                if (SelectionWheel.selectedEmoteID >= Settings.EnabledList.Length)
+                if (SelectionWheel.selectedEmoteID >= EmoteDefs.getEmoteCount() + 1)
                 {
                     if (SelectionWheel.stopEmote)
                     {
@@ -162,7 +163,13 @@ namespace BetterEmote.Patches
                 }
                 else
                 {
-                    CheckEmoteInput(context, Settings.EnabledList[SelectionWheel.selectedEmoteID], SelectionWheel.selectedEmoteID, GameValues.localPlayerController);
+                    if (!Enum.IsDefined(typeof(Emote), SelectionWheel.selectedEmoteID))
+                    {
+                        Plugin.Debug("selected emote id isn't in range of known values");
+                        return;
+                    }
+                    Emote selectedEmote = (Emote)SelectionWheel.selectedEmoteID;
+                    CheckEmoteInput(context, selectedEmote, GameValues.localPlayerController);
                 }
                 Cursor.visible = false;
                 Cursor.lockState = CursorLockMode.Locked;
@@ -239,15 +246,15 @@ namespace BetterEmote.Patches
 
         public static void onEmoteKeyPerformed(InputAction.CallbackContext context, Emote emote)
         {
-            CheckEmoteInput(context, Settings.EnabledList[(int)emote], (int)emote, GameValues.localPlayerController);
+            CheckEmoteInput(context, emote, GameValues.localPlayerController);
         }
 
-        private static void CheckEmoteInput(InputAction.CallbackContext context, bool enabled, int emoteID, PlayerControllerB player)
+        private static void CheckEmoteInput(InputAction.CallbackContext context, Emote emote, PlayerControllerB player)
         {
-            Plugin.Debug($"CheckEmoteInput({enabled}, {emoteID})");
-            if (enabled && player != null)
+            Plugin.Debug($"CheckEmoteInput({emote})");
+            if ((Settings.Emotes[emote]?.enabled ?? false) && player != null)
             {
-                player.PerformEmote(context, emoteID);
+                player.PerformEmote(context, (int)emote);
             }
         }
     }
