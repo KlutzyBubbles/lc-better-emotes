@@ -40,7 +40,6 @@ namespace BetterEmote.Patches
             LocalPlayer.BaseSpeed = __instance.movementSpeed;
             __instance.gameObject.AddComponent<CustomAnimationObjects>();
             LocalPlayer.SpawnSign(__instance);
-            LocalPlayer.SpawnLegs(__instance);
         }
 
         [HarmonyPatch(typeof(PlayerControllerB), "ConnectClientToPlayerObject")]
@@ -100,6 +99,11 @@ namespace BetterEmote.Patches
             {
                 if (__instance.playerBodyAnimator != local)
                 {
+                    if (LocalPlayer.IsPlayerFirstFrame && !Settings.DisableModelOverride)
+                    {
+                        // DO NOT MOVE THIS, LEGS WILL BREAK IF YOU DO
+                        LocalPlayer.SpawnLegs(__instance);
+                    }
                     if (!Settings.DisableModelOverride)
                     {
                         __instance.playerBodyAnimator.runtimeAnimatorController = local;
