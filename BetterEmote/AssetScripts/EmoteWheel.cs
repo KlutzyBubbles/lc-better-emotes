@@ -31,7 +31,7 @@ namespace BetterEmote.AssetScripts
         public bool controller = false;
 
         private int currentBlock = 1;
-        public int pageNumber = 1;
+        public int pageNumber = 0;
         public int selectedEmoteID = 0;
 
         private float angle;

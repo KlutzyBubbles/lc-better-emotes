@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using System.IO;
 using System.Reflection;
-using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 using BepInEx.Logging;

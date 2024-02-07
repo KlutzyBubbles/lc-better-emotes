@@ -1,7 +1,5 @@
 ﻿using BepInEx.Configuration;
-using LCVR;
 using System;
-using System.Xml.Linq;
 
 namespace BetterEmote.Utils
 {
