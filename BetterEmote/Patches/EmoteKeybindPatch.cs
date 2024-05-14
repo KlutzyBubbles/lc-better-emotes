@@ -247,7 +247,8 @@ namespace BetterEmote.Patches
             Plugin.Debug($"CheckEmoteInput({enabled}, {emoteID})");
             if (enabled && player != null)
             {
-                player.PerformEmote(context, emoteID);
+                EmoteControllerPlayer.emoteControllerLocal.TryPerformingEmoteLocal(Plugin.temp);
+                // player.PerformEmote(context, emoteID);
             }
         }
     }

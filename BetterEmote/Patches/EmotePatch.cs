@@ -4,6 +4,7 @@ using BetterEmote.Utils;
 using GameNetcodeStuff;
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
@@ -39,6 +40,7 @@ namespace BetterEmote.Patches
             customAudioAnimationEvent.player = __instance;
             LocalPlayer.BaseSpeed = __instance.movementSpeed;
             __instance.gameObject.AddComponent<CustomAnimationObjects>();
+            __instance.gameObject.AddComponent<EmoteControllerPlayer>();
             LocalPlayer.SpawnSign(__instance);
         }
 
@@ -252,6 +254,33 @@ namespace BetterEmote.Patches
                 Plugin.Debug($"Check conditions passed");
                 if (__instance.timeSinceStartingEmote >= Settings.EmoteCooldown)
                 {
+                    Plugin.Debug($"Time");
+                    Animator animator = __instance.playerBodyAnimator;//__instance.GetComponent<Animator>();
+                    Plugin.Debug($"animator");
+                    // animator.runtimeAnimatorController.animationClips.AddItem(Plugin.temp);
+                    Plugin.Debug($"runtimeController");
+                    AnimatorOverrideController o = new AnimatorOverrideController(animator.runtimeAnimatorController);
+                    Plugin.Debug($"Overrride");
+                    EmoteControllerPlayer.emoteControllerLocal.TryPerformingEmoteLocal(Plugin.temp);
+                    /*
+                    o["Dance2"] = Plugin.temp;
+                    animator.Play("Dance2", 0, 0);
+                    animator.Update(0);
+                    __instance.timeSinceStartingEmote = 0f;
+                    __instance.performingEmote = true;
+                    __instance.playerBodyAnimator.SetInteger("emoteNumber", localEmoteID);
+                    __instance.StartPerformingEmoteServerRpc();
+                    syncAnimator?.UpdateEmoteIDForOthers(localEmoteID);
+                    LocalPlayer.TogglePlayerBadges(false);
+                    */
+                    Plugin.Debug($"testClippy");
+                    /*
+                    AnimatorController ac = animator.runtimeAnimatorController as AnimatorController;
+                    AnimatorControllerLayer[] acLayers = ac.layers;
+                    List<AnimatorState> allStates = new List<AnimatorState>();
+                    */
+                    // animator.GetBehaviour<AnimatorStateMachine>();
+                    /*
                     Plugin.Debug($"Time elapsed since last emote cooldown");
                     Action action = delegate ()
                     {
@@ -279,6 +308,7 @@ namespace BetterEmote.Patches
                         }));
                     }
                     action();
+                    */
                     return false;
                 }
                 else

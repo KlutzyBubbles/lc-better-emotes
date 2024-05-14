@@ -26,6 +26,9 @@ namespace BetterEmote
     {
         private static readonly string AssetPath = "Assets/MoreEmotes";
         public static new ManualLogSource Logger;
+        public static RuntimeAnimatorController humanoidAnimatorController;
+        public static Avatar humanoidAvatar;
+        public static GameObject humanoidSkeletonPrefab;
 
         private void Awake()
         {
@@ -55,19 +58,49 @@ namespace BetterEmote
             Logger.LogInfo($"{PluginInfo.PLUGIN_GUID} loaded");
         }
 
+        public static AnimationClip temp;
+
         private void loadAssetBundles()
         {
             string basePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "BetterEmotes");
             string animatiorBundlePath = Path.Combine(basePath, "animatorbundle");
             string animationsBundlePath = Path.Combine(basePath, "animationsbundle");
+            string customBundlePath = Path.Combine(basePath, "betteremotes");
             try
             {
                 loadAnimatorControllers(AssetBundle.LoadFromFile(animatiorBundlePath));
                 loadAnimationObjects(AssetBundle.LoadFromFile(animationsBundlePath));
+                loadAnimationClips(AssetBundle.LoadFromFile(customBundlePath));
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to load AssetBundles. Make sure \"animatorsbundle\" and \"animationsbundle\" are inside the MoreEmotes folder.\nError: " + ex.Message);
+                Logger.LogError("Failed to load AssetBundles. Make sure \"animatorsbundle\", \"animationsbundle\" and \"betteremotes\" are inside the BetterEmotes folder.\nError: " + ex.Message);
+            }
+        }
+        
+        private void loadAnimationClips(AssetBundle bundle)
+        {
+            try
+            {
+                humanoidAnimatorController = bundle.LoadAsset<RuntimeAnimatorController>("humanoid_animator_controller");
+                humanoidAvatar = bundle.LoadAsset<Avatar>("humanoid_avatar");
+                humanoidSkeletonPrefab = bundle.LoadAsset<GameObject>("humanoid_skeleton");
+
+                Animator animator = humanoidSkeletonPrefab.GetComponentInChildren<Animator>();
+                if (animator == null)
+                    animator = humanoidSkeletonPrefab.AddComponent<Animator>();
+
+                if (humanoidAnimatorController == null)
+                    Logger.LogError("Failed to load humanoid animator controller from asset bundle: misc");
+                if (humanoidAvatar == null)
+                    Logger.LogError("Failed to load humanoid avatar from asset bundle: misc");
+                if (humanoidSkeletonPrefab == null)
+                    Logger.LogError("Failed to load humanoid skeleton prefab from asset bundle: misc");
+                temp = bundle.LoadAsset<AnimationClip>(Path.Combine("Assets/AnimationClip", "WalkArmsOut.anim"));
+            }
+            catch
+            {
+                Logger.LogError("Failed to load misc Asset Bundle.");
             }
         }
 
