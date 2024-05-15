@@ -5,7 +5,7 @@
 [![Thunderstore Downloads](https://img.shields.io/thunderstore/dt/KlutzyBubbles/BetterEmotes?style=for-the-badge&logo=thunderstore&logoColor=white)](https://thunderstore.io/c/lethal-company/p/KlutzyBubbles/BetterEmotes)
 [![GitHub Downloads](https://img.shields.io/github/downloads/KlutzyBubbles/lc-better-emotes/total?style=for-the-badge&logo=github)](https://github.com/KlutzyBubbles/lc-better-emotes/releases/latest)
 
-NOTE: As of v1.4.1 MoreEmotes compatbility is dropped in favor of VR support, this means you will NOT see players emotes who use MoreEmotes.
+MORE NOTE: As of v1.5.0 The bundle has been changed to support v50, this likely means (if not now then in future updates) that MoreEmotes support isn't verified and may not work.
 
 ## Issues (incompatiblities)
 
@@ -52,7 +52,7 @@ There is a binding in game called 'Emote Wheel CONTROLLER ONLY', this should onl
 | :---: | :---: |
 | ![Twerk](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/twerk.jpg?raw=true) | ![Salute](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/salute.jpg?raw=true) |
 
-| Prisyadka - Default Key: ```9``` | Sign - Default Key: ```0``` |
+| Twerk - Default Key: ```9``` | Salute - Default Key: ```0``` |
 | :---: | :---: |
 | ![Prisyadka](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/prisyadka.jpg?raw=true) | ![sign](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/sign.jpg?raw=true) |
 

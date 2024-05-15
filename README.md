@@ -5,7 +5,7 @@
 [![Thunderstore Downloads](https://img.shields.io/thunderstore/dt/KlutzyBubbles/BetterEmotes?style=for-the-badge&logo=thunderstore&logoColor=white)](https://thunderstore.io/c/lethal-company/p/KlutzyBubbles/BetterEmotes)
 [![GitHub Downloads](https://img.shields.io/github/downloads/KlutzyBubbles/lc-better-emotes/total?style=for-the-badge&logo=github)](https://github.com/KlutzyBubbles/lc-better-emotes/releases/latest)
 
-NOTE: As of v1.4.1 MoreEmotes compatbility is dropped in favor of VR support, this means you will NOT see players emotes who use MoreEmotes.
+MORE NOTE: As of v1.5.0 The bundle has been changed to support v50, this likely means (if not now then in future updates) that MoreEmotes support isn't verified and may not work.
 
 ## Issues (incompatiblities)
 
