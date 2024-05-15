@@ -52,7 +52,7 @@ There is a binding in game called 'Emote Wheel CONTROLLER ONLY', this should onl
 | :---: | :---: |
 | ![Twerk](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/twerk.jpg?raw=true) | ![Salute](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/salute.jpg?raw=true) |
 
-| Twerk - Default Key: ```9``` | Salute - Default Key: ```0``` |
+| Prisyadka - Default Key: ```9``` | Sign - Default Key: ```0``` |
 | :---: | :---: |
 | ![Prisyadka](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/prisyadka.jpg?raw=true) | ![sign](https://github.com/KlutzyBubbles/lc-better-emotes/blob/main/Images/sign.jpg?raw=true) |
 
