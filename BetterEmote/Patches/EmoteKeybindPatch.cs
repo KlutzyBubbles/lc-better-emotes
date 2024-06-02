@@ -245,7 +245,7 @@ namespace BetterEmote.Patches
         private static void CheckEmoteInput(InputAction.CallbackContext context, bool enabled, int emoteID, PlayerControllerB player)
         {
             Plugin.Debug($"CheckEmoteInput({enabled}, {emoteID})");
-            if (enabled && player != null)
+            if (enabled && player != null && !player.isTypingChat)
             {
                 player.PerformEmote(context, emoteID);
             }
