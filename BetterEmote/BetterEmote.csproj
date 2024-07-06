@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>BetterEmotes</AssemblyName>
         <Description>Alters the integration method of more emotes</Description>
-        <Version>1.5.1</Version>
+        <Version>1.5.2</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
