@@ -4,6 +4,7 @@
 [![GitHub Version](https://img.shields.io/github/v/release/KlutzyBubbles/lc-better-emotes?style=for-the-badge&logo=github)](https://github.com/KlutzyBubbles/lc-better-emotes)
 [![Thunderstore Downloads](https://img.shields.io/thunderstore/dt/KlutzyBubbles/BetterEmotes?style=for-the-badge&logo=thunderstore&logoColor=white)](https://thunderstore.io/c/lethal-company/p/KlutzyBubbles/BetterEmotes)
 [![GitHub Downloads](https://img.shields.io/github/downloads/KlutzyBubbles/lc-better-emotes/total?style=for-the-badge&logo=github)](https://github.com/KlutzyBubbles/lc-better-emotes/releases/latest)
+[![Lethal Company Version](https://img.shields.io/badge/LC_Version-v72-orange?style=for-the-badge)]()
 
 MORE NOTE: As of v1.5.0 The bundle has been changed to support v50, this likely means (if not now then in future updates) that MoreEmotes support isn't verified and may not work.
 

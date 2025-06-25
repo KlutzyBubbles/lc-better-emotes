@@ -1,8 +1,8 @@
 {
     "name": "BetterEmotes",
-    "version_number": "1.5.4",
+    "version_number": "1.5.5",
     "website_url": "https://github.com/KlutzyBubbles/lc-better-emotes",
-    "description": "[v60/61/62] Alters the integration method of more emotes and adds some config options. See github for more info.",
+    "description": "Alters the integration method of more emotes and adds some config options. See github for more info.",
     "dependencies": [
         "BepInEx-BepInExPack-5.4.2100",
         "Rune580-LethalCompany_InputUtils-0.7.7",
