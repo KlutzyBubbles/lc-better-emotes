@@ -39,6 +39,7 @@ namespace BetterEmote.Utils
 
         public static bool DisableSpeedChange = false;
         public static bool DisableModelOverride = false;
+        public static bool DisableOverrideOnUpdate = false;
 
         public static float ControllerDeadzone = 0.25f;
 
@@ -63,6 +64,7 @@ namespace BetterEmote.Utils
             Plugin.Debug($"SignTextCooldown: {SignTextCooldown}");
             Plugin.Debug($"DisableSpeedChange: {DisableSpeedChange}");
             Plugin.Debug($"DisableModelOverride: {DisableModelOverride}");
+            Plugin.Debug($"DisableOverrideOnUpdate: {DisableOverrideOnUpdate}");
             Plugin.Debug($"ControllerDeadzone: {ControllerDeadzone}");
             Plugin.Debug($"LogDelay: {LogDelay}");
         }
@@ -134,6 +136,7 @@ namespace BetterEmote.Utils
             Trace = config.Bind(DebugSettingsLabel, "Trace", Trace, "Whether or not to enable trace log messages, bepinex also needs to be configured to show debug logs").Value;
             DisableSpeedChange = config.Bind(DebugSettingsLabel, "Disable Speed Changed", DisableSpeedChange, "Whether or not to disable speed changes that might affect other mods").Value;
             DisableModelOverride = config.Bind(DebugSettingsLabel, "Disable Self Emote", DisableModelOverride, "Whether or not to disable overriding the player model, can help with conflicting mods").Value;
+            DisableOverrideOnUpdate = config.Bind(DebugSettingsLabel, "Disable Self Model Override on Update", DisableOverrideOnUpdate, "Whether or not to disable overriding the player model on the update tick, can help with conflicting mods however this is highly experimental and may result in first person animations not working").Value;
         }
 
         private static InputBind GetFromConfig(ConfigFile config, InputBind defaultBind, string name, string description)

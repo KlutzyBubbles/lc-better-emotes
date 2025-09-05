@@ -26,6 +26,8 @@ namespace BetterEmote.Patches
         private static SyncAnimatorToOthers syncAnimator;
         public static SyncVRState syncVR;
 
+        public static RuntimeAnimatorController heldController;
+
         [HarmonyPatch(typeof(PlayerControllerB), "Start")]
         [HarmonyPostfix]
         [HarmonyPriority(Priority.Low)]
@@ -106,7 +108,10 @@ namespace BetterEmote.Patches
                     }
                     if (!Settings.DisableModelOverride)
                     {
-                        __instance.playerBodyAnimator.runtimeAnimatorController = local;
+                        if (!Settings.DisableOverrideOnUpdate)
+                        {
+                            __instance.playerBodyAnimator.runtimeAnimatorController = local;
+                        }
                     }
                     if (LocalPlayer.IsPlayerFirstFrame)
                     {
@@ -179,6 +184,23 @@ namespace BetterEmote.Patches
         [HarmonyPrefix]
         private static bool PerformEmotePrefix(ref InputAction.CallbackContext context, int emoteID, PlayerControllerB __instance)
         {
+            if (Settings.DisableOverrideOnUpdate)
+            {
+                if (heldController != null || __instance.playerBodyAnimator != local)
+                {
+                    Plugin.Debug($"Held controller isnt null or  but atempting a new emote?");
+                } else
+                {
+                    if (__instance.playerBodyAnimator == local)
+                    {
+                        Plugin.Debug($"Held controller is null but haven't stored yet");
+                    } else
+                    {
+                        heldController = __instance.playerBodyAnimator.runtimeAnimatorController;
+                        __instance.playerBodyAnimator.runtimeAnimatorController = local;
+                    }
+                }
+            }
             if (__instance == null)
                 return true;
             Plugin.Debug($"PerformEmotePrefix({emoteID})");
@@ -313,6 +335,34 @@ namespace BetterEmote.Patches
                 if (LocalPlayer.CurrentEmoteID == EmoteDefs.getEmoteNumber(Emote.Sign) || LocalPlayer.CurrentEmoteID == EmoteDefs.getEmoteNumber(AltEmote.Sign_Text))
                 {
                     __result = !__instance.inSpecialInteractAnimation && !__instance.isPlayerDead && !__instance.isJumping && !__instance.isWalking && !__instance.isCrouching && !__instance.isClimbingLadder && !__instance.isGrabbingObjectAnimation && !__instance.inTerminalMenu;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(PlayerControllerB), "StopPerformingEmote")]
+        [HarmonyPostfix]
+        private static void StopPerformingEmotePrefix(PlayerControllerB __instance)
+        {
+            if (__instance == null)
+                return;
+            Plugin.Debug("StopPerformingEmotePrefix()");
+            if (Settings.DisableOverrideOnUpdate)
+            {
+                if (heldController != null || __instance.playerBodyAnimator != local)
+                {
+                    if (__instance.playerBodyAnimator == heldController)
+                    {
+                        Plugin.Debug($"Held controller is not null but the same as existing");
+                    }
+                    else
+                    {
+                        __instance.playerBodyAnimator.runtimeAnimatorController = heldController;
+                        heldController = null;
+                    }
+                }
+                else
+                {
+                    Plugin.Debug($"Held controller is null but stopping emote?");
                 }
             }
         }
