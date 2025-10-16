@@ -47,7 +47,15 @@ namespace BetterEmote.AssetScripts
         private void OnEnable()
         {
             Plugin.Debug("SignUI.OnEnable()");
-            Player.isTypingChat = true;
+            if (Player == null)
+            {
+                Plugin.Logger.LogWarning("Player is null, this is fine when it happens on load, however SignUI may not function properly if it repeats");
+            }
+            else
+            {
+                Player.isTypingChat = true;
+                Player.disableLookInput = true;
+            }
             IsSignUIOpen = true;
             if (inputField != null)
             {
@@ -59,7 +67,6 @@ namespace BetterEmote.AssetScripts
                 previewText.text = "PREVIEW";
             }
             updateKeybindText();
-            Player.disableLookInput = true;
         }
 
         public void updateKeybindText()
